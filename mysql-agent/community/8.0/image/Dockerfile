@@ -42,7 +42,4 @@ RUN set -ex \
   && dnf install -y "https://downloads.percona.com/downloads/Percona-XtraBackup-8.0/Percona-XtraBackup-${XTRABACKUP_VERSION}/binary/redhat/8/${TINI_ARCH}/percona-xtrabackup-80-${XTRABACKUP_VERSION}.1.el8.${TINI_ARCH}.rpm" \
   && dnf clean all
 
-COPY toolkit /usr/local/bin/
-RUN chmod +x /usr/local/bin/toolkit
-
 CMD ["unit-agent","daemon","-f","/etc/unit-agent/config.toml"]
