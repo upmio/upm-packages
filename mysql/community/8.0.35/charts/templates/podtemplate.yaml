@@ -1,0 +1,199 @@
+apiVersion: v1
+kind: PodTemplate
+metadata:
+  name: {{ include "Chart.Name" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels:
+    upm.io/owner: upm
+    type: mysql
+    edition: community
+    version: {{ .Values.appVersion }}
+template:
+  metadata:
+    labels:
+      upm.io/owner: upm
+      type: mysql
+      edition: community
+      version: {{ .Values.appVersion }}
+  spec:
+    tolerations:
+      - key: "key"
+        operator: "Equal"
+        value: "value"
+        effect: "NoSchedule"
+    dnsPolicy: ClusterFirst
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    initContainers:
+      - name: init-container
+        image: {{ include "mysql.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        command:
+          - "bash"
+          - "-c"
+          - "serverMGR.sh initialize"
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.name"
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/config"
+          - name: TMP_DIR
+            value: "$(DATA_MOUNT)/tmp"
+          - name: BIN_LOG_DIR
+            value: "$(DATA_MOUNT)/binlog"
+          - name: RELAY_LOG_DIR
+            value: "$(DATA_MOUNT)/relaylog"
+      - name: sysctl
+        image: {{ include "mysql.image" . }}
+        command:
+          - "bash"
+          - "-c"
+          - "ulimit -n 65535"
+        securityContext:
+          privileged: true
+          runAsUser: 0
+    containers:
+      - name: mysql
+        image: {{ include "mysql.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.name"
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/config"
+          - name: TMP_DIR
+            value: "$(DATA_MOUNT)/tmp"
+          - name: BIN_LOG_DIR
+            value: "$(DATA_MOUNT)/binlog"
+          - name: RELAY_LOG_DIR
+            value: "$(DATA_MOUNT)/relaylog"
+        livenessProbe:
+          exec:
+            command:
+              - "timeout"
+              - "3"
+              - "bash"
+              - "-c"
+              - "</dev/tcp/localhost/9001"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+        readinessProbe:
+          exec:
+            command:
+              - "timeout"
+              - "3"
+              - "bash"
+              - "-c"
+              - "mysqladmin --defaults-file=${CONF_DIR}/.monitor.cnf status"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+        startupProbe:
+          exec:
+            command:
+              - "timeout"
+              - "3"
+              - "bash"
+              - "-c"
+              - "</dev/tcp/localhost/9001"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+      - name: unit-agent
+        image: {{ include "mysql.agent.image" . }}
+        imagePullPolicy: {{ .Values.agent.image.pullPolicy | quote }}
+        ports:
+          - containerPort: 2214
+            name: unit-agent
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.name"
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/config"
+          - name: TMP_DIR
+            value: "$(DATA_MOUNT)/tmp"
+          - name: BIN_LOG_DIR
+            value: "$(DATA_MOUNT)/binlog"
+          - name: RELAY_LOG_DIR
+            value: "$(DATA_MOUNT)/relaylog"
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['upm.api/service.name']"
+          - name: CONFIG_PATH
+            value: "$(DATA_MOUNT)/config/mysql.cnf"
+          - name: SERVICE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.name"
+          - name: UNIT_SN
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['unit.index']"
+          - name: MYSQL_MEMORY_LIMIT
+            valueFrom:
+              resourceFieldRef:
+                containerName: "mysql"
+                resource: "limits.memory"
+                divisor: "1Mi"
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+      - name: metrics
+        image: {{ include "mysql.metrics.image" . }}
+        imagePullPolicy: {{ .Values.metrics.image.pullPolicy | quote }}
+        command:
+        - "sh"
+        - "-c"
+        - "mysqld_exporter --config.my-cnf=${CONF_DIR}/.monitor.cnf --web.listen-address=:9104 --collect.auto_increment.columns --collect.binlog_size --collect.engine_innodb_status --collect.info_schema.clientstats --collect.info_schema.innodb_cmp --collect.info_schema.innodb_cmpmem --collect.info_schema.innodb_metrics --collect.info_schema.innodb_tablespaces --collect.info_schema.processlist --collect.info_schema.tables --collect.info_schema.tablestats --collect.info_schema.userstats --collect.perf_schema.eventsstatements --collect.perf_schema.eventsstatementssum --collect.perf_schema.eventswaits --collect.perf_schema.memory_events --collect.perf_schema.tablelocks --collect.perf_schema.tableiowaits --collect.slave_hosts"
+        ports:
+          - containerPort: 9104
+            name: metrics
+        env:
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/config"
+        {{- if .Values.metrics.resources }}
+        resources: {{- toYaml .Values.metrics.resources | nindent 10 }}
+        {{- else if ne .Values.metrics.resourcesPreset "none" }}
+        resources: {{- include "common.resources.preset" (dict "type" .Values.metrics.resourcesPreset) | nindent 10 }}
+        {{- end }}
+        livenessProbe:
+          httpGet:
+            path: /metrics
+            port: metrics
+          failureThreshold: 4
+          periodSeconds: 12
+          timeoutSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: metrics
+          failureThreshold: 4
+          periodSeconds: 12
+          timeoutSeconds: 3
