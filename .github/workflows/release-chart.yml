@@ -1,0 +1,84 @@
+name: Release charts
+run-name: ${{ github.actor }} is building charts
+on:
+  push:
+    paths:
+      - '**/**/**/charts/**' # 监听这些路径的变化
+    branches:
+      - 'main'
+
+jobs:
+  determine-charts:
+    runs-on: ubuntu-latest
+    outputs:
+      chart_dirs: ${{ steps.set-output.outputs.chart_dirs }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Find charts directories
+        id: set-output
+        run: |        
+          # 提取 chart 的目录, 将结果格式化为 JSON 数组，确保没有多余空格或字符
+          #!/bin/bash
+
+          chart_dirs_json="$(find . -type d -path "*/*/*/charts" | sed 's|^\./||' | sort | uniq | jq -R . | jq -sc .)"
+          echo "Chart directories:"
+          echo "$chart_dirs_json"
+          echo "chart_dirs=$chart_dirs_json" >> $GITHUB_OUTPUT
+
+  release-charts:
+    needs: determine-charts
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        chart_dir: ${{ fromJson(needs.determine-charts.outputs.chart_dirs) }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git fetch --all
+          git fetch --tags
+
+      - name: Check if Chart version exists
+        id: check-version
+        run: |
+          # 读取Chart.yaml中的版本号
+          CHART_VERSION=$(yq eval '.version' ${{ matrix.chart_dir }}/Chart.yaml)
+          CHART_NAME=$(yq eval '.name' ${{ matrix.chart_dir }}/Chart.yaml)
+          
+          # 检查是否已存在相同版本的release
+          if gh release view "$CHART_NAME-$CHART_VERSION" &> /dev/null; then
+            echo "Chart version $CHART_NAME-$CHART_VERSION already exists, skipping release"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "Chart version $CHART_NAME-$CHART_VERSION does not exist, proceeding with release"
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Custom packaging
+        if: steps.check-version.outputs.skip != 'true'
+        run: |
+          rm -rf .cr-release-packages
+          mkdir -p .cr-release-packages
+          helm package ${{ matrix.chart_dir }} --destination=.cr-release-packages -u
+
+      - name: Release Chart
+        if: steps.check-version.outputs.skip != 'true'
+        uses: helm/chart-releaser-action@v1.5.0
+        with:
+          charts_dir: ${{ matrix.chart_dir }}
+          skip_packaging: true
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
