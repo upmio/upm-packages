@@ -45,7 +45,7 @@ jobs:
           echo "$image_dirs_json"
           echo "image_dirs=$image_dirs_json" >> $GITHUB_OUTPUT
 
-  release-charts:
+  release-images:
     needs: determine-images
     permissions:
       contents: write
