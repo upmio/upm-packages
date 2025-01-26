@@ -22,7 +22,7 @@ RUN set -eux; \
     epel-release
 
 # install unit-agent
-ENV AGENT_VERSION="1.3.0"
+ENV AGENT_VERSION="v1.3.0"
 COPY --from=agent /usr/local/bin/unit-agent /usr/local/bin/unit-agent
 COPY --from=agent /etc/unit-agent/config.toml /etc/unit-agent/config.toml
 RUN unit-agent --version
