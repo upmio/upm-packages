@@ -1,5 +1,3 @@
-FROM ghcr.io/jqlang/jq:1.7 AS jq
-
 FROM rockylinux/rockylinux:8.10
 
 # set timezone
@@ -24,11 +22,6 @@ RUN set -eux; \
 # install supervisor
 RUN set -eux; \
   dnf install -y supervisor
-
-# install jq
-ENV JQ_VERSION="1.7"
-COPY --from=jq /jq /usr/local/bin/
-RUN jq --version
 
 # Download MySQL
 ENV UNIT_APP_VERSION="8.0.34"
