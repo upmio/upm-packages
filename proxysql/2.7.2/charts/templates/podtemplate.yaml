@@ -73,6 +73,9 @@ template:
           periodSeconds: 12
           timeoutSeconds: 4
           successThreshold: 1
+        ports:
+          - containerPort: 6070
+            name: metrics
         readinessProbe:
           exec:
             command:
@@ -112,6 +115,8 @@ template:
             value: "$(DATA_MOUNT)/config"
           - name: CONFIG_PATH
             value: "$(DATA_MOUNT)/config/proxysql.cnf"
+          - name: METRICS_PORT
+            value: "6070"
           - name: NAMESPACE
             valueFrom:
               fieldRef:
