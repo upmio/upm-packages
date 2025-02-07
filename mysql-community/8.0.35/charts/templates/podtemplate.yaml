@@ -142,19 +142,19 @@ template:
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.labels['upm.api/service.name']"
+                fieldPath: "metadata.namespace"
           - name: CONFIG_PATH
             value: "$(DATA_MOUNT)/config/mysql.cnf"
           - name: SERVICE_NAME
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.name"
+                fieldPath: "metadata.labels['unitset.name']"
           - name: UNIT_SN
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.labels['unit.index']"
+                fieldPath: "metadata.labels['unit.serial-number']"
           - name: MYSQL_MEMORY_LIMIT
             valueFrom:
               resourceFieldRef:
