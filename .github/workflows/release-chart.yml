@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} is building charts
 on:
   push:
     paths:
-      - '**/**/**/charts/**' # 监听这些路径的变化
+      - '**/**/charts/**' # 监听这些路径的变化
     branches:
       - 'main'
 
@@ -24,7 +24,7 @@ jobs:
           # 提取 chart 的目录, 将结果格式化为 JSON 数组，确保没有多余空格或字符
           #!/bin/bash
 
-          chart_dirs_json="$(find . -type d -path "*/*/*/charts" | sed 's|^\./||' | sort | uniq | jq -R . | jq -sc .)"
+          chart_dirs_json="$(find . -type d -path "*/*/charts" | sed 's|^\./||' | sort | uniq | jq -R . | jq -sc .)"
           echo "Chart directories:"
           echo "$chart_dirs_json"
           echo "chart_dirs=$chart_dirs_json" >> $GITHUB_OUTPUT

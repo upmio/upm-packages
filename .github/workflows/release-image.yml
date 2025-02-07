@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} is building images
 on:
   push:
     paths:
-      - '**/**/**/image/**' # 监听这些路径的变化
+      - '**/**/image/**' # 监听这些路径的变化
     branches:
       - 'main'
 
