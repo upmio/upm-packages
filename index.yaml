@@ -44,4 +44,27 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/mysql-community-8.0.35-1.3.1/mysql-community-8.0.35-1.3.1.tgz
     version: 1.3.1
-generated: "2025-01-24T02:57:42.07163722Z"
+  proxysql-2.7.2:
+  - apiVersion: v2
+    appVersion: 2.7.2
+    created: "2025-02-07T05:51:03.399182899Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: ProxySQL software packages, including configuration templates and
+      pod templates.
+    digest: 4a61c3145915bc3ed786d4275266ca05afa5ef72104ae8f822d80e37a4a7d3c0
+    keywords:
+    - mysql
+    - database
+    - sql
+    - proxy
+    name: proxysql-2.7.2
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/proxysql-2.7.2-1.3.1/proxysql-2.7.2-1.3.1.tgz
+    version: 1.3.1
+generated: "2025-02-07T05:51:03.399194611Z"
