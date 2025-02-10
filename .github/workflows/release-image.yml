@@ -27,16 +27,11 @@ jobs:
           image_dirs_json="$(find . -type f -name "Dockerfile" -exec dirname {} \; | sed 's|^\./||' | sort | uniq | while read -r dir; do            
             # 使用 awk 按目录层级分割路径
             if echo "$dir" | grep -q "/image$"; then
-              # 处理普通组件镜像
-              if echo "$dir" | awk -F'/' 'NF==4 && $4=="image" && $3 ~ /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/ {print}' > /dev/null; then
-                component=$(echo "$dir" | awk -F'/' '{print $1"-"$2}')
-                version=$(echo "$dir" | awk -F'/' '{print $3}')
-                echo "{\"image\": \"$component\", \"version\": \"$version\", \"context\": \"$dir\"}"
-              
-              # 处理 agent 镜像
-              elif echo "$dir" | awk -F'/' 'NF==3 && $3=="image" && $2 ~ /^[0-9]+\.[0-9]+$/ && $1 ~ /-agent$/ {print}' > /dev/null; then
+             
+              if echo "$dir" | awk -F'/' 'NF==3 && $3=="image" && $2 ~ /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/ {print}' > /dev/null; then
                 component=$(echo "$dir" | awk -F'/' '{print $1}')
-                echo "{\"image\": \"$component\", \"version\": \"1.0.0\", \"context\": \"$dir\"}"
+                version=$(echo "$dir" | awk -F'/' '{print $2}')
+                echo "{\"image\": \"$component\", \"version\": \"${version}\", \"context\": \"$dir\"}"
               fi
             fi
           done | jq -sc .)"
