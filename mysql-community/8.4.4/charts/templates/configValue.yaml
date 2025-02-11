@@ -10,4 +10,4 @@ metadata:
     version: {{ .Chart.AppVersion }}
 data:
   mysql: |
-    {{ .Files.Get "files/mysqlValue.yaml" | indent 4 }}
+{{ .Files.Get "files/mysqlValue.yaml" | indent 4 }}
