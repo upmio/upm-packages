@@ -1,4 +1,4 @@
-FROM rockylinux/rockylinux:8.10
+FROM rockylinux/rockylinux:9.5.20241118
 
 # set timezone
 ENV TZ=Asia/Shanghai
@@ -40,7 +40,7 @@ LABEL summary="${SUMMARY}" \
 
 # Download mysql80-community mysql-shell and mysql client
 RUN set -eu; \
-  dnf -y install "https://repo.mysql.com/mysql80-community-release-el8.rpm"; \
+  dnf -y install "https://repo.mysql.com/mysql80-community-release-el9.rpm"; \
   dnf module disable -y mysql; \
   dnf config-manager --set-enabled mysql80-community; \
   dnf install -y "mysql-shell" "mysql-community-client"; \
