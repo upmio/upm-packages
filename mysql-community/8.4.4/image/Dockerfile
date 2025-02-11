@@ -23,6 +23,10 @@ RUN set -eux; \
 RUN set -eux; \
   dnf install -y supervisor
 
+# Download MySQL
+ENV UNIT_APP_VERSION="8.4.4"
+ENV MYSQL_VERSION="${UNIT_APP_VERSION}-1.el9"
+
 # MySQL image for UPM.
 ENV SUMMARY="MySQL SQL Database Server Community Edition" \
   DESCRIPTION="MySQL is a multi-user, multi-threaded SQL database server. The container \
@@ -43,54 +47,20 @@ RUN set -eux; \
   groupadd --system --gid 1001 "mysql"; \
   useradd --system --uid 1001 --gid 1001 --no-create-home -s /sbin/nologin -c "Default Application User" "mysql"
 
-RUN set -eux; \
-# https://dev.mysql.com/doc/refman/8.0/en/checking-gpg-signature.html
-# pub   rsa4096 2023-10-23 [SC] [expires: 2025-10-22]
-#       BCA4 3417 C3B4 85DD 128E  C6D4 B7B3 B788 A8D3 785C
-# uid           [ unknown] MySQL Release Engineering <mysql-build@oss.oracle.com>
-# sub   rsa4096 2023-10-23 [E] [expires: 2025-10-22]
-	key='BCA4 3417 C3B4 85DD 128E C6D4 B7B3 B788 A8D3 785C'; \
-	export GNUPGHOME="$(mktemp -d)"; \
-	gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key"; \
-	gpg --batch --export --armor "$key" > /etc/pki/rpm-gpg/RPM-GPG-KEY-mysql; \
-	rm -rf "$GNUPGHOME"
-
-ARG UNIT_APP_VERSION="8.4.4"
-ARG MYSQL_VERSION="${UNIT_APP_VERSION}-1.el9"
-ARG MYSQL_SHELL_VERSION="${UNIT_APP_VERSION}-1.el9"
-
-# Download MySQL
+# Download mysql80-community mysql-shell and mysql client
 RUN set -eu; \
-	{ \
-		echo '[mysql8.4-server-minimal]'; \
-		echo 'name=MySQL 8.4 Server Minimal'; \
-		echo 'enabled=1'; \
-		echo 'baseurl=https://repo.mysql.com/yum/mysql-8.4-community/docker/el/9/$basearch/'; \
-		echo 'gpgcheck=1'; \
-		echo 'gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql'; \
-		echo 'module_hotfixes=true'; \
-	} | tee /etc/yum.repos.d/mysql-community-minimal.repo
-RUN set -eux; \
-	dnf install -y "mysql-community-server-minimal-$MYSQL_VERSION"; \
-	dnf clean all; \
-	mysqld --version; \
-	mysql --version
+  dnf -y install "https://repo.mysql.com/mysql84-community-release-el9.rpm"; \
+  dnf config-manager --set-enabled mysql-tools-community; \
+  dnf install -y "mysql-shell-${MYSQL_VERSION}"; \
+  dnf clean all; \
+  mysqlsh --version
 
-# Download MySQL Shell
+# Download mysql-community-server-minimal
 RUN set -eu; \
-	{ \
-		echo '[mysql-tools-community]'; \
-		echo 'name=MySQL Tools Community'; \
-		echo 'baseurl=https://repo.mysql.com/yum/mysql-tools-8.4-community/el/9/$basearch/'; \
-		echo 'enabled=1'; \
-		echo 'gpgcheck=1'; \
-		echo 'gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql'; \
-		echo 'module_hotfixes=true'; \
-	} | tee /etc/yum.repos.d/mysql-community-tools.repo
-RUN set -eux; \
-	dnf install -y "mysql-shell-$MYSQL_SHELL_VERSION"; \
-	dnf clean all; \
-	mysqlsh --version
+  dnf -y install "https://repo.mysql.com/mysql-community-minimal-release-el9.rpm"; \
+  dnf config-manager --set-enabled mysql-8.4-lts-community-minimal; \
+  dnf install -y "mysql-community-server-minimal-${MYSQL_VERSION}"; \
+  mysqld --version
 
 COPY serverMGR.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/serverMGR.sh
