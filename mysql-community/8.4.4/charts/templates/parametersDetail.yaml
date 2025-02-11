@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "Chart.Name" . }}-parameters-detail
-  namespace: {{ include "common.names.namespace" . | quote }}
+  name: {{ .Chart.Name }}-parameters-detail
+  namespace: {{ .Release.Namespace | quote }}
   labels:
     upm.io/owner: upm
     type: mysql
     edition: community
-    version: {{ .Values.appVersion }}
+    version: {{ .Chart.AppVersion }}
 data:
   mysql: |
     {{ .Files.Get "files/mysqlParametersDetail.json" | indent 4 }}
