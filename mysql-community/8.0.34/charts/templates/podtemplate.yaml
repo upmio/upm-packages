@@ -1,20 +1,20 @@
 apiVersion: v1
 kind: PodTemplate
 metadata:
-  name: {{ include "Chart.Name" . }}
-  namespace: {{ include "common.names.namespace" . | quote }}
+  name: {{ .Chart.Name }}
+  namespace: {{ .Release.Namespace | quote }}
   labels:
     upm.io/owner: upm
     type: mysql
     edition: community
-    version: {{ .Values.appVersion }}
+    version: {{ .Chart.AppVersion }}
 template:
   metadata:
     labels:
       upm.io/owner: upm
       type: mysql
       edition: community
-      version: {{ .Values.appVersion }}
+      version: {{ .Chart.AppVersion }}
   spec:
     tolerations:
       - key: "key"
@@ -180,8 +180,6 @@ template:
             value: "$(DATA_MOUNT)/config"
         {{- if .Values.metrics.resources }}
         resources: {{- toYaml .Values.metrics.resources | nindent 10 }}
-        {{- else if ne .Values.metrics.resourcesPreset "none" }}
-        resources: {{- include "common.resources.preset" (dict "type" .Values.metrics.resourcesPreset) | nindent 10 }}
         {{- end }}
         livenessProbe:
           httpGet:
