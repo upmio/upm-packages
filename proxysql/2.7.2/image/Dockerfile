@@ -41,7 +41,6 @@ LABEL summary="${SUMMARY}" \
 # Download mysql80-community mysql-shell and mysql client
 RUN set -eu; \
   dnf -y install "https://repo.mysql.com/mysql80-community-release-el9.rpm"; \
-  dnf module disable -y mysql; \
   dnf config-manager --set-enabled mysql80-community; \
   dnf install -y "mysql-shell" "mysql-community-client"; \
   dnf clean all; \
