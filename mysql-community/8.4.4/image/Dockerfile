@@ -52,12 +52,10 @@ RUN set -eux; \
 # install mysql84-community mysql-shell and mysql-community-server-minimal
 RUN set -eu; \
   dnf -y install "https://repo.mysql.com/mysql84-community-release-el9.rpm" \
-  && dnf module disable -y mysql \
   && dnf config-manager --set-enabled mysql-tools-community \
   && dnf install -y "${MYSQL_SHELL_PACKAGE}" \
   && mysqlsh --version \
   && dnf -y install "https://repo.mysql.com/mysql-community-minimal-release-el9.rpm" \
-  && dnf module disable -y mysql \
   && dnf config-manager --set-enabled mysql84-community-minimal \
   && dnf install -y "${MYSQL_SERVER_PACKAGE}" \
   && mysqld --version \
