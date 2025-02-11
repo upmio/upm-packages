@@ -23,6 +23,26 @@ RUN set -eux; \
 RUN set -eux; \
   dnf install -y supervisor
 
+# MySQL image for UPM.
+ENV SUMMARY="MySQL SQL Database Server Community Edition" \
+  DESCRIPTION="MySQL is a multi-user, multi-threaded SQL database server. The container \
+  image provides a containerized packaging of the MySQL mysqld daemon and client application. \
+  The mysqld server daemon accepts connections from clients and provides access to content from \
+  MySQL databases on behalf of the clients."
+
+LABEL summary="${SUMMARY}" \
+  description="${DESCRIPTION}" \
+  io.k8s.description="${DESCRIPTION}" \
+  io.k8s.display-name="mysql ${UNIT_APP_VERSION}" \
+  type="mysql" \
+  edition="Community" \
+  version="${UNIT_APP_VERSION}" \
+  maintainer="upm"
+
+RUN set -eux; \
+  groupadd --system --gid 1001 "mysql"; \
+  useradd --system --uid 1001 --gid 1001 --no-create-home -s /sbin/nologin -c "Default Application User" "mysql"
+
 RUN set -eux; \
 # https://dev.mysql.com/doc/refman/8.0/en/checking-gpg-signature.html
 # pub   rsa4096 2023-10-23 [SC] [expires: 2025-10-22]
