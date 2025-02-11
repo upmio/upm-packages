@@ -55,7 +55,7 @@ RUN set -eux; \
 	gpg --batch --export --armor "$key" > /etc/pki/rpm-gpg/RPM-GPG-KEY-mysql; \
 	rm -rf "$GNUPGHOME"
 
-ARG UNIT_APP_VERSION="8.0.35"
+ARG UNIT_APP_VERSION="8.0.34"
 ARG MYSQL_VERSION="${UNIT_APP_VERSION}-1.el9"
 ARG MYSQL_SHELL_VERSION="${UNIT_APP_VERSION}-1.el9"
 
@@ -69,7 +69,7 @@ RUN set -eu; \
 		echo 'gpgcheck=1'; \
 		echo 'gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql'; \
 		echo 'module_hotfixes=true'; \
-	} | tee /etc/yum.repos.d/mysql-community-minimal.repo \
+	} | tee /etc/yum.repos.d/mysql-community-minimal.repo
 RUN set -eux; \
 	dnf install -y "mysql-community-server-minimal-$MYSQL_VERSION"; \
 	dnf clean all; \
