@@ -33,7 +33,7 @@ RUN set -eux; \
 	export GNUPGHOME="$(mktemp -d)"; \
 	gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key"; \
 	gpg --batch --export --armor "$key" > /etc/pki/rpm-gpg/RPM-GPG-KEY-mysql; \
-	rm -rf "$GNUPGHOME \
+	rm -rf "$GNUPGHOME"
 
 ARG UNIT_APP_VERSION="8.4.4"
 ARG MYSQL_VERSION="${UNIT_APP_VERSION}-1.el9"
