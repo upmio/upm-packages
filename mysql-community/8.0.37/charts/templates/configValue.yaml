@@ -8,5 +8,6 @@ metadata:
     type: mysql
     edition: community
     version: {{ .Chart.AppVersion }}
+data:
   mysql: |
 {{ .Files.Get "files/mysqlValue.yaml" | indent 4 }}
