@@ -43,7 +43,7 @@ template:
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
-            value: "$(DATA_MOUNT)/config"
+            value: "$(DATA_MOUNT)/conf"
           - name: TMP_DIR
             value: "$(DATA_MOUNT)/tmp"
           - name: BIN_LOG_DIR
@@ -72,7 +72,7 @@ template:
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
-            value: "$(DATA_MOUNT)/config"
+            value: "$(DATA_MOUNT)/conf"
           - name: TMP_DIR
             value: "$(DATA_MOUNT)/tmp"
           - name: BIN_LOG_DIR
@@ -133,7 +133,7 @@ template:
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
-            value: "$(DATA_MOUNT)/config"
+            value: "$(DATA_MOUNT)/conf"
           - name: TMP_DIR
             value: "$(DATA_MOUNT)/tmp"
           - name: BIN_LOG_DIR
@@ -146,7 +146,7 @@ template:
                 apiVersion: "v1"
                 fieldPath: "metadata.namespace"
           - name: CONFIG_PATH
-            value: "$(DATA_MOUNT)/config/mysql.cnf"
+            value: "$(DATA_MOUNT)/conf/mysql.cnf"
           - name: SERVICE_NAME
             valueFrom:
               fieldRef:
@@ -179,7 +179,7 @@ template:
             name: metrics
         env:
           - name: CONF_DIR
-            value: "$(DATA_MOUNT)/config"
+            value: "$(DATA_MOUNT)/conf"
         {{- if .Values.metrics.resources }}
         resources: {{- toYaml .Values.metrics.resources | nindent 10 }}
         {{- end }}

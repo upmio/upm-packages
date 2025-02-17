@@ -38,7 +38,7 @@ template:
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
-            value: "$(DATA_MOUNT)/config"
+            value: "$(DATA_MOUNT)/conf"
       - name: sysctl
         image: {{ include "proxysql.image" . }}
         command:
@@ -61,7 +61,7 @@ template:
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
-            value: "$(DATA_MOUNT)/config"
+            value: "$(DATA_MOUNT)/conf"
         livenessProbe:
           exec:
             command:
@@ -114,9 +114,9 @@ template:
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
-            value: "$(DATA_MOUNT)/config"
+            value: "$(DATA_MOUNT)/conf"
           - name: CONFIG_PATH
-            value: "$(DATA_MOUNT)/config/proxysql.cnf"
+            value: "$(DATA_MOUNT)/conf/proxysql.cnf"
           - name: METRICS_PORT
             value: "6070"
           - name: NAMESPACE
