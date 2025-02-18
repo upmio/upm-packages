@@ -16,7 +16,8 @@ RUN set -eux; \
     expect \
     epel-release
 # generate en_US.UTF-8
-RUN localedef -i en_US -f UTF-8 en_US.UTF-8
+RUN dnf install -y glibc-langpack-en glibc-locale-source \
+  && localedef -i en_US -f UTF-8 en_US.UTF-8
 
 # set timezone
 ENV TZ=Asia/Shanghai
