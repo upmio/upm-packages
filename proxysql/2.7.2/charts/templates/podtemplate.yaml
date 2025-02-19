@@ -53,6 +53,8 @@ template:
         image: {{ include "proxysql.image" . }}
         imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
         env:
+          - name: METRICS_PORT
+            value: "6070"
           - name: POD_NAME
             valueFrom:
               fieldRef:
@@ -111,14 +113,14 @@ template:
           - containerPort: 2214
             name: unit-agent
         env:
+          - name: METRICS_PORT
+            value: "6070"
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
           - name: CONFIG_PATH
             value: "$(DATA_MOUNT)/conf/proxysql.cnf"
-          - name: METRICS_PORT
-            value: "6070"
           - name: NAMESPACE
             valueFrom:
               fieldRef:
