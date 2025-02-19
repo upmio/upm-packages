@@ -148,7 +148,7 @@ initialize() {
     mkdir -p "${DATA_DIR}" "${TMP_DIR}" "${BIN_LOG_DIR}" "${RELAY_LOG_DIR}" "${CONF_DIR}" || {
       die 42 "${func_name}" "mkdir ${DATA_DIR} ${TMP_DIR} ${BIN_LOG_DIR} ${RELAY_LOG_DIR} ${CONF_DIR} failed!"
     }
-    chown -R "mysql.mysql" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
+    chown -R "1001.1001" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
       die 43 "${func_name}" "chown dir failed!"
     }
 
@@ -207,7 +207,7 @@ initialize() {
     echo "port=${MYSQL_PORT}"
   } >"${mon_config}"
 
-  chown -R "mysql.mysql" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
+  chown -R "1001.1001" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
     die 46 "${func_name}" "chown dir failed!"
   }
 
