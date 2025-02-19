@@ -24,14 +24,14 @@ ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
   && echo "$TZ" > /etc/timezone
 
-# install supervisor
-RUN set -eux; \
-  dnf install -y supervisor
-
-# 设置默认 Locale
+# set default locale
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
+
+# install supervisor
+RUN set -eux; \
+  dnf install -y supervisor
 
 # Download MySQL
 ENV UNIT_APP_VERSION="8.0.41"

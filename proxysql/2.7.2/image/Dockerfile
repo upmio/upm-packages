@@ -1,10 +1,5 @@
 FROM rockylinux/rockylinux:9.5.20241118
 
-# set timezone
-ENV TZ=Asia/Shanghai
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
-  && echo "$TZ" > /etc/timezone
-
 # install common tools
 RUN set -eux; \
   dnf install -y \
@@ -17,9 +12,24 @@ RUN set -eux; \
     hostname \
     telnet \
     wget \
+    glibc-common \
+    expect \
     epel-release
+# generate en_US.UTF-8
+RUN dnf install -y glibc-langpack-en glibc-locale-source \
+  && localedef -i en_US -f UTF-8 en_US.UTF-8
 
-# install supervisord
+# set timezone
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+  && echo "$TZ" > /etc/timezone
+
+# set default locale
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
+
+# install supervisor
 RUN set -eux; \
   dnf install -y supervisor
 
