@@ -178,6 +178,8 @@ template:
           - containerPort: 9104
             name: metrics
         env:
+          - name: METRICS_PORT
+            value: "9104"
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
         {{- if .Values.metrics.resources }}
