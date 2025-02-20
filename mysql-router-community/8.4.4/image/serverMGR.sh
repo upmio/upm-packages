@@ -136,7 +136,7 @@ initialize() {
 
     # innodb cluster initialize
     mysqlsh --uri "${PROV_USER}@${primary_node}" --password="${PROV_PWD}" --js -e "
-var cluster = dba.createCluster(${SERVICE_NAME}, {adoptFromGR: true})" || die 45 "${func_name}" "mysqlsh create cluster failed!"
+var cluster = dba.createCluster('${SERVICE_NAME}', {adoptFromGR: true})" || die 45 "${func_name}" "mysqlsh create cluster failed!"
 
     # check cluster status
     mysqlsh --uri "${PROV_USER}@${primary_node}" --password="${PROV_PWD}" --js -e "
