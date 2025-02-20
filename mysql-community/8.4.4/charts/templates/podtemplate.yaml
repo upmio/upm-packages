@@ -173,7 +173,7 @@ template:
         command:
         - "sh"
         - "-c"
-        - "mysqld_exporter --config.my-cnf=${CONF_DIR}/.monitor.cnf --web.listen-address=:9104 --collect.auto_increment.columns --collect.binlog_size --collect.engine_innodb_status --collect.info_schema.clientstats --collect.info_schema.innodb_cmp --collect.info_schema.innodb_cmpmem --collect.info_schema.innodb_metrics --collect.info_schema.innodb_tablespaces --collect.info_schema.processlist --collect.info_schema.tables --collect.info_schema.tablestats --collect.info_schema.userstats --collect.perf_schema.eventsstatements --collect.perf_schema.eventsstatementssum --collect.perf_schema.eventswaits --collect.perf_schema.memory_events --collect.perf_schema.tablelocks --collect.perf_schema.tableiowaits --collect.slave_hosts"
+        - "mysqld_exporter --config.my-cnf=${CONF_DIR}/.monitor.cnf --web.listen-address=:${METRICS_PORT} --collect.auto_increment.columns --collect.binlog_size --collect.engine_innodb_status --collect.info_schema.clientstats --collect.info_schema.innodb_cmp --collect.info_schema.innodb_cmpmem --collect.info_schema.innodb_metrics --collect.info_schema.innodb_tablespaces --collect.info_schema.processlist --collect.info_schema.tables --collect.info_schema.tablestats --collect.info_schema.userstats --collect.perf_schema.eventsstatements --collect.perf_schema.eventsstatementssum --collect.perf_schema.eventswaits --collect.perf_schema.memory_events --collect.perf_schema.tablelocks --collect.perf_schema.tableiowaits --collect.slave_hosts"
         ports:
           - containerPort: 9104
             name: metrics
