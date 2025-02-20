@@ -44,15 +44,15 @@ ENV SUMMARY="MySQL Router Community Edition" \
 LABEL summary="${SUMMARY}" \
   description="${DESCRIPTION}" \
   io.k8s.description="${DESCRIPTION}" \
-  io.k8s.display-name="mysql ${UNIT_APP_VERSION}" \
+  io.k8s.display-name="mysql router ${UNIT_APP_VERSION}" \
   type="mysql-router" \
   edition="Community" \
   version="${UNIT_APP_VERSION}" \
   maintainer="upm"
 
 RUN set -eux; \
-  groupadd --system --gid 1001 "mysql"; \
-  useradd --system --uid 1001 --gid 1001 --no-create-home -s /sbin/nologin -c "Default Application User" "mysql"
+  groupadd --system --gid 1001 "mysql-router"; \
+  useradd --system --uid 1001 --gid 1001 --no-create-home -s /sbin/nologin -c "Default Application User" "mysql-router"
 
 # Download mysql80-community mysql-shell and mysql-router
 RUN set -eu; \
