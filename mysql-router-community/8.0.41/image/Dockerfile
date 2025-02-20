@@ -35,7 +35,7 @@ RUN set -eux; \
 
 # Download MySQL
 ENV UNIT_APP_VERSION="8.0.41"
-ENV MYSQL_VERSION="${UNIT_APP_VERSION}x"
+ENV MYSQL_VERSION="${UNIT_APP_VERSION}-1.el9"
 
 # MySQL image for UPM.
 ENV SUMMARY="MySQL Router Community Edition" \
