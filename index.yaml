@@ -88,6 +88,29 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/mysql-community-8.4.4-1.3.1/mysql-community-8.4.4-1.3.1.tgz
     version: 1.3.1
+  mysql-router-community-8.4.4:
+  - apiVersion: v2
+    appVersion: 8.4.4
+    created: "2025-02-20T06:04:26.450197941Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: MySQL router community edition software packages, including configuration
+      templates and pod templates.
+    digest: da404aa5a6d31b279008831836b471d9f50a923c04f5c3b55eeb91a54d6b20eb
+    keywords:
+    - mysql
+    - database
+    - sql
+    - proxy
+    name: mysql-router-community-8.4.4
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/mysql-router-community-8.4.4-1.3.1/mysql-router-community-8.4.4-1.3.1.tgz
+    version: 1.3.1
   proxysql-2.7.2:
   - apiVersion: v2
     appVersion: 2.7.2
@@ -111,4 +134,4 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/proxysql-2.7.2-1.3.1/proxysql-2.7.2-1.3.1.tgz
     version: 1.3.1
-generated: "2025-02-11T09:02:34.598600626Z"
+generated: "2025-02-20T06:04:26.450219491Z"
