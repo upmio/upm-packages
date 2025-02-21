@@ -189,6 +189,10 @@ EOF
       if [[ ${expect_status} -ne 0 ]]; then
         die 48 "${func_name}" "mysqlrouter --bootstrap failed!"
       fi
+      # check keyring file and state.json file and mysqlrouter.key file exists
+      if [[ ! -f "${DATA_DIR}/data/keyring" ]] || [[ ! -f "${DATA_DIR}/data/state.json" ]] || [[ ! -f "${DATA_DIR}/mysqlrouter.key" ]]; then
+        die 49 "${func_name}" "mysqlrouter --bootstrap failed!"
+      fi
     fi
 
     info "${func_name}" "Initialize mysql router done !"
