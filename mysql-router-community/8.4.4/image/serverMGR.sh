@@ -105,9 +105,11 @@ initialize() {
         die 41 "${func_name}" "Force remove ${DATA_DIR} ${CONF_DIR} failed!"
       }
     fi
-    mkdir -p "${DATA_DIR}" "${CONF_DIR}" || {
-      die 42 "${func_name}" "mkdir ${DATA_DIR} ${CONF_DIR} failed!"
+
+    rm -rf "${DATA_MOUNT:?}"/* || {
+      die 42 "${func_name}" "Force remove ${DATA_MOUNT} failed!"
     }
+
     chown -R "1001.1001" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
       die 43 "${func_name}" "chown dir failed!"
     }
@@ -134,12 +136,18 @@ initialize() {
       node_number=$((node_number + 1))
     done
 
-    # innodb cluster initialize
-    mysqlsh --uri "${PROV_USER}@${primary_node}" --password="${PROV_PWD}" --js -e "
+    # If mysql_innodb_cluster_metadata schema is not exists, then initialize cluster
+    if mysqlsh --uri "${PROV_USER}@${primary_node}" --password="${PROV_PWD}" --sql -e "
+SELECT SCHEMA_NAME
+FROM information_schema.SCHEMATA
+WHERE SCHEMA_NAME = 'mysql_innodb_cluster_metadata';" | grep -q "mysql_innodb_cluster_metadata" ; then
+      info "${func_name}" "mysql_innodb_cluster_metadata schema exists, skip initialize cluster!"
+    else
+      # innodb cluster initialize
+      mysqlsh --uri "${PROV_USER}@${primary_node}" --password="${PROV_PWD}" --js -e "
 var cluster = dba.createCluster('${SERVICE_NAME}', {adoptFromGR: true})" || die 45 "${func_name}" "mysqlsh create cluster failed!"
-
-    # check cluster status
-    mysqlsh --uri "${PROV_USER}@${primary_node}" --password="${PROV_PWD}" --js -e "
+      # check cluster status
+      mysqlsh --uri "${PROV_USER}@${primary_node}" --password="${PROV_PWD}" --js -e "
 var cluster;
 try {
     // get cluster
@@ -165,16 +173,25 @@ if (status.defaultReplicaSet.status === 'OK') {
     // if cluster status is not OK, output error and exit
     throw new Error('Cluster status is ' + JSON.stringify(status.defaultReplicaSet.status));
 }" || die 46 "${func_name}" "mysqlsh check cluster status failed!"
+    fi
 
     # bootstrap mysql router
     /usr/bin/expect <<EOF
-spawn mysqlrouter --bootstrap "${PROV_USER}@${primary_node}" --name "${SERVICE_NAME}" --directory "${DATA_MOUNT}" --user mysql-router --account mysql-router --disable-rw-split
+spawn mysqlrouter --bootstrap "${PROV_USER}@${primary_node}" --name "${SERVICE_NAME}" --directory "${DATA_MOUNT}" --user mysql-router --account mysql-router
 expect "Please enter MySQL password for ${PROV_USER}:"
 send "${PROV_PWD}\r"
 expect "Please enter MySQL password for mysql-router:"
 send "${MON_PWD}\r"
 interact
 EOF
+    local expect_status=$?
+    if [[ ${expect_status} -ne 0 ]]; then
+      die 47 "${func_name}" "mysqlrouter --bootstrap failed!"
+    fi
+
+    mkdir -p "${CONF_DIR}" || {
+      die 48 "${func_name}" "mkdir ${CONF_DIR} failed!"
+    }
 
     info "${func_name}" "Initialize mysql router done !"
     touch "${INIT_FLAG_FILE}"
@@ -182,7 +199,7 @@ EOF
   }
 
   chown -R "1001.1001" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
-    die 46 "${func_name}" "chown dir failed!"
+    die 49 "${func_name}" "chown dir failed!"
   }
 
   info "${func_name}" "run ${func_name} done."
