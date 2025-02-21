@@ -6,17 +6,17 @@ runtime_folder={{ getenv "DATA_MOUNT}" }}/run
 data_folder={{ getenv "DATA_MOUNT}" }}/data
 keyring_path={{ getenv "DATA_MOUNT}" }}/data/keyring
 master_key_path={{ getenv "DATA_MOUNT" }}/mysqlrouter.key
-max_total_connections={{ getv "/defaults/max_total_connections" }}
-connect_timeout={{ getv "/defaults/connect_timeout" }}
-read_timeout={{ getv "/defaults/read_timeout" }}
+max_total_connections={{ getv "/default/max_total_connections" }}
+connect_timeout={{ getv "/default/connect_timeout" }}
+read_timeout={{ getv "/default/read_timeout" }}
 dynamic_state={{ getenv "DATA_MOUNT" }}/data/state.json
 client_ssl_cert={{ getenv "DATA_MOUNT" }}/data/router-cert.pem
 client_ssl_key={{ getenv "DATA_MOUNT" }}/data/router-key.pem
 client_ssl_mode=PREFERRED
 server_ssl_mode=PREFERRED
 server_ssl_verify=DISABLED
-unknown_config_option={{ getv "/defaults/unknown_config_option" }}
-max_idle_server_connections={{ getv "/defaults/max_idle_server_connections" }}
+unknown_config_option={{ getv "/default/unknown_config_option" }}
+max_idle_server_connections={{ getv "/default/max_idle_server_connections" }}
 router_require_enforce=1
 
 [logger]
