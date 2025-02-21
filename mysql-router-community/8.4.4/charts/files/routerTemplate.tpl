@@ -1,10 +1,10 @@
 [DEFAULT]
 name={{ getenv "SERVICE_GROUP_NAME" }}
 user=mysql-router
-logging_folder={{ getenv "LOG_MOUNT}" }}
-runtime_folder={{ getenv "DATA_DIR}" }}/run
-data_folder={{ getenv "DATA_DIR}" }}/data
-keyring_path={{ getenv "DATA_DIR}" }}/data/keyring
+logging_folder={{ getenv "LOG_MOUNT" }}
+runtime_folder={{ getenv "DATA_DIR" }}/run
+data_folder={{ getenv "DATA_DIR" }}/data
+keyring_path={{ getenv "DATA_DIR" }}/data/keyring
 master_key_path={{ getenv "DATA_DIR" }}/mysqlrouter.key
 max_total_connections={{ getv "/default/max_total_connections" }}
 connect_timeout={{ getv "/default/connect_timeout" }}
