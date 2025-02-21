@@ -97,7 +97,7 @@ initialize() {
   local func_name="${func_name}(${random})"
   info "${func_name}" "Starting run ${func_name} ..."
 
-  get_pwd || die 44 "${func_name}" "get password failed!"
+  get_pwd || die 40 "${func_name}" "get password failed!"
 
   [[ -f "${INIT_FLAG_FILE}" ]] || {
     if [[ "${FORCE_CLEAN}" == "true" ]]; then
@@ -106,10 +106,9 @@ initialize() {
       }
     fi
 
-    rm -rf "${DATA_MOUNT:?}"/* || {
-      die 42 "${func_name}" "Force remove ${DATA_MOUNT} failed!"
+    mkdir -p "${DATA_DIR}" "${CONF_DIR}" || {
+      die 42 "${func_name}" "mkdir ${DATA_DIR} ${CONF_DIR} failed!"
     }
-
     chown -R "1001.1001" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
       die 43 "${func_name}" "chown dir failed!"
     }
@@ -173,33 +172,32 @@ if (status.defaultReplicaSet.status === 'OK') {
     // if cluster status is not OK, output error and exit
     throw new Error('Cluster status is ' + JSON.stringify(status.defaultReplicaSet.status));
 }" || die 46 "${func_name}" "mysqlsh check cluster status failed!"
-    fi
 
-    # bootstrap mysql router
-    /usr/bin/expect <<EOF
-spawn mysqlrouter --bootstrap "${PROV_USER}@${primary_node}" --name "${SERVICE_GROUP_NAME}" --directory "${DATA_MOUNT}" --user mysql-router --account mysql-router
+      # remove all files in DATA_DIR directory
+      rm -rf "${DATA_DIR:?}"/* || die 47 "${func_name}" "Force remove ${DATA_DIR} failed!"
+
+      # bootstrap mysql router
+      /usr/bin/expect <<EOF
+spawn mysqlrouter --bootstrap "${PROV_USER}@${primary_node}" --name "${SERVICE_GROUP_NAME}" --directory "${DATA_DIR}" --user mysql-router --account mysql-router
 expect "Please enter MySQL password for ${PROV_USER}:"
 send "${PROV_PWD}\r"
 expect "Please enter MySQL password for mysql-router:"
 send "${MON_PWD}\r"
 interact
 EOF
-    local expect_status=$?
-    if [[ ${expect_status} -ne 0 ]]; then
-      die 47 "${func_name}" "mysqlrouter --bootstrap failed!"
+      local expect_status=$?
+      if [[ ${expect_status} -ne 0 ]]; then
+        die 48 "${func_name}" "mysqlrouter --bootstrap failed!"
+      fi
     fi
-
-    mkdir -p "${CONF_DIR}" || {
-      die 48 "${func_name}" "mkdir ${CONF_DIR} failed!"
-    }
 
     info "${func_name}" "Initialize mysql router done !"
     touch "${INIT_FLAG_FILE}"
-    [[ -f ${INIT_FLAG_FILE} ]] || die 47 "${func_name}" "create ${INIT_FLAG_FILE} failed!"
+    [[ -f ${INIT_FLAG_FILE} ]] || die 49 "${func_name}" "create ${INIT_FLAG_FILE} failed!"
   }
 
   chown -R "1001.1001" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
-    die 49 "${func_name}" "chown dir failed!"
+    die 50 "${func_name}" "chown dir failed!"
   }
 
   info "${func_name}" "run ${func_name} done."
