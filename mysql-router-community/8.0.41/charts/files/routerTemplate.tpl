@@ -1,5 +1,5 @@
 [DEFAULT]
-name={{ getenv "SERVICE_NAME" }}
+name={{ getenv "SERVICE_GROUP_NAME" }}
 user=mysql-router
 logging_folder={{ getenv "LOG_MOUNT}" }}
 runtime_folder={{ getenv "DATA_MOUNT}" }}/run
@@ -22,7 +22,7 @@ router_require_enforce=1
 [logger]
 level={{ getv "/logger/level" }}
 
-[metadata_cache:{{ getenv "SERVICE_NAME" }}]
+[metadata_cache:{{ getenv "SERVICE_GROUP_NAME" }}]
 cluster_type=gr
 router_id={{add (atoi (getenv "UNIT_SN")) 1}}
 user=mysql-router
@@ -32,14 +32,14 @@ auth_cache_ttl=-1
 auth_cache_refresh_interval=2
 use_gr_notifications=0
 
-[routing:{{ getenv "SERVICE_NAME" }}_rw]
+[routing:{{ getenv "SERVICE_GROUP_NAME" }}_rw]
 bind_address=0.0.0.0
 bind_port={{ getenv "MYSQL_ROUTER_PORT" }}
 destinations=metadata-cache://mycluster/?role=PRIMARY
 routing_strategy=first-available
 protocol=classic
 
-[routing:{{ getenv "SERVICE_NAME" }}_x_rw]
+[routing:{{ getenv "SERVICE_GROUP_NAME" }}_x_rw]
 bind_address=0.0.0.0
 bind_port={{ getenv "MYSQLX_ROUTER_PORT" }}
 destinations=metadata-cache://testCluster/?role=PRIMARY

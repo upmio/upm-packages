@@ -145,13 +145,13 @@ WHERE SCHEMA_NAME = 'mysql_innodb_cluster_metadata';" | grep -q "mysql_innodb_cl
     else
       # innodb cluster initialize
       mysqlsh --uri "${PROV_USER}@${primary_node}" --password="${PROV_PWD}" --js -e "
-var cluster = dba.createCluster('${SERVICE_NAME}', {adoptFromGR: true})" || die 45 "${func_name}" "mysqlsh create cluster failed!"
+var cluster = dba.createCluster('${SERVICE_GROUP_NAME}', {adoptFromGR: true})" || die 45 "${func_name}" "mysqlsh create cluster failed!"
       # check cluster status
       mysqlsh --uri "${PROV_USER}@${primary_node}" --password="${PROV_PWD}" --js -e "
 var cluster;
 try {
     // get cluster
-    cluster = dba.getCluster('${SERVICE_NAME}');
+    cluster = dba.getCluster('${SERVICE_GROUP_NAME}');
 } catch (e) {
     // if failed to get cluster, output error and exit
     throw new Error('Cluster not found');
@@ -177,7 +177,7 @@ if (status.defaultReplicaSet.status === 'OK') {
 
     # bootstrap mysql router
     /usr/bin/expect <<EOF
-spawn mysqlrouter --bootstrap "${PROV_USER}@${primary_node}" --name "${SERVICE_NAME}" --directory "${DATA_MOUNT}" --user mysql-router --account mysql-router
+spawn mysqlrouter --bootstrap "${PROV_USER}@${primary_node}" --name "${SERVICE_GROUP_NAME}" --directory "${DATA_MOUNT}" --user mysql-router --account mysql-router
 expect "Please enter MySQL password for ${PROV_USER}:"
 send "${PROV_PWD}\r"
 expect "Please enter MySQL password for mysql-router:"
@@ -231,7 +231,7 @@ INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"
 [[ -v SECRET_MOUNT ]] || die 10 "Globals" "get env SECRET_MOUNT failed !"
 [[ -v LOG_MOUNT ]] || die 10 "Globals" "get env LOG_MOUNT failed !"
 [[ -d ${LOG_MOUNT} ]] || die 11 "Globals" "Not found LOG_MOUNT !"
-[[ -v SERVICE_NAME ]] || die 10 "Globals" "get env SERVICE_NAME failed !"
+[[ -v SERVICE_GROUP_NAME ]] || die 10 "Globals" "get env SERVICE_GROUP_NAME failed !"
 [[ -v HTTP_PORT ]] || die 10 "Globals" "get env HTTP_PORT failed !"
 [[ -v MON_USER ]] || die 10 "Globals" "get env MON_USER failed !"
 [[ -v PROV_USER ]] || die 10 "Globals" "get env PROV_USER failed !"
