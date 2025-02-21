@@ -190,18 +190,18 @@ EOF
         die 48 "${func_name}" "mysqlrouter --bootstrap failed!"
       fi
       # check keyring file and state.json file and mysqlrouter.key file exists
-      if [[ ! -f "${DATA_DIR}/data/keyring" ]] || [[ ! -f "${DATA_DIR}/data/state.json" ]] || [[ ! -f "${DATA_DIR}/mysqlrouter.key" ]]; then
-        die 49 "${func_name}" "mysqlrouter --bootstrap failed!"
+      if [[ ! -f "${DATA_DIR}/data/keyring" ]] && [[ ! -f "${DATA_DIR}/data/state.json" ]] && [[ ! -f "${DATA_DIR}/mysqlrouter.key" ]]; then
+        die 49 "${func_name}" "not found keyring or state.json or mysqlrouter.key file!"
       fi
     fi
 
     info "${func_name}" "Initialize mysql router done !"
     touch "${INIT_FLAG_FILE}"
-    [[ -f ${INIT_FLAG_FILE} ]] || die 49 "${func_name}" "create ${INIT_FLAG_FILE} failed!"
+    [[ -f ${INIT_FLAG_FILE} ]] || die 50 "${func_name}" "create ${INIT_FLAG_FILE} failed!"
   }
 
   chown -R "1001.1001" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
-    die 50 "${func_name}" "chown dir failed!"
+    die 51 "${func_name}" "chown dir failed!"
   }
 
   info "${func_name}" "run ${func_name} done."
