@@ -173,12 +173,16 @@ if (status.defaultReplicaSet.status === 'OK') {
     throw new Error('Cluster status is ' + JSON.stringify(status.defaultReplicaSet.status));
 }" || die 46 "${func_name}" "mysqlsh check cluster status failed!"
 
+    fi
+
+    # If keyring file or state.json file or mysqlrouter.key file is not exists, then bootstrap mysql router
+    if [[ ! -f "${DATA_DIR}/data/keyring" ]] || [[ ! -f "${DATA_DIR}/data/state.json" ]] || [[ ! -f "${DATA_DIR}/mysqlrouter.key" ]]; then
       # remove all files in DATA_DIR directory
       rm -rf "${DATA_DIR:?}"/* || die 47 "${func_name}" "Force remove ${DATA_DIR} failed!"
 
       # bootstrap mysql router
       /usr/bin/expect <<EOF
-spawn mysqlrouter --bootstrap "${PROV_USER}@${primary_node}" --name "${SERVICE_GROUP_NAME}" --directory "${DATA_DIR}" --user mysql-router --account mysql-router
+spawn mysqlrouter --bootstrap "${PROV_USER}@${primary_node}" --name "${SERVICE_GROUP_NAME}" --directory "${DATA_DIR}" --user mysql-router --account mysql-router --account-create if-not-exists --force
 expect "Please enter MySQL password for ${PROV_USER}:"
 send "${PROV_PWD}\r"
 expect "Please enter MySQL password for mysql-router:"
@@ -189,19 +193,15 @@ EOF
       if [[ ${expect_status} -ne 0 ]]; then
         die 48 "${func_name}" "mysqlrouter --bootstrap failed!"
       fi
-      # check keyring file and state.json file and mysqlrouter.key file exists
-      if [[ ! -f "${DATA_DIR}/data/keyring" ]] && [[ ! -f "${DATA_DIR}/data/state.json" ]] && [[ ! -f "${DATA_DIR}/mysqlrouter.key" ]]; then
-        die 49 "${func_name}" "not found keyring or state.json or mysqlrouter.key file!"
-      fi
     fi
 
     info "${func_name}" "Initialize mysql router done !"
     touch "${INIT_FLAG_FILE}"
-    [[ -f ${INIT_FLAG_FILE} ]] || die 50 "${func_name}" "create ${INIT_FLAG_FILE} failed!"
+    [[ -f ${INIT_FLAG_FILE} ]] || die 49 "${func_name}" "create ${INIT_FLAG_FILE} failed!"
   }
 
   chown -R "1001.1001" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
-    die 51 "${func_name}" "chown dir failed!"
+    die 50 "${func_name}" "chown dir failed!"
   }
 
   info "${func_name}" "run ${func_name} done."
