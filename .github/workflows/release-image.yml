@@ -70,7 +70,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.chart_dir.context }}
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
           tags: |
             quay.io/upmio/${{ matrix.chart_dir.image }}:${{ matrix.chart_dir.version }}
