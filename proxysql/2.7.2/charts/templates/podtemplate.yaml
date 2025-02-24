@@ -6,7 +6,6 @@ metadata:
   labels:
     upm.io/owner: upm
     type: proxysql
-    edition: community
     version: {{ .Chart.AppVersion }}
 template:
   metadata:
