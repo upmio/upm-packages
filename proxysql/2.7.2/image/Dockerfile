@@ -46,7 +46,7 @@ LABEL summary="${SUMMARY}" \
   io.k8s.display-name="proxysql ${UNIT_APP_VERSION}" \
   name="UPM/proxysql" \
   version="${UNIT_APP_VERSION}" \
-  maintainer="bsgchina.com"
+  maintainer="upm"
 
 # Download mysql80-community mysql-shell and mysql client
 RUN set -eu; \
