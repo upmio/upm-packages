@@ -4,7 +4,7 @@ global:
 image:
   registry: quay.io
   repository: upmio/mysql-router-community
-  tag: 8.4.4
+  tag: "8.4.4"
   digest: ""
   pullPolicy: IfNotPresent
 
@@ -12,5 +12,5 @@ agent:
   image:
     registry: quay.io
     repository: upmio/upm-agent
-    tag: v1.3.0
+    tag: "v1.3.0"
     pullPolicy: IfNotPresent

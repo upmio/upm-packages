@@ -4,7 +4,7 @@ global:
 image:
   registry: quay.io
   repository: upmio/proxysql
-  tag: 2.7.2
+  tag: "2.7.2"
   digest: ""
   pullPolicy: IfNotPresent
 
@@ -12,5 +12,5 @@ agent:
   image:
     registry: quay.io
     repository: upmio/upm-agent
-    tag: v1.3.0
+    tag: "v1.3.0"
     pullPolicy: IfNotPresent

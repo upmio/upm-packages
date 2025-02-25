@@ -4,7 +4,7 @@ global:
 image:
   registry: quay.io
   repository: upmio/mysql-community
-  tag: 8.0.37
+  tag: "8.0.37"
   digest: ""
   pullPolicy: IfNotPresent
 
@@ -12,7 +12,7 @@ metrics:
   image:
     registry: quay.io
     repository: upmio/mysqld-exporter
-    tag: 0.16.0
+    tag: "0.16.0"
     digest: ""
     pullPolicy: IfNotPresent
     resources:
@@ -27,5 +27,5 @@ agent:
   image:
     registry: quay.io
     repository: upmio/mysql-community-agent
-    tag: 8.0
+    tag: "8.0"
     pullPolicy: IfNotPresent
