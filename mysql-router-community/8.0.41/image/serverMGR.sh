@@ -181,18 +181,16 @@ if (status.defaultReplicaSet.status === 'OK') {
       rm -rf "${DATA_DIR:?}"/* || die 47 "${func_name}" "Force remove ${DATA_DIR} failed!"
 
       # bootstrap mysql router
-      /usr/bin/expect <<EOF
-spawn mysqlrouter --bootstrap "${PROV_USER}@${primary_node}" --name "${SERVICE_GROUP_NAME}" --directory "${DATA_DIR}" --user mysql-router --account mysql-router --account-create if-not-exists --force
-expect "Please enter MySQL password for ${PROV_USER}:"
-send "${PROV_PWD}\r"
-expect "Please enter MySQL password for mysql-router:"
-send "${MON_PWD}\r"
-interact
-EOF
-      local expect_status=$?
-      if [[ ${expect_status} -ne 0 ]]; then
-        die 48 "${func_name}" "mysqlrouter --bootstrap failed!"
-      fi
+      mysqlrouter --bootstrap "${PROV_USER}@${primary_node}" \
+       --name "${SERVICE_GROUP_NAME}" \
+       --directory "${DATA_DIR}"\
+       --user mysql-router \
+       --force \
+       --account-create=never \
+       --account "${PROV_USER}" < <(echo -e "${PROV_PWD}\n${PROV_PWD}") || {
+        die 48 "${func_name}" "mysqlrouter bootstrap failed!"
+       }
+
       # check keyring file and state.json file and mysqlrouter.key file
       if [[ ! -f "${DATA_DIR}/data/keyring" ]] || [[ ! -f "${DATA_DIR}/data/state.json" ]] || [[ ! -f "${DATA_DIR}/mysqlrouter.key" ]]; then
         die 49 "${func_name}" "check keyring file or state.json file or mysqlrouter.key file failed!"

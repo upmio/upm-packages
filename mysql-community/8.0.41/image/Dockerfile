@@ -13,7 +13,6 @@ RUN set -eux; \
     telnet \
     wget \
     glibc-common \
-    expect \
     epel-release
 # generate en_US.UTF-8
 RUN dnf install -y glibc-langpack-en glibc-locale-source \
