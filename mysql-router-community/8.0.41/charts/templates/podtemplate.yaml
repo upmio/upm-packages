@@ -123,7 +123,7 @@ template:
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.labels['unit.serial-number']"
+                fieldPath: "metadata.labels['unit.sn']"
         resources:
           requests:
             cpu: 200m

@@ -156,7 +156,7 @@ template:
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.labels['unit.serial-number']"
+                fieldPath: "metadata.labels['unit.sn']"
           - name: MYSQL_MEMORY_LIMIT
             valueFrom:
               resourceFieldRef:
