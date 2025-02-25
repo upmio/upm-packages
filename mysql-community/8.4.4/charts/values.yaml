@@ -25,6 +25,6 @@ metrics:
 agent:
   image:
     registry: quay.io
-    repository: upmio/mysql-agent-community
+    repository: upmio/mysql-community-agent
     tag: 8.4
     pullPolicy: IfNotPresent
