@@ -25,7 +25,7 @@ level={{ getv "/logger/level" }}
 [metadata_cache:{{ getenv "SERVICE_GROUP_NAME" }}]
 cluster_type=gr
 router_id={{add (atoi (getenv "UNIT_SN")) 1}}
-user=mysql-router
+user={{ getenv "PROV_USER" }}
 metadata_cluster=mycluster
 ttl=0.5
 auth_cache_ttl=-1
