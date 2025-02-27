@@ -1,0 +1,24 @@
+[
+  {
+    "key": "max_connections",
+    "scope": "Global",
+    "section": "postgresql",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1-262143",
+    "default": "100",
+    "desc_en": "Determines the maximum number of concurrent connections to the database server. The default is typically 100 connections, but might be less if your kernel settings will not support it (as determined during initdb). This parameter can only be set at server start. When running a standby server, you must set this parameter to the same or higher value than on the primary server. Otherwise, queries will not be allowed in the standby server.",
+    "desc_zh": "确定数据库服务器的最大并发连接数。默认情况下，最大连接数通常为100个连接，但如果您的内核设置不支持（在initdb期间确定），则可能会更少。此参数只能在服务器启动时设置。在运行备用服务器���，必须将此参数设置为与主服务器相同或更高的值。否则，备用服务器将不允许查询。"
+  },
+  {
+    "key": "max_prepared_transactions",
+    "scope": "Global",
+    "section": "postgresql",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "0-262143",
+    "default": "0",
+    "desc_en": "Sets the maximum number of transactions that can be in the \"prepared\" state simultaneously. Setting this parameter to zero (which is the default) disables the prepared-transaction feature. This parameter can only be set at server start. If you are not planning to use prepared transactions, this parameter should be set to zero to prevent accidental creation of prepared transactions. If you are using prepared transactions, you will probably want max_prepared_transactions to be at least as large as max_connections, so that every session can have a prepared transaction pending. When running a standby server, you must set this parameter to the same or higher value than on the primary server. Otherwise, queries will not be allowed in the standby server.",
+    "desc_zh": "设置可以同时处于“准备”状态的事务的最大数量。将此参数设置为零（默认值）将禁用准备事务功能。此参数只能在服务器启动时设置。如果您不打算使用准备事务，则应将此参数设置为零，以防止意外创建准备事务。如果您使用准备事务，则可能希望max_prepared_transactions至少与max_connections一样大，以便每个会话都可以有一个准备事务挂起。在运行备用服务器时，必须将此参数设置为与主服务器相同或更高的值。否则，备用服务器将不允许查询。"
+  }
+]

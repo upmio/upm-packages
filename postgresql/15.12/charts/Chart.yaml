@@ -1,0 +1,16 @@
+apiVersion: v2
+appVersion: 15.12
+dependencies:
+  - name: common
+    repository: oci://registry-1.docker.io/bitnamicharts
+    tags:
+      - bitnami-common
+    version: 2.x.x
+name: postgresql-15.12
+version: 1.3.1
+description:  PostgreSQL software packages, including configuration templates and pod templates.
+type: application
+keywords:
+  - postgresql
+  - database
+  - sql

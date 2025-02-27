@@ -1,0 +1,3 @@
+postgresql:
+  max_connections: "1000"
+  max_prepared_transactions: "1000"
