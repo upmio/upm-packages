@@ -30,10 +30,16 @@ ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
+RUN set -eux; \
+  groupadd --system --gid 1001 "mysql"; \
+  useradd --system --uid 1001 --gid 1001 -c "Default Application User" "mysql"
+
 # install unit-agent
 ENV AGENT_VERSION="v1.3.0"
 COPY --from=agent /usr/local/bin/unit-agent /usr/local/bin/unit-agent
 COPY --from=agent /etc/unit-agent/config.toml /etc/unit-agent/config.toml
+RUN chown -R 1001:1001 /etc/unit-agent /usr/local/bin/unit-agent \
+  && chmod +x /usr/local/bin/unit-agent
 RUN unit-agent --version
 
 ARG TARGETOS
