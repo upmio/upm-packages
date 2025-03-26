@@ -30,6 +30,7 @@ ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
+ENV PG_MAJOR=15
 ARG TARGETPLATFORM
 # Download postgresql rpm postgresql-server
 RUN set -ex \
