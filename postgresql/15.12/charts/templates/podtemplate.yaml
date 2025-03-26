@@ -6,7 +6,7 @@ metadata:
   labels:
     upm.io/owner: upm
     type: postgresql
-    version: {{ .Chart.AppVersion }}
+    version: {{ .Chart.AppVersion | quote }}
 template:
   metadata:
     annotations:
@@ -14,7 +14,7 @@ template:
     labels:
       upm.io/owner: upm
       type: postgresql
-      version: {{ .Chart.AppVersion }}
+      version: {{ .Chart.AppVersion | quote }}
   spec:
     tolerations:
       - key: "key"

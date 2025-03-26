@@ -6,7 +6,7 @@ metadata:
   labels:
     upm.io/owner: upm
     type: proxysql
-    version: {{ .Chart.AppVersion }}
+    version: {{ .Chart.AppVersion | quote }}
 data:
   proxysql: |
 {{ .Files.Get "files/proxysqlParametersDetail.json" | indent 4 }}

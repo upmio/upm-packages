@@ -7,7 +7,7 @@ metadata:
     upm.io/owner: upm
     type: mysql-router
     edition: community
-    version: {{ .Chart.AppVersion }}
+    version: {{ .Chart.AppVersion | quote }}
 data:
   mysql-router: |
 {{ .Files.Get "files/routerTemplate.tpl" | indent 4 }}
