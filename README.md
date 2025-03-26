@@ -22,6 +22,9 @@ helm search repo upm-packages
 The following is the installation method using mysql-community-8.0.41 as an example
 
 ```sh
+# Update the repo
+helm repo update
+
 # Install mysql community 8.0.41 upm package
 helm install --namespace=upm-system upm-packages-mysql-community-8.0.41 upm-packages/mysql-community-8.0.41
 ```
