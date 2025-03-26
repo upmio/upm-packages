@@ -7,11 +7,35 @@ The upm packages project is used to provide software image packaging for UPM sof
 [Helm](https://helm.sh) must be installed to use the charts.
 Please refer to Helm's [documentation](https://helm.sh/docs/) to get started.
 
+## TL;DR
 Once Helm is set up properly, add the repository as follows:
 
-```console
+```sh
+# Add the repo to helm (typically use a tag rather than main):
 helm repo add upm-packages https://upmio.github.io/upm-packages
+
+# list all charts in the repo
+helm search repo upm-packages
+```
+## Installing
+
+The following is the installation method using mysql-community-8.0.41 as an example
+
+```sh
+# Install mysql community 8.0.41 upm package
+helm install --namespace=upm-system upm-packages-mysql-community-8.0.41 upm-packages/mysql-community-8.0.41
 ```
 
-You can then run `helm search repo upm-packages` to see the charts.
+## Uninstalling
 
+You can use Helm to uninstall upm-packages:
+
+```sh
+helm uninstall --namespace=upm-system upm-packages-mysql-community-8.0.41 --wait
+```
+
+Optionally remove repository from helm:
+
+```sh
+helm repo remove upm-packages
+```
