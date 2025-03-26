@@ -130,8 +130,6 @@ template:
         image: {{ include "mysql.agent.image" . }}
         imagePullPolicy: {{ .Values.agent.image.pullPolicy | quote }}
         securityContext:
-          runAsUser: 1001
-          runAsGroup: 1001
           allowPrivilegeEscalation: false
         ports:
           - containerPort: 2214
