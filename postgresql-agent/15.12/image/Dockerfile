@@ -30,7 +30,8 @@ ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
-ENV PG_MAJOR=15
+ENV PG_VERSION="15.12"
+ENV PG_MAJOR="15"
 ARG TARGETPLATFORM
 # Download postgresql rpm postgresql-server
 RUN set -ex \
@@ -40,7 +41,7 @@ RUN set -ex \
      esac \
   && dnf --disablerepo=* -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-${TINI_ARCH}/pgdg-redhat-repo-latest.noarch.rpm \
   && dnf -qy module disable postgresql \
-  && dnf install -y "postgresql${PG_MAJOR}-server-${UNIT_APP_VERSION}" \
+  && dnf install -y "postgresql${PG_MAJOR}-server-${PG_VERSION}" \
   && dnf clean all \
   && /usr/pgsql-${PG_MAJOR}/bin/postgres --version
 
