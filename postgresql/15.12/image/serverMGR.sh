@@ -8,7 +8,7 @@ POSIXLY_CORRECT=1
 export POSIXLY_CORRECT
 LANG=C
 
-VERSION="v1.6.6"
+VERSION="v1.6.7"
 
 # ##############################################################################
 # common function package
@@ -107,11 +107,13 @@ initialize() {
   get_pwd || die 40 "${func_name}" "get password failed!"
 
   [[ -f "${INIT_FLAG_FILE}" ]] || {
-    chown -R "1001.1001" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
-        die 41 "${func_name}" "chown dir failed!"
-    }
+    if [[ "${FORCE_CLEAN}" == "true" ]]; then
+      rm -rf "${DATA_DIR}" "${CONF_DIR}" || {
+        die 41 "${func_name}" "Force remove ${DATA_DIR} ${CONF_DIR} failed!"
+      }
+    fi
 
-    /sbin/runuser -l postgres -c "initdb --data-checksums --pgdata=${DATA_DIR} -A md5 --pwfile=<(echo \"${ADM_PWD}\")" || {
+    initdb --data-checksums --pgdata="${DATA_DIR}" -A md5 --pwfile=<(echo "${ADM_PWD}") || {
         die 42 "${func_name}" "initdb failed!"
     }
 
@@ -122,21 +124,16 @@ local    all             all                                     md5
 host     replication     replication     0.0.0.0/0               md5
 EOF
 
-      /sbin/runuser -l postgres -c "postgres --single -D ${DATA_DIR} postgres <<EOF
+    postgres --single -D "${DATA_DIR}" postgres <<EOF || die 43 "${func_name}" "create replication user failed!"
 CREATE ROLE replication WITH REPLICATION PASSWORD '${REPL_PWD}' LOGIN;
 EOF
-" || die 43 "${func_name}" "create replication user failed!"
 
-      info "${func_name}" "Initialize postgresql done !"
-      touch "${INIT_FLAG_FILE}"
-      [[ -f ${INIT_FLAG_FILE} ]] || die 44 "${func_name}" "create ${INIT_FLAG_FILE} failed!"
-    }
+    info "${func_name}" "Initialize postgresql done !"
+    touch "${INIT_FLAG_FILE}"
+    [[ -f ${INIT_FLAG_FILE} ]] || die 47 "${func_name}" "create ${INIT_FLAG_FILE} failed!"
+  }
 
-    chown -R "1001.1001" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
-      die 46 "${func_name}" "chown dir failed!"
-    }
-
-    info "${func_name}" "run ${func_name} done."
+  info "${func_name}" "run ${func_name} done."
 }
 
 # ##############################################################################
