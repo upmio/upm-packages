@@ -74,6 +74,22 @@ get_pwd() {
     return 2
   }
 
+  local secret_file="${SECRET_MOUNT}/${MON_USER}"
+  [[ -f "${secret_file}" ]] || {
+    error "${func_name}" "get file ${secret_file} failed !"
+    return 2
+  }
+  local enc_base64
+  enc_base64="$(cat "${secret_file}")" || {
+    error "${func_name}" "get enc_base64 failed!"
+    return 2
+  }
+  export MON_PWD
+  MON_PWD=$(printf "%s\n" "${enc_base64}" | openssl enc -d "${enc_type}" -base64 -K "${enc_key}" -iv "${enc_iv}" 2>/dev/null) || {
+    error "${func_name}" "openssl enc failed"
+    return 2
+  }
+
   local secret_file="${SECRET_MOUNT}/${REPL_USER}"
   [[ -f "${secret_file}" ]] || {
     error "${func_name}" "get file ${secret_file} failed !"
@@ -121,11 +137,13 @@ initialize() {
 host     all             all             0.0.0.0/0               md5
 host     all             all             ::/0                    md5
 local    all             all                                     md5
-host     replication     replication     0.0.0.0/0               md5
+host     replication     ${REPL_USER}    0.0.0.0/0               md5
+host     all             ${MON_USER}     0.0.0.0/0               md5
 EOF
 
     postgres --single -D "${DATA_DIR}" postgres <<EOF || die 43 "${func_name}" "create replication user failed!"
-CREATE ROLE replication WITH REPLICATION PASSWORD '${REPL_PWD}' LOGIN;
+CREATE ROLE ${REPL_USER} WITH REPLICATION PASSWORD '${REPL_PWD}' LOGIN;
+CREATE ROLE ${MON_USER} WITH LOGIN PASSWORD '${MON_PWD}' CONNECTION LIMIT 5 IN ROLE pg_monitor;
 EOF
 
     info "${func_name}" "Initialize postgresql done !"
@@ -166,6 +184,7 @@ INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"
 [[ -d ${LOG_MOUNT} ]] || die 11 "Globals" "Not found LOG_MOUNT !"
 [[ -v ADM_USER ]] || die 10 "Globals" "get env ADM_USER failed !"
 [[ -v REPL_USER ]] || die 10 "Globals" "get env REPL_USER failed !"
+[[ -v MON_USER ]] || die 10 "Globals" "get env MON_USER failed !"
 FORCE_CLEAN="${FORCE_CLEAN:-false}"
 
 main "${@:-""}"
