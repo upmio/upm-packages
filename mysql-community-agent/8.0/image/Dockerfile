@@ -30,12 +30,6 @@ ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
-# install unit-agent
-ENV AGENT_VERSION="v1.3.0"
-COPY --from=agent /usr/local/bin/unit-agent /usr/local/bin/unit-agent
-COPY --from=agent /etc/unit-agent/config.toml /etc/unit-agent/config.toml
-RUN unit-agent --version
-
 ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETPLATFORM
@@ -50,5 +44,11 @@ RUN set -ex \
      esac \
   && dnf install -y "https://downloads.percona.com/downloads/Percona-XtraBackup-8.0/Percona-XtraBackup-${XTRABACKUP_VERSION}/binary/redhat/9/${TINI_ARCH}/percona-xtrabackup-80-${XTRABACKUP_VERSION}.1.el9.${TINI_ARCH}.rpm" \
   && dnf clean all
+
+# install unit-agent
+ENV AGENT_VERSION="v1.3.0"
+COPY --from=agent /usr/local/bin/unit-agent /usr/local/bin/unit-agent
+COPY --from=agent /etc/unit-agent/config.toml /etc/unit-agent/config.toml
+RUN unit-agent --version
 
 CMD ["unit-agent","daemon","-f","/etc/unit-agent/config.toml"]
