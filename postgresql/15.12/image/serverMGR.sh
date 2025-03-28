@@ -133,7 +133,7 @@ initialize() {
         die 42 "${func_name}" "initdb failed!"
     }
 
-    cat <<EOF >"${DATA_DIR}/pg_hba.conf"
+    cat <<EOF >"${CONF_DIR}/pg_hba.conf"
 host     all             all             0.0.0.0/0               md5
 host     all             all             ::/0                    md5
 local    all             all                                     md5

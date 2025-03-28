@@ -34,5 +34,5 @@ log_directory = '{{getenv "LOG_MOUNT"}}'
 log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
 log_file_mode = 0600
 log_rotation_age = 1d
-hba_file = '{{getenv "DATA_DIR"}}/pg_hba.conf'
+hba_file = '{{getenv "CONF_DIR"}}/pg_hba.conf'
 ident_file = '{{getenv "DATA_DIR"}}/pg_ident.conf'
