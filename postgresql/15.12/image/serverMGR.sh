@@ -133,7 +133,12 @@ initialize() {
         die 42 "${func_name}" "initdb failed!"
     }
 
-    cat <<EOF >"${CONF_DIR}/pg_hba.conf"
+    # check if the conf dir exists
+    [[ -d "${CONF_DIR}" ]] || {
+      mkdir -p "${CONF_DIR}" || die 43 "${func_name}" "create ${CONF_DIR} failed!"
+    }
+
+    cat <<EOF >"${CONF_DIR}/pg_hba.conf" || die 44 "${func_name}" "create pg_hba.conf failed!"
 host     all             all             0.0.0.0/0               md5
 host     all             all             ::/0                    md5
 local    all             all                                     md5
@@ -141,14 +146,14 @@ host     replication     ${REPL_USER}    0.0.0.0/0               md5
 host     all             ${MON_USER}     0.0.0.0/0               md5
 EOF
 
-    postgres --single -D "${DATA_DIR}" postgres <<EOF || die 43 "${func_name}" "create replication user failed!"
+    postgres --single -D "${DATA_DIR}" postgres <<EOF || die 45 "${func_name}" "create replication user failed!"
 CREATE ROLE ${REPL_USER} WITH REPLICATION PASSWORD '${REPL_PWD}' LOGIN;
 CREATE ROLE ${MON_USER} WITH LOGIN PASSWORD '${MON_PWD}' CONNECTION LIMIT 5 IN ROLE pg_monitor;
 EOF
 
     info "${func_name}" "Initialize postgresql done !"
     touch "${INIT_FLAG_FILE}"
-    [[ -f ${INIT_FLAG_FILE} ]] || die 47 "${func_name}" "create ${INIT_FLAG_FILE} failed!"
+    [[ -f ${INIT_FLAG_FILE} ]] || die 46 "${func_name}" "create ${INIT_FLAG_FILE} failed!"
   }
 
   info "${func_name}" "run ${func_name} done."
