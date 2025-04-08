@@ -8,7 +8,7 @@ POSIXLY_CORRECT=1
 export POSIXLY_CORRECT
 LANG=C
 
-VERSION="v1.6.6"
+VERSION="v1.6.7"
 
 # ##############################################################################
 # common function package
@@ -109,9 +109,6 @@ initialize() {
     mkdir -p "${DATA_DIR}" "${CONF_DIR}" || {
       die 42 "${func_name}" "mkdir ${DATA_DIR} ${CONF_DIR} failed!"
     }
-    chown -R "1001.1001" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
-      die 43 "${func_name}" "chown dir failed!"
-    }
 
     info "${func_name}" "Starting initialize mysql router!"
 
@@ -200,8 +197,6 @@ if (status.defaultReplicaSet.status === 'OK') {
     touch "${INIT_FLAG_FILE}"
     [[ -f ${INIT_FLAG_FILE} ]] || die 50 "${func_name}" "create ${INIT_FLAG_FILE} failed!"
   }
-
-  chown -R "1001.1001" "${DATA_MOUNT}" "${LOG_MOUNT}" || die 51 "${func_name}" "chown dir failed!"
 
   info "${func_name}" "run ${func_name} done."
 }

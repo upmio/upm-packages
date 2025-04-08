@@ -62,6 +62,7 @@ RUN set -eu; \
   mysqlsh --version
 
 COPY serverMGR.sh /usr/local/bin/
+RUN chown 1001:1001 /usr/local/bin/serverMGR.sh
 RUN chmod +x /usr/local/bin/serverMGR.sh
 
 COPY supervisord.conf /etc/supervisord.conf
