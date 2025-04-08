@@ -8,10 +8,10 @@ POSIXLY_CORRECT=1
 export POSIXLY_CORRECT
 LANG=C
 
-VERSION="v1.6.3"
+VERSION="v1.6.7"
 
 # ##############################################################################
-# function package
+# common function package
 # ##############################################################################
 die() {
   local status="${1}"
@@ -126,10 +126,6 @@ initialize() {
     echo "port=${ADMIN_PORT}"
     echo "password=${MON_PWD}"
   } >"${stats_config}"
-
-  chown -R "proxysql.proxysql" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
-    die 44 "${func_name}" "chown dir failed!"
-  }
 
   info "${func_name}" "run ${func_name} done."
 }

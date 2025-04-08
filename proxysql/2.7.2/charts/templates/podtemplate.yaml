@@ -24,10 +24,16 @@ template:
     dnsPolicy: ClusterFirst
     restartPolicy: Always
     terminationGracePeriodSeconds: 30
+    securityContext:
+      fsGroup: 1001
     initContainers:
       - name: init-container
         image: {{ include "proxysql.image" . }}
         imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
         command:
           - "bash"
           - "-c"
@@ -50,6 +56,8 @@ template:
       - name: proxysql
         image: {{ include "proxysql.image" . }}
         imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
         env:
           - name: METRICS_PORT
             value: "6070"
@@ -107,6 +115,8 @@ template:
       - name: unit-agent
         image: {{ include "proxysql.agent.image" . }}
         imagePullPolicy: {{ .Values.agent.image.pullPolicy | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
         ports:
           - containerPort: 2214
             name: unit-agent
