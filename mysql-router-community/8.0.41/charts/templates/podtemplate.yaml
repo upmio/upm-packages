@@ -26,10 +26,16 @@ template:
     dnsPolicy: ClusterFirst
     restartPolicy: Always
     terminationGracePeriodSeconds: 30
+    securityContext:
+      fsGroup: 1001
     initContainers:
       - name: init-container
         image: {{ include "router.image" . }}
         imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
         command:
           - "bash"
           - "-c"
@@ -57,6 +63,8 @@ template:
       - name: mysql-router
         image: {{ include "router.image" . }}
         imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
         env:
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
@@ -104,6 +112,8 @@ template:
       - name: unit-agent
         image: {{ include "router.agent.image" . }}
         imagePullPolicy: {{ .Values.agent.image.pullPolicy | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
         ports:
           - containerPort: 2214
             name: unit-agent
