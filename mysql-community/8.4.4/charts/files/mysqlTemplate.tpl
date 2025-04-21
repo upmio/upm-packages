@@ -6,7 +6,6 @@ socket={{getenv "DATA_MOUNT"}}/mysqld.sock
 
 [mysqld]
 default_storage_engine=InnoDB
-default_authentication_plugin={{ getv "/mysqld/default_authentication_plugin" }}
 disabled_storage_engines=MEMORY,BLACKHOLE,MyISAM,CSV,ARCHIVE,FEDERATED
 log_timestamps=SYSTEM
 skip_replica_start=ON

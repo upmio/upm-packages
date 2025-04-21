@@ -1,16 +1,5 @@
 [
   {
-    "key": "default_authentication_plugin",
-    "scope": "Global",
-    "section": "mysqld",
-    "type": "Enumeration",
-    "dynamic": false,
-    "range": "[\"mysql_native_password\",\"caching_sha2_password\",\"sha256_password\"]",
-    "default": "caching_sha2_password",
-    "desc_en": "default authentication plugin. 5.7 default: mysql_native_password, 8.0 default: caching_sha2_password.",
-    "desc_zh": "默认认证插件。5.7默认：mysql_native_password，8.0默认：caching_sha2_password。"
-  },
-  {
     "key": "character_set_server",
     "scope": "Global, Session",
     "section": "mysqld",
