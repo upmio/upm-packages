@@ -314,7 +314,7 @@
     "type": "Set",
     "dynamic": true,
     "range": "[\"ALLOW_INVALID_DATES\",\"ANSI_QUOTES\",\"ERROR_FOR_DIVISION_BY_ZERO\",\"HIGH_NOT_PRECEDENCE\",\"IGNORE_SPACE\",\"NO_AUTO_VALUE_ON_ZERO\",\"NO_BACKSLASH_ESCAPES\",\"NO_DIR_IN_CREATE\",\"NO_ENGINE_SUBSTITUTION\",\"NO_UNSIGNED_SUBTRACTION\",\"NO_ZERO_DATE\",\"NO_ZERO_IN_DATE\",\"ONLY_FULL_GROUP_BY\",\"PAD_CHAR_TO_FULL_LENGTH\",\"PIPES_AS_CONCAT\",\"REAL_AS_FLOAT\",\"STRICT_ALL_TABLES\",\"STRICT_TRANS_TABLES\",\"TIME_TRUNCATE_FRACTIONAL\"]",
-    "default": "ONLY_FULL_GROUP_BY STRICT_TRANS_TABLES NO_ZERO_IN_DATE NO_ZERO_DATE ERROR_FOR_DIVISION_BY_ZERO NO_ENGINE_SUBSTITUTION",
+    "default": "STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION",
     "desc_en": "The MySQL server can operate in different SQL modes, and can apply these modes differently for different clients, depending on the value of the sql_mode system variable.",
     "desc_zh": "MySQL服务器可以以不同的SQL模式运行，并且可以根据sql_mode系统变量的值以不同的方式应用这些模式。"
   },

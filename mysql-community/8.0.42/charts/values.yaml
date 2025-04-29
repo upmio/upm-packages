@@ -4,7 +4,7 @@ global:
 image:
   registry: quay.io
   repository: upmio/mysql-community
-  tag: "8.0.37"
+  tag: "8.0.42"
   digest: ""
   pullPolicy: IfNotPresent
 
