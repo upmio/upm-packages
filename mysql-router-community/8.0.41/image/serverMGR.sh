@@ -58,22 +58,6 @@ get_pwd() {
   local enc_iv="66382f4e654c734a2a732a7679675640"
   local enc_type="-aes-256-cbc"
 
-  local secret_file="${SECRET_MOUNT}/${MON_USER}"
-  [[ -f "${secret_file}" ]] || {
-    error "${func_name}" "get file ${secret_file} failed !"
-    return 2
-  }
-  local enc_base64
-  enc_base64="$(cat "${secret_file}")" || {
-    error "${func_name}" "get enc_base64 failed!"
-    return 2
-  }
-  export MON_PWD
-  MON_PWD=$(printf "%s\n" "${enc_base64}" | openssl enc -d "${enc_type}" -base64 -K "${enc_key}" -iv "${enc_iv}" 2>/dev/null) || {
-    error "${func_name}" "openssl enc failed"
-    return 2
-  }
-
   local secret_file="${SECRET_MOUNT}/${PROV_USER}"
   [[ -f "${secret_file}" ]] || {
     error "${func_name}" "get file ${secret_file} failed !"
@@ -183,6 +167,8 @@ if (status.defaultReplicaSet.status === 'OK') {
        --directory "${DATA_DIR}"\
        --user mysql-router \
        --force \
+       --disable-rest \
+       --ssl-mode=DISABLED \
        --account-create=never \
        --account "${PROV_USER}" < <(echo -e "${PROV_PWD}\n${PROV_PWD}") || {
         die 48 "${func_name}" "mysqlrouter bootstrap failed!"
@@ -192,13 +178,34 @@ if (status.defaultReplicaSet.status === 'OK') {
       if [[ ! -f "${DATA_DIR}/data/keyring" ]] || [[ ! -f "${DATA_DIR}/data/state.json" ]] || [[ ! -f "${DATA_DIR}/mysqlrouter.key" ]]; then
         die 49 "${func_name}" "check keyring file or state.json file or mysqlrouter.key file failed!"
       fi
+
+      mysqlrouter_passwd set "${DATA_MOUNT}/.mysqlrouter.pwd" "${PROV_USER}" < <(echo -e "${PROV_PWD}") || {
+        die 50 "${func_name}" "mysqlrouter_passwd set failed!"
+      }
     fi
     info "${func_name}" "Initialize mysql router done !"
     touch "${INIT_FLAG_FILE}"
-    [[ -f ${INIT_FLAG_FILE} ]] || die 50 "${func_name}" "create ${INIT_FLAG_FILE} failed!"
+    [[ -f ${INIT_FLAG_FILE} ]] || die 51 "${func_name}" "create ${INIT_FLAG_FILE} failed!"
   }
 
   info "${func_name}" "run ${func_name} done."
+}
+
+check_health() {
+  local func_name="check_health"
+
+  get_pwd || die 41 "${func_name}" "get ${PROV_USER} password failed!"
+
+  # use rest api GET /routes/{routeName}/health check router
+  local route_name="mysql_rw"
+  local url="http://localhost:${HTTP_PORT}/api/20190715/routes/${route_name}/health"
+  local status_code
+  status_code=$(curl -s -o /dev/null -w "%{http_code}" -u "${PROV_USER}:${PROV_PWD}" "${url}") || {
+    die 42 "${func_name}" "curl ${url} failed!"
+  }
+  if [[ "${status_code}" -ne 200 ]]; then
+    die 43 "${func_name}" "curl ${url} failed! status code: ${status_code}"
+  fi
 }
 
 # ##############################################################################
@@ -212,6 +219,9 @@ main() {
   case "${action}" in
   "initialize")
     initialize
+    ;;
+  "health")
+    check_health
     ;;
   *)
     die 21 "${func_name}" "service action(${action}) nonsupport"
@@ -229,7 +239,6 @@ INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"
 [[ -d ${LOG_MOUNT} ]] || die 11 "Globals" "Not found LOG_MOUNT !"
 [[ -v SERVICE_GROUP_NAME ]] || die 10 "Globals" "get env SERVICE_GROUP_NAME failed !"
 [[ -v HTTP_PORT ]] || die 10 "Globals" "get env HTTP_PORT failed !"
-[[ -v MON_USER ]] || die 10 "Globals" "get env MON_USER failed !"
 [[ -v PROV_USER ]] || die 10 "Globals" "get env PROV_USER failed !"
 [[ -v MYSQL_SERVICE_NAME ]] || die 10 "Globals" "get env MYSQL_SERVICE_NAME failed !"
 [[ -v MYSQL_PORT ]] || die 10 "Globals" "get env MYSQL_PORT failed !"
