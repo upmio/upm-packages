@@ -22,7 +22,7 @@ router_require_enforce=1
 [logger]
 level={{ getv "/logger/level" }}
 
-[metadata_cache:{{ getenv "SERVICE_GROUP_NAME" }}]
+[metadata_cache:mycluster]
 cluster_type=gr
 router_id={{add (atoi (getenv "UNIT_SN")) 1}}
 user={{ getenv "PROV_USER" }}
@@ -32,17 +32,17 @@ auth_cache_ttl=-1
 auth_cache_refresh_interval=2
 use_gr_notifications=0
 
-[routing:{{ getenv "SERVICE_GROUP_NAME" }}_rw]
+[routing:mysql_rw]
 bind_address=0.0.0.0
-bind_port={{ getenv "MYSQL_ROUTER_PORT" }}
+bind_port={{ getenv "MYSQL-ROUTER_PORT" }}
 destinations=metadata-cache://mycluster/?role=PRIMARY
 routing_strategy=first-available
 protocol=classic
 
-[routing:{{ getenv "SERVICE_GROUP_NAME" }}_x_rw]
+[routing:mysqlx_rw]
 bind_address=0.0.0.0
-bind_port={{ getenv "MYSQLX_ROUTER_PORT" }}
-destinations=metadata-cache://testCluster/?role=PRIMARY
+bind_port={{ getenv "MYSQLX-ROUTER_PORT" }}
+destinations=metadata-cache://mycluster/?role=PRIMARY
 routing_strategy=first-available
 protocol=x
 router_require_enforce=0
@@ -51,21 +51,28 @@ router_require_enforce=0
 port={{ getenv "HTTP_PORT" }}
 ssl=0
 
-[http_auth_realm:default_auth_realm]
-backend=default_auth_backend
-method=basic
-name=default_realm
-
-[rest_router]
-require_realm=default_auth_realm
-
+# Exposes /api/20190715/swagger.json
 [rest_api]
 
-[http_auth_backend:default_auth_backend]
-backend=metadata_cache
+# Exposes /api/20190715/router/status
+[rest_router]
+require_realm=realmauth
 
+# Exposes /api/20190715/routes/*
 [rest_routing]
-require_realm=default_auth_realm
+require_realm=realmauth
 
+# Exposes /api/20190715/metadata/*
 [rest_metadata_cache]
-require_realm=default_auth_realm
+require_realm=realmauth
+
+# Define our realm
+[http_auth_realm:realmauth]
+backend=filebackend
+method=basic
+name=Real Authentication
+
+# Define our backend; this file must exist and be a password file generated with mysqlrouter_passwd (more on this below)
+[http_auth_backend:filebackend]
+backend=file
+filename={{ getenv "DATA_MOUNT" }}/.mysqlrouter.pwd
