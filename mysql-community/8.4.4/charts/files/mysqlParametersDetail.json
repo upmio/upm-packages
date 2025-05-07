@@ -264,34 +264,13 @@
     "desc_zh": "每个需要排序的会话分配此大小的缓冲区。"
   },
   {
-    "key": "read_buffer_size",
-    "scope": "Global, Session",
-    "section": "mysqld",
-    "type": "Integer",
-    "dynamic": true,
-    "range": "8200 - 2147479552",
-    "default": "131072",
-    "desc_en": "Each thread that does a sequential scan for a MyISAM table allocates a buffer of this size (in bytes) for each table it scans.",
-    "desc_zh": "每个线程为MyISAM表执行顺序扫描时，为每个扫描的表分配此大小的缓冲区（以字节为单位）。"
-  },
-  {
-    "key": "read_rnd_buffer_size",
-    "scope": "Global, Session",
-    "section": "mysqld",
-    "type": "Integer",
-    "dynamic": true,
-    "range": "1 - 2147483647",
-    "default": "262144",
-    "desc_en": "This variable is used for reads from MyISAM tables, and, for any storage engine, for Multi-Range Read optimization.",
-    "desc_zh": "此变量用于从MyISAM表读取，并用于Multi-Range Read优化。"
-  },
-  {
     "key": "tmp_table_size",
     "scope": "Global, Session",
     "section": "mysqld",
     "type": "Integer",
     "dynamic": true,
     "range": "1024 - 18446744073709551615",
+    "display_unit": "M",
     "default": "16777216",
     "desc_en": "Defines the maximum size of internal in-memory temporary tables created by the MEMORY and TempTable storage engines.",
     "desc_zh": "定义由MEMORY和TempTable存储引擎创建的内部内存临时表的最大大小。"
@@ -303,6 +282,7 @@
     "type": "Integer",
     "dynamic": true,
     "range": "16384 - 1844674407370954752",
+    "display_unit": "M",
     "default": "16777216",
     "desc_en": "This variable sets the maximum size to which user-created MEMORY tables are permitted to grow.",
     "desc_zh": "此变量设置用户创建的MEMORY表允许增长的最大大小。"
@@ -369,20 +349,10 @@
     "type": "Integer",
     "dynamic": true,
     "range": "128 - 18446744073709547520",
+    "display_unit": "M",
     "default": "262144",
     "desc_en": "The minimum size of the buffer that is used for plain index scans, range index scans, and joins that do not use indexes and thus perform full table scans.",
     "desc_zh": "用于普通索引扫描、范围索引扫描和不使用索引的连接的最小缓冲区大小。"
-  },
-  {
-    "key": "key_buffer_size",
-    "scope": "Global",
-    "section": "mysqld",
-    "type": "Integer",
-    "dynamic": true,
-    "range": "8 - ",
-    "default": "8388608",
-    "desc_en": "Index blocks for MyISAM tables are buffered and are shared by all threads.",
-    "desc_zh": "MyISAM表的索引块被缓冲并由所有线程共享。"
   },
   {
     "key": "log_bin_trust_function_creators",
@@ -413,6 +383,7 @@
     "type": "Integer",
     "dynamic": true,
     "range": "4096 - 18446744073709551615",
+    "display_unit": "M",
     "default": "32768",
     "desc_en": "The size of the memory buffer to hold changes to the binary log during a transaction.",
     "desc_zh": "事务期间在内存中保留二进制日志更改的缓冲区的大小。"
@@ -644,6 +615,7 @@
     "type": "Integer",
     "dynamic": false,
     "range": "65536 - 67108864",
+    "display_unit": "M",
     "default": "1048576",
     "desc_en": "The sort buffer size for online DDL operations that create or rebuild secondary indexes.",
     "desc_zh": "在线DDL操作创建或重建辅助索引时使用的排序缓冲区大小。"
@@ -787,6 +759,7 @@
     "type": "Integer",
     "dynamic": true,
     "range": "65536 - ",
+    "display_unit": "G",
     "default": "134217728",
     "desc_en": "Specifies an upper limit in bytes on the size of the temporary log files used during online DDL operations for InnoDB tables.",
     "desc_zh": "指定用于InnoDB表的在线DDL操作期间使用的临时日志文件大小的上限，以字节为单位。"
@@ -809,6 +782,7 @@
     "type": "Integer",
     "dynamic": true,
     "range": "1048576 - 4294967295",
+    "display_unit": "M",
     "default": "16777216",
     "desc_en": "The size in bytes of the buffer that InnoDB uses to write to the log files on disk.",
     "desc_zh": "InnoDB使用的写入磁盘日志文件的缓冲区大小（以字节为单位）。"
@@ -842,6 +816,7 @@
     "type": "Integer",
     "dynamic": true,
     "range": "100 - ",
+    "display_unit": "G",
     "default": "1073741824",
     "desc_en": "Defines a threshold size for undo tablespaces.",
     "desc_zh": "定义撤消表空间的阈值大小。"
