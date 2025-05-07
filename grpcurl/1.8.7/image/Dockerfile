@@ -1,6 +1,6 @@
 FROM ghcr.io/jqlang/jq:1.7 as jq
 
-FROM rockylinux:8.9.20231119
+FROM rockylinux/rockylinux:9.5.20241118
 
 # set timezone
 ENV TZ=Asia/Shanghai
@@ -38,4 +38,4 @@ RUN set -ex \
 COPY toolkit /usr/local/bin/
 RUN chmod +x /usr/local/bin/toolkit
 
-CMD ["/bin/bash"]
+ENTRYPOINT ["/usr/local/bin/toolkit"]
