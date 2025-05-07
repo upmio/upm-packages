@@ -8,7 +8,7 @@ POSIXLY_CORRECT=1
 export POSIXLY_CORRECT
 LANG=C
 
-VERSION="v1.6.6"
+VERSION="v1.6.7"
 
 # ##############################################################################
 # common function package
@@ -148,9 +148,6 @@ initialize() {
     mkdir -p "${DATA_DIR}" "${TMP_DIR}" "${BIN_LOG_DIR}" "${RELAY_LOG_DIR}" "${CONF_DIR}" || {
       die 42 "${func_name}" "mkdir ${DATA_DIR} ${TMP_DIR} ${BIN_LOG_DIR} ${RELAY_LOG_DIR} ${CONF_DIR} failed!"
     }
-    chown -R "1001.1001" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
-      die 43 "${func_name}" "chown dir failed!"
-    }
 
     local init_sql="/tmp/init_${random}.sql"
     {
@@ -206,10 +203,6 @@ initialize() {
     echo "host=${POD_NAME}"
     echo "port=${MYSQL_PORT}"
   } >"${mon_config}"
-
-  chown -R "1001.1001" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
-    die 46 "${func_name}" "chown dir failed!"
-  }
 
   info "${func_name}" "run ${func_name} done."
 }

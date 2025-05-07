@@ -26,10 +26,16 @@ template:
     dnsPolicy: ClusterFirst
     restartPolicy: Always
     terminationGracePeriodSeconds: 30
+    securityContext:
+      fsGroup: 1001
     initContainers:
       - name: init-container
         image: {{ include "mysql.image" . }}
         imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
         command:
           - "bash"
           - "-c"
@@ -63,6 +69,8 @@ template:
       - name: mysql
         image: {{ include "mysql.image" . }}
         imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
         env:
           - name: POD_NAME
             valueFrom:
@@ -121,6 +129,8 @@ template:
       - name: unit-agent
         image: {{ include "mysql.agent.image" . }}
         imagePullPolicy: {{ .Values.agent.image.pullPolicy | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
         ports:
           - containerPort: 2214
             name: unit-agent
@@ -170,10 +180,12 @@ template:
       - name: metrics
         image: {{ include "mysql.metrics.image" . }}
         imagePullPolicy: {{ .Values.metrics.image.pullPolicy | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
         command:
-        - "sh"
-        - "-c"
-        - "mysqld_exporter --config.my-cnf=${CONF_DIR}/.monitor.cnf --web.listen-address=:${METRICS_PORT} --collect.auto_increment.columns --collect.binlog_size --collect.engine_innodb_status --collect.info_schema.clientstats --collect.info_schema.innodb_cmp --collect.info_schema.innodb_cmpmem --collect.info_schema.innodb_metrics --collect.info_schema.innodb_tablespaces --collect.info_schema.processlist --collect.info_schema.tables --collect.info_schema.tablestats --collect.info_schema.userstats --collect.perf_schema.eventsstatements --collect.perf_schema.eventsstatementssum --collect.perf_schema.eventswaits --collect.perf_schema.memory_events --collect.perf_schema.tablelocks --collect.perf_schema.tableiowaits --collect.slave_hosts"
+          - "sh"
+          - "-c"
+          - "mysqld_exporter --config.my-cnf=${CONF_DIR}/.monitor.cnf --web.listen-address=:${METRICS_PORT} --collect.auto_increment.columns --collect.binlog_size --collect.engine_innodb_status --collect.info_schema.clientstats --collect.info_schema.innodb_cmp --collect.info_schema.innodb_cmpmem --collect.info_schema.innodb_metrics --collect.info_schema.innodb_tablespaces --collect.info_schema.processlist --collect.info_schema.tables --collect.info_schema.tablestats --collect.info_schema.userstats --collect.perf_schema.eventsstatements --collect.perf_schema.eventsstatementssum --collect.perf_schema.eventswaits --collect.perf_schema.memory_events --collect.perf_schema.tablelocks --collect.perf_schema.tableiowaits --collect.slave_hosts"
         ports:
           - containerPort: 9104
             name: metrics
