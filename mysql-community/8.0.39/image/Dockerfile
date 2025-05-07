@@ -33,7 +33,7 @@ RUN set -eux; \
   dnf install -y supervisor
 
 # Download MySQL
-ENV UNIT_APP_VERSION="8.0.35"
+ENV UNIT_APP_VERSION="8.0.39"
 ENV MYSQL_VERSION="${UNIT_APP_VERSION}-1.el8"
 
 # MySQL image for UPM.
