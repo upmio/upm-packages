@@ -37,6 +37,7 @@ table_definition_cache={{ getv "/mysqld/table_definition_cache" }}
 join_buffer_size={{ getv "/mysqld/join_buffer_size" }}
 
 init_connect = 'SET NAMES utf8mb4'
+character_set_server={{ getv "/mysqld/character_set_server" }}
 lower_case_table_names={{ getv "/mysqld/lower_case_table_names" }}
 open_files_limit={{ getv "/mysqld/open_files_limit" }}
 log_slow_admin_statements={{ getv "/mysqld/log_slow_admin_statements" }}
