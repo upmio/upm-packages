@@ -219,6 +219,21 @@ mysql_gtid_purged() {
 
   info "${func_name}" "run ${func_name} done."
 }
+
+mysql_set_variable() {
+  local func_name="mysql_set_variable"
+
+  info "${func_name}" "start set mysql variable !"
+
+  local admin_password
+  admin_password="$(get_pwd "${ADM_USER}")" || die 40 "${func_name}" "get ${ADM_USER} password failed!"
+
+  grpcurl -plaintext -d '{"Key":"'"${VAR_KEY}"'","Value":"'"${VAR_VALUE}"'","SocketFile":"'"${SOCKET_FILE}"'","Username":"'"${ADM_USER}"'","Password":"'"${admin_password}"'"}' "${DEST_HOST}":2214 mysql.MysqlOperation.SetVariable || {
+    die 41 "${func_name}" "set mysql variable failed!"
+  }
+
+  info "${func_name}" "set mysql variable done !"
+}
 # ##############################################################################
 # The main() function is called at the action function.
 # ##############################################################################
@@ -318,6 +333,13 @@ main() {
       [[ -v ARCH_MODE ]] || die 10 "Globals" "get env ARCH_MODE failed !"
 
       mysql_gtid_purged
+      ;;
+    "set-variable")
+      [[ -v ADM_USER ]] || die 10 "Globals" "get env ADM_USER failed !"
+      [[ -v SOCKET_FILE ]] || die 10 "Globals" "get env SOCKET_FILE failed !"
+      [[ -v VAR_KEY ]] || die 10 "Globals" "get env VAR_KEY failed !"
+      [[ -v VAR_VALUE ]] || die 10 "Globals" "get env VAR_VALUE failed !"
+      mysql_set_variable
       ;;
     *)
       echo "Error: Unsupported action '${action}' for type 'mysql'."
