@@ -99,17 +99,6 @@
     "desc_zh": "单个包或生成的/中间字符串的最大大小。"
   },
   {
-    "key": "skip_name_resolve",
-    "scope": "Global",
-    "section": "mysqld",
-    "type": "Boolean",
-    "dynamic": false,
-    "range": "[\"OFF\",\"ON\"]",
-    "default": "OFF",
-    "desc_en": "Whether to resolve host names when checking client connections.",
-    "desc_zh": "是否在检查客户端连接时解析主机名。"
-  },
-  {
     "key": "transaction_isolation",
     "scope": "Global, Session",
     "section": "mysqld",
@@ -240,17 +229,6 @@
     "default": "OFF",
     "desc_en": "Include slow administrative statements in the statements written to the slow query log.",
     "desc_zh": "启用慢查询日志时，包含慢管理语句。"
-  },
-  {
-    "key": "log_slow_replica_statements",
-    "scope": "Global",
-    "section": "mysqld",
-    "type": "Boolean",
-    "dynamic": true,
-    "range": "[\"OFF\",\"ON\"]",
-    "default": "OFF",
-    "desc_en": "When the slow query log is enabled, log_slow_replica_statements enables logging for queries that have taken more than long_query_time seconds to execute on the replica.",
-    "desc_zh": "启用慢查询日志时，log_slow_replica_statements启用记录副本上执行时间超过long_query_time秒的查询。"
   },
   {
     "key": "sort_buffer_size",
