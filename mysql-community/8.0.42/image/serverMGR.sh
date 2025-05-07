@@ -8,7 +8,7 @@ POSIXLY_CORRECT=1
 export POSIXLY_CORRECT
 LANG=C
 
-VERSION="v1.6.6"
+VERSION="v1.6.7"
 
 # ##############################################################################
 # common function package
@@ -148,54 +148,29 @@ initialize() {
     mkdir -p "${DATA_DIR}" "${TMP_DIR}" "${BIN_LOG_DIR}" "${RELAY_LOG_DIR}" "${CONF_DIR}" || {
       die 42 "${func_name}" "mkdir ${DATA_DIR} ${TMP_DIR} ${BIN_LOG_DIR} ${RELAY_LOG_DIR} ${CONF_DIR} failed!"
     }
-    chown -R "1001.1001" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
-      die 43 "${func_name}" "chown dir failed!"
-    }
 
-    if [[ "${ARCH_MODE}" == "group_replication" ]]; then
-      local init_sql="/tmp/init_${random}.sql"
-      {
-        echo "SET @@SESSION.SQL_LOG_BIN=0;"
-        echo "INSTALL PLUGIN group_replication SONAME 'group_replication.so';"
-        echo "INSTALL PLUGIN clone SONAME 'mysql_clone.so';"
-        echo "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${ADM_PWD}';"
-        echo "UPDATE mysql.user SET user='${ADM_USER}' WHERE user='root' AND host='localhost';"
-        echo "CREATE USER '${MON_USER}'@'%' IDENTIFIED WITH mysql_native_password BY '${MON_PWD}';"
-        echo "GRANT USAGE, PROCESS, REPLICATION CLIENT, REPLICATION SLAVE, SELECT ON *.* TO '${MON_USER}'@'%';"
-        echo "GRANT SELECT ON mysql.user TO '${MON_USER}'@'%';"
-        echo "CREATE USER '${REPL_USER}'@'%' IDENTIFIED WITH mysql_native_password BY '${REPL_PWD}';"
-        echo "GRANT REPLICATION CLIENT, REPLICATION SLAVE, SYSTEM_VARIABLES_ADMIN, REPLICATION_SLAVE_ADMIN, GROUP_REPLICATION_ADMIN, RELOAD, BACKUP_ADMIN, CLONE_ADMIN ON *.* TO '${REPL_USER}'@'%';"
-        echo "GRANT SELECT ON performance_schema.* TO '${REPL_USER}'@'%';"
-        echo "DROP DATABASE IF EXISTS test;"
-        echo "CREATE USER '${PROV_USER}'@'%' IDENTIFIED WITH mysql_native_password BY '${PROV_PWD}';"
-        echo "GRANT ALL PRIVILEGES ON *.* TO '${PROV_USER}'@'%' WITH GRANT OPTION;"
-        echo "DELETE FROM mysql.user WHERE User='';"
-        echo "DELETE FROM mysql.user WHERE authentication_string='';"
-        echo "FLUSH PRIVILEGES;"
-      } >"${init_sql}"
-    else
-      local init_sql="/tmp/init_${random}.sql"
-      {
-        echo "SET @@SESSION.SQL_LOG_BIN=0;"
-        echo "INSTALL PLUGIN rpl_semi_sync_source SONAME 'semisync_source.so';"
-        echo "INSTALL PLUGIN rpl_semi_sync_replica SONAME 'semisync_replica.so';"
-        echo "INSTALL PLUGIN clone SONAME 'mysql_clone.so';"
-        echo "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${ADM_PWD}';"
-        echo "UPDATE mysql.user SET user='${ADM_USER}' WHERE user='root' AND host='localhost';"
-        echo "CREATE USER '${MON_USER}'@'%' IDENTIFIED WITH mysql_native_password BY '${MON_PWD}';"
-        echo "GRANT USAGE, PROCESS, REPLICATION CLIENT, REPLICATION SLAVE, SELECT ON *.* TO '${MON_USER}'@'%';"
-        echo "GRANT SELECT ON mysql.user TO '${MON_USER}'@'%';"
-        echo "CREATE USER '${REPL_USER}'@'%' IDENTIFIED WITH mysql_native_password BY '${REPL_PWD}';"
-        echo "GRANT REPLICATION CLIENT, REPLICATION SLAVE, SYSTEM_VARIABLES_ADMIN, REPLICATION_SLAVE_ADMIN, GROUP_REPLICATION_ADMIN, RELOAD, BACKUP_ADMIN, CLONE_ADMIN ON *.* TO '${REPL_USER}'@'%';"
-        echo "GRANT SELECT ON performance_schema.* TO '${REPL_USER}'@'%';"
-        echo "DROP DATABASE IF EXISTS test;"
-        echo "CREATE USER '${PROV_USER}'@'%' IDENTIFIED WITH mysql_native_password BY '${PROV_PWD}';"
-        echo "GRANT ALL PRIVILEGES ON *.* TO '${PROV_USER}'@'%' WITH GRANT OPTION;"
-        echo "DELETE FROM mysql.user WHERE User='';"
-        echo "DELETE FROM mysql.user WHERE authentication_string='';"
-        echo "FLUSH PRIVILEGES;"
-      } >"${init_sql}"
-    fi
+    local init_sql="/tmp/init_${random}.sql"
+    {
+      echo "SET @@SESSION.SQL_LOG_BIN=0;"
+      echo "INSTALL PLUGIN rpl_semi_sync_source SONAME 'semisync_source.so';"
+      echo "INSTALL PLUGIN rpl_semi_sync_replica SONAME 'semisync_replica.so';"
+      echo "INSTALL PLUGIN group_replication SONAME 'group_replication.so';"
+      echo "INSTALL PLUGIN clone SONAME 'mysql_clone.so';"
+      echo "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${ADM_PWD}';"
+      echo "UPDATE mysql.user SET user='${ADM_USER}' WHERE user='root' AND host='localhost';"
+      echo "CREATE USER '${MON_USER}'@'%' IDENTIFIED WITH mysql_native_password BY '${MON_PWD}';"
+      echo "GRANT USAGE, PROCESS, REPLICATION CLIENT, REPLICATION SLAVE, SELECT ON *.* TO '${MON_USER}'@'%';"
+      echo "GRANT SELECT ON mysql.user TO '${MON_USER}'@'%';"
+      echo "CREATE USER '${REPL_USER}'@'%' IDENTIFIED WITH mysql_native_password BY '${REPL_PWD}';"
+      echo "GRANT REPLICATION CLIENT, REPLICATION SLAVE, SYSTEM_VARIABLES_ADMIN, REPLICATION_SLAVE_ADMIN, GROUP_REPLICATION_ADMIN, RELOAD, BACKUP_ADMIN, CLONE_ADMIN ON *.* TO '${REPL_USER}'@'%';"
+      echo "GRANT SELECT ON performance_schema.* TO '${REPL_USER}'@'%';"
+      echo "DROP DATABASE IF EXISTS test;"
+      echo "CREATE USER '${PROV_USER}'@'%' IDENTIFIED WITH mysql_native_password BY '${PROV_PWD}';"
+      echo "GRANT ALL PRIVILEGES ON *.* TO '${PROV_USER}'@'%' WITH GRANT OPTION;"
+      echo "DELETE FROM mysql.user WHERE User='';"
+      echo "DELETE FROM mysql.user WHERE authentication_string='';"
+      echo "FLUSH PRIVILEGES;"
+    } >"${init_sql}"
 
     local init_config="/tmp/init_${random}.cnf"
     {
@@ -228,10 +203,6 @@ initialize() {
     echo "host=${POD_NAME}"
     echo "port=${MYSQL_PORT}"
   } >"${mon_config}"
-
-  chown -R "1001.1001" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
-    die 46 "${func_name}" "chown dir failed!"
-  }
 
   info "${func_name}" "run ${func_name} done."
 }
