@@ -1,4 +1,4 @@
-FROM quay.io/upmio/unit-agent:v1.3.0 AS agent
+FROM quay.io/upmio/unit-agent:dev-d9070198 AS agent
 
 FROM rockylinux/rockylinux:9.5.20241118
 
