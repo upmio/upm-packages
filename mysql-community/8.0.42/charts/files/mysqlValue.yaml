@@ -1,4 +1,5 @@
 mysqld:
+  default_authentication_plugin: "mysql_native_password"
   character_set_server: "utf8mb4"
   connect_timeout: "60"
   lower_case_table_names: "0"
