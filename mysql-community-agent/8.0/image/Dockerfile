@@ -35,6 +35,15 @@ ARG TARGETARCH
 ARG TARGETPLATFORM
 
 ENV XTRABACKUP_VERSION="8.0.35-32"
+ENV MYSQL_VERSION="8.0.40-1.el9"
+
+# Download mysql80-community mysql client
+RUN set -eu; \
+  dnf -y install "https://repo.mysql.com/mysql80-community-release-el9.rpm"; \
+  dnf config-manager --set-enabled mysql-tools-community; \
+  dnf install -y "mysql-community-client-${MYSQL_VERSION}"; \
+  dnf clean all; \
+  mysqldump --version
 
 # install percona xtrabackup
 RUN set -ex \
