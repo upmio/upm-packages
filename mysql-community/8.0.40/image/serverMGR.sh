@@ -8,7 +8,7 @@ POSIXLY_CORRECT=1
 export POSIXLY_CORRECT
 LANG=C
 
-VERSION="v1.6.7"
+VERSION="v1.6.8"
 
 # ##############################################################################
 # common function package
@@ -137,7 +137,7 @@ initialize() {
   local func_name="${func_name}(${random})"
   info "${func_name}" "Starting run ${func_name} ..."
 
-  get_pwd || die 44 "${func_name}" "get password failed!"
+  get_pwd || die 40 "${func_name}" "get password failed!"
 
   [[ -f "${INIT_FLAG_FILE}" ]] || {
     if [[ "${FORCE_CLEAN}" == "true" ]]; then
@@ -187,12 +187,12 @@ initialize() {
 
     info "${func_name}" "Starting initialize mysql !"
     mysqld --defaults-file="${init_config}" --initialize-insecure --init-file="${init_sql}" || {
-      die 45 "${func_name}" "Initialize mysqld failed!"
+      die 43 "${func_name}" "Initialize mysqld failed!"
     }
 
     info "${func_name}" "Initialize mysql done !"
     touch "${INIT_FLAG_FILE}"
-    [[ -f ${INIT_FLAG_FILE} ]] || die 47 "${func_name}" "create ${INIT_FLAG_FILE} failed!"
+    [[ -f ${INIT_FLAG_FILE} ]] || die 44 "${func_name}" "create ${INIT_FLAG_FILE} failed!"
   }
 
   local mon_config="${CONF_DIR}/.monitor.cnf"
