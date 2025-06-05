@@ -15,6 +15,7 @@ admin_variables=
   web_enabled=true
   web_port={{ getenv "WEB_PORT" }}
   read_only={{ getv "/admin/read_only" }}
+  refresh_interval={{ getv "/admin/refresh_interval" }}
 }
 
 mysql_variables=

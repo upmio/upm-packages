@@ -4,6 +4,7 @@ admin:
   debug: "false"
   prometheus_memory_metrics_interval: "61"
   read_only: "false"
+  refresh_interval: "2000"
 mysql:
   poll_timeout: "2000"
   poll_timeout_on_failure: "100"
