@@ -12,5 +12,5 @@ agent:
   image:
     registry: quay.io
     repository: upmio/unit-agent
-    tag: "v1.3.0"
+    tag: "v2.0-8c919f0b"
     pullPolicy: IfNotPresent
