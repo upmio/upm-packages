@@ -17,9 +17,9 @@ RUN set -eux; \
 
 # Download pgbouncer package
 RUN mkdir -p "${PGBOUNCER_BASE_DIR}" \
-  && curl --retry 10 -S -L --output "/tmp/pgbouncer.tar.gz" https://www.pgbouncer.org/downloads/files/1.23.1/pgbouncer-1.23.1.tar.gz \
+  && curl --retry 10 -S -L --output "/tmp/pgbouncer.tar.gz" https://www.pgbouncer.org/downloads/files/1.24.1/pgbouncer-1.24.1.tar.gz \
   && tar -zxf /tmp/pgbouncer.tar.gz -C /tmp/ \
-  && cd /tmp/pgbouncer-1.23.1 \
+  && cd /tmp/pgbouncer-1.24.1 \
   && ./configure --prefix="${PGBOUNCER_BASE_DIR}" \
   && make \
   && make install
