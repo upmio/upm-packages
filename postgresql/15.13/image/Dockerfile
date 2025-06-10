@@ -36,7 +36,7 @@ RUN set -eux; \
 ENV UNIT_APP_VERSION="15.13"
 ENV PG_MAJOR=15
 
-# MySQL image for UPM.
+# PostgreSQL image for UPM.
 ENV SUMMARY="PostgreSQL SQL database server" \
   DESCRIPTION="PostgreSQL is a powerful, open source object-relational database system \
   with over 35 years of active development that has earned it a strong reputation for \
