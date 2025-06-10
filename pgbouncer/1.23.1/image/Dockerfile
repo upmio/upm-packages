@@ -4,6 +4,12 @@ FROM rockylinux/rockylinux:9.5.20241118 AS builder
 ENV TZ=Asia/Shanghai \
     PGBOUNCER_BASE_DIR="/usr/local/pgbouncer"
 
+
+# PgBouncer env
+ENV PGBOUNCER_MAJOR=1.23.1
+ENV PG_MAJOR=16
+
+
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
   && echo "$TZ" > /etc/timezone
 
@@ -50,16 +56,6 @@ RUN set -eux; \
 RUN set -eux; \
   dnf install -y supervisor
 
-# install jq
-ENV JQ_VERSION="1.7"
-COPY --from=jq /jq /usr/local/bin/
-RUN jq --version
-
-# Download PgBouncer
-ENV UNIT_APP_VERSION="1.23.1.1"
-ENV PGBOUNCER_MAJOR=1.23.1
-ENV PG_VERSION=16.3
-ENV PG_MAJOR=16
 
 # PgBouncer image for UPM.
 ENV SUMMARY="Lightweight connection pooler for PostgreSQL" \
@@ -71,9 +67,9 @@ ENV SUMMARY="Lightweight connection pooler for PostgreSQL" \
 LABEL summary="${SUMMARY}" \
   description="${DESCRIPTION}" \
   io.k8s.description="${DESCRIPTION}" \
-  io.k8s.display-name="pgbouncer ${UNIT_APP_VERSION}" \
+  io.k8s.display-name="pgbouncer ${PGBOUNCER_MAJOR}" \
   name="UPM/pgbouncers" \
-  version="${UNIT_APP_VERSION}" \
+  version="${PGBOUNCER_MAJOR}" \
   maintainer="bsgchina.com"
 
 ARG TARGETPLATFORM
@@ -85,9 +81,9 @@ RUN set -ex \
      esac \
   && dnf --disablerepo=* -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-${TINI_ARCH}/pgdg-redhat-repo-latest.noarch.rpm \
   && dnf -qy module disable postgresql \
-  && dnf install -y "postgresql${PG_MAJOR}-server-${PG_VERSION}" \
+  && dnf install -y "postgresql${PG_MAJOR}" \
   && dnf clean all \
-  && /usr/pgsql-${PG_MAJOR}/bin/postgres --version
+  && psql --version
 
 RUN set -eux; \
   groupadd --system --gid 1001 "pgbouncer"; \
