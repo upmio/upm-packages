@@ -8,5 +8,5 @@ metadata:
     type: pgbouncer
     version: {{ .Chart.AppVersion | quote }}
 data:
-  mysql-router: |
+  pgbouncer: |
 {{ .Files.Get "files/pgbouncerParametersDetail.json" | indent 4 }}

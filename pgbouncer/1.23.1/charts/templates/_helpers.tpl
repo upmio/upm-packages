@@ -1,7 +1,7 @@
 {{/* vim: set filetype=mustache: */}}
 
 {{/*
-Return the proper PGBouncer image name
+Return the proper pgbouncer image name
 */}}
 {{- define "pgbouncer.image" -}}
 {{- include "common.images.image" (dict "imageRoot" .Values.image "global" .Values.global) }}

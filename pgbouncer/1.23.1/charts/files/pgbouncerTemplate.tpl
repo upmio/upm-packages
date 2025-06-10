@@ -1,6 +1,5 @@
 [databases]
 * = host={{ index (jsonArray (getv "/service_postgresql_array")) 0 }}-replication-readwrite port={{ getv "/postgresql_postgresql_port" }} auth_user={{ getenv "ADM_USER" }}
-
 [pgbouncer]
 listen_addr = *
 listen_port = {{getenv "PGBOUNCER_PORT" }}

@@ -4,12 +4,6 @@ FROM rockylinux/rockylinux:9.5.20241118 AS builder
 ENV TZ=Asia/Shanghai \
     PGBOUNCER_BASE_DIR="/usr/local/pgbouncer"
 
-
-# PgBouncer env
-ENV PGBOUNCER_MAJOR=1.23.1
-ENV PG_MAJOR=16
-
-
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
   && echo "$TZ" > /etc/timezone
 
@@ -32,11 +26,6 @@ RUN mkdir -p "${PGBOUNCER_BASE_DIR}" \
 
 FROM rockylinux/rockylinux:9.5.20241118
 
-# set timezone
-ENV TZ=Asia/Shanghai
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
-  && echo "$TZ" > /etc/timezone
-
 # install common tools
 RUN set -eux; \
   dnf install -y \
@@ -49,13 +38,29 @@ RUN set -eux; \
     hostname \
     telnet \
     wget \
-    epel-release \
-    libevent-devel
+    glibc-common \
+    epel-release
+# generate en_US.UTF-8
+RUN dnf install -y glibc-langpack-en glibc-locale-source \
+  && localedef -i en_US -f UTF-8 en_US.UTF-8
+
+# set timezone
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+  && echo "$TZ" > /etc/timezone
+
+# set default locale
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 
 # install supervisor
 RUN set -eux; \
   dnf install -y supervisor
 
+# Download PostgreSQL
+ENV UNIT_APP_VERSION="1.23.1"
+ENV PG_MAJOR=16
 
 # PgBouncer image for UPM.
 ENV SUMMARY="Lightweight connection pooler for PostgreSQL" \
@@ -67,23 +72,23 @@ ENV SUMMARY="Lightweight connection pooler for PostgreSQL" \
 LABEL summary="${SUMMARY}" \
   description="${DESCRIPTION}" \
   io.k8s.description="${DESCRIPTION}" \
-  io.k8s.display-name="pgbouncer ${PGBOUNCER_MAJOR}" \
-  name="UPM/pgbouncers" \
-  version="${PGBOUNCER_MAJOR}" \
-  maintainer="bsgchina.com"
+  io.k8s.display-name="pgbouncer ${UNIT_APP_VERSION}" \
+  type="pgbouncer" \
+  version="${UNIT_APP_VERSION}" \
+  maintainer="upm"
 
 ARG TARGETPLATFORM
-# Download postgresql rpm postgresql-server
+# Install postgresql client
 RUN set -ex \
   && case ${TARGETPLATFORM} in \
        "linux/amd64")  TINI_ARCH=x86_64  ;; \
        "linux/arm64")  TINI_ARCH=aarch64  ;; \
      esac \
-  && dnf --disablerepo=* -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-${TINI_ARCH}/pgdg-redhat-repo-latest.noarch.rpm \
+  && dnf --disablerepo=* -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-${TINI_ARCH}/pgdg-redhat-repo-latest.noarch.rpm \
   && dnf -qy module disable postgresql \
   && dnf install -y "postgresql${PG_MAJOR}" \
   && dnf clean all \
-  && psql --version
+  && /usr/pgsql-${PG_MAJOR}/bin/psql --version
 
 RUN set -eux; \
   groupadd --system --gid 1001 "pgbouncer"; \
