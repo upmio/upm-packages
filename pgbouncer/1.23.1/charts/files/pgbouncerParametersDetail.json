@@ -1,0 +1,68 @@
+[
+  {
+    "key": "pool_mode",
+    "scope": "Global",
+    "section": "pgbouncer",
+    "type": "Enum",
+    "dynamic": true,
+    "range": "[\"session\", \"transaction\", \"statement\"]",
+    "default": "session",
+    "desc_cn": "指定其他客户端可以重复使用服务器连接。在交易模式下，交易完成后，连接将返回到池。在提供良好性能的同时，减少了所需的后QL后端数量。",
+    "desc_en": "Specifies when server connections can be reused by other clients. In transaction mode, connections are released back to pool after transaction completes. Reduces the number of PostgreSQL backends needed while providing good performance."
+  },
+  {
+    "key": "min_pool_size",
+    "scope": "Global, Per-database",
+    "section": "pgbouncer",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "0 - 2147483647",
+    "default": "0",
+    "desc_cn": "如果此数字低于此数字，则将更多的服务器连接添加到池中。当正常载荷发生一段时间后，正常负荷突然恢复时，改善行为。该值有效地限制为池尺寸。",
+    "desc_en": "Add more server connections to pool if below this number. Improves behavior when the normal load suddenly comes back after a period of total inactivity. The value is effectively capped at the pool size."
+  },
+  {
+    "key": "default_pool_size",
+    "scope": "Global, Per-database, Per-user",
+    "section": "pgbouncer",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "0 - 2147483647",
+    "default": "20",
+    "desc_cn": "每个用户/数据库对允许多少服务器连接。可以在每个数据库配置中覆盖。",
+    "desc_en": "How many server connections to allow per user/database pair. Can be overridden in the per-database configuration."
+  },
+  {
+    "key": "max_client_conn",
+    "scope": "Global",
+    "section": "pgbouncer",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1 - 2147483647",
+    "default": "100",
+    "desc_cn": "允许的最大客户连接数。达到此限制后，拒绝了新的客户连接。在此PGBOUNCER实例可以提供多少个应用程序连接上设置绝对上限。",
+    "desc_en": "Maximum number of client connections allowed. Once this limit is reached, new client connections are rejected. Sets the absolute upper bound on how many application connections can be served by this PgBouncer instance."
+  },
+  {
+    "key": "max_db_connections",
+    "scope": "Global, Per-database",
+    "section": "pgbouncer",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "0 - 2147483647",
+    "default": "0",
+    "desc_cn": "每个数据库的最大服务器连接数。设置为0时，限制由Default_pool_size控制。此设置有助于防止单个数据库消耗所有可用的PostgreSQL连接。",
+    "desc_en": "Maximum number of server connections per database. When set to 0, the limit is governed by default_pool_size. This setting helps prevent a single database from consuming all available PostgreSQL connections."
+  },
+  {
+    "key": "max_user_connections",
+    "scope": "Global, Per-user",
+    "section": "pgbouncer",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "0 - 2147483647",
+    "default": "0",
+    "desc_cn": "每个用户的最大服务器连接数。设置为0时，没有使用者限制。此设置允许管理员在不同的应用程序用户或服务之间公平地分配连接资源。",
+    "desc_en": "Maximum number of server connections per user. When set to 0, there is no per-user limit. This setting allows administrators to allocate connection resources fairly among different application users or services."
+  }
+]
