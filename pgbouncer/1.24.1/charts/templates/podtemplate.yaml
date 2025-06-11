@@ -75,13 +75,8 @@ template:
           timeoutSeconds: 4
           successThreshold: 1
         readinessProbe:
-          exec:
-            command:
-              - "timeout"
-              - "3"
-              - "bash"
-              - "-c"
-              - "pg_isready"
+          tcpSocket:
+              port: "pgbouncer"
           failureThreshold: 3
           initialDelaySeconds: 12
           periodSeconds: 12
