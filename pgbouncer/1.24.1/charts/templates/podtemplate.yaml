@@ -119,7 +119,7 @@ template:
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
           - name: CONFIG_PATH
-            value: "$(DATA_MOUNT)/conf/postgres.conf"
+            value: "$(DATA_MOUNT)/conf/pgbouncer.ini"
           - name: PGSQL_MEMORY_LIMIT
             valueFrom:
               resourceFieldRef:
