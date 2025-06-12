@@ -105,8 +105,8 @@ initialize() {
   }
 
   # check postgres service connectivity
-  local pg_host="${POSTGRES_SERVICE_NAME}-replication-readwrite"
-  local pg_port="${POSTGRES_PORT}"
+  local pg_host="${POSTGRESQL_SERVICE_NAME}-replication-readwrite"
+  local pg_port="${POSTGRESQL_PORT}"
 
   PGPASSWORD="${ADM_PWD}" psql -U "${ADM_USER}" "-p${pg_port}" "-h${pg_host}" postgres -c "SELECT 1" || {
     die 44 "${func_name}" "connect to postgres service failed!"
@@ -156,8 +156,8 @@ INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"
 [[ -d ${LOG_MOUNT} ]] || die 11 "Globals" "Not found LOG_MOUNT !"
 [[ -v ADM_USER ]] || die 10 "Globals" "get env ADM_USER failed !"
 [[ -v PGBOUNCER_PORT ]] || die 10 "Globals" "get env PGBOUNCER_PORT failed !"
-[[ -v POSTGRES_SERVICE_NAME ]] || die 10 "Globals" "get env POSTGRES_SERVICE_NAME failed !"
-[[ -v POSTGRES_PORT ]] || die 10 "Globals" "get env POSTGRES_PORT failed !"
+[[ -v POSTGRESQL_SERVICE_NAME ]] || die 10 "Globals" "get env POSTGRESQL_SERVICE_NAME failed !"
+[[ -v POSTGRESQL_PORT ]] || die 10 "Globals" "get env POSTGRESQL_PORT failed !"
 FORCE_CLEAN="${FORCE_CLEAN:-false}"
 
 main "${@:-""}"

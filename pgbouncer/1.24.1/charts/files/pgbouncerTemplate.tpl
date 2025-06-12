@@ -1,5 +1,5 @@
 [databases]
-* = host={{ getenv "POSTGRES_SERVICE_NAME" }}-replication-readwrite port={{ getenv "POSTGRES_PORT" }} auth_user={{ getenv "ADM_USER" }}
+* = host={{ getenv "POSTGRESQL_SERVICE_NAME" }}-replication-readwrite port={{ getenv "POSTGRESQL_PORT" }} auth_user={{ getenv "ADM_USER" }}
 [pgbouncer]
 listen_addr = *
 listen_port = {{getenv "PGBOUNCER_PORT" }}
