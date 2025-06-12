@@ -8,7 +8,7 @@ POSIXLY_CORRECT=1
 export POSIXLY_CORRECT
 LANG=C
 
-VERSION="v1.6.8"
+VERSION="v1.6.9"
 
 # ##############################################################################
 # function package
@@ -104,6 +104,15 @@ initialize() {
     [[ -f ${INIT_FLAG_FILE} ]] || die 43 "${func_name}" "create ${INIT_FLAG_FILE} failed!"
   }
 
+  # check postgres service connectivity
+  local pg_host="${POSTGRES_SERVICE_NAME}-replication-readwrite"
+  local pg_port="${POSTGRES_PORT}"
+
+  PGPASSWORD="${ADM_PWD}" psql -U "${ADM_USER}" "-p${pg_port}" "-h${pg_host}" postgres -c "SELECT 1" || {
+    die 44 "${func_name}" "connect to postgres service failed!"
+  }
+  info "${func_name}" "connect to postgres service done!"
+
   local adm_passwd_md5
   adm_passwd_md5="$(
     echo -n "md5"
@@ -113,7 +122,7 @@ initialize() {
   local userlist_txt="${DATA_MOUNT}/userlist.txt"
   {
     echo "\"${ADM_USER}\" \"${adm_passwd_md5}\""
-  } >"${userlist_txt}" || die 44 "${func_name}" "create ${userlist_txt} failed!"
+  } >"${userlist_txt}" || die 45 "${func_name}" "create ${userlist_txt} failed!"
 
   info "${func_name}" "run ${func_name} done."
 }
@@ -147,6 +156,8 @@ INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"
 [[ -d ${LOG_MOUNT} ]] || die 11 "Globals" "Not found LOG_MOUNT !"
 [[ -v ADM_USER ]] || die 10 "Globals" "get env ADM_USER failed !"
 [[ -v PGBOUNCER_PORT ]] || die 10 "Globals" "get env PGBOUNCER_PORT failed !"
+[[ -v POSTGRES_SERVICE_NAME ]] || die 10 "Globals" "get env POSTGRES_SERVICE_NAME failed !"
+[[ -v POSTGRES_PORT ]] || die 10 "Globals" "get env POSTGRES_PORT failed !"
 FORCE_CLEAN="${FORCE_CLEAN:-false}"
 
 main "${@:-""}"
