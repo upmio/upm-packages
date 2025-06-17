@@ -57,7 +57,7 @@ RUN set -eu; \
 
 RUN set -eux; \
   groupadd --system --gid 1001 "proxysql"; \
-  useradd --system --uid 1001 --gid 1001 --no-create-home -s /sbin/nologin -c "Default Application User" "proxysql"
+  useradd --system --uid 1001 --gid 1001 -m -c "Default Application User" "proxysql"
 
 RUN set -eu; \
   . /etc/os-release; \

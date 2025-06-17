@@ -52,7 +52,7 @@ LABEL summary="${SUMMARY}" \
 
 RUN set -eux; \
   groupadd --system --gid 1001 "postgres"; \
-  useradd --system --uid 1001 --gid 1001 --no-create-home -c "Default Application User" "postgres"
+  useradd --system --uid 1001 --gid 1001 -m -c "Default Application User" "postgres"
 
 ARG TARGETPLATFORM
 # Download postgresql rpm postgresql-server

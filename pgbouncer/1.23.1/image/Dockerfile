@@ -92,7 +92,7 @@ RUN set -ex \
 
 RUN set -eux; \
   groupadd --system --gid 1001 "pgbouncer"; \
-  useradd --system --uid 1001 --gid 1001 --no-create-home -c "Default Application User" "pgbouncer"
+  useradd --system --uid 1001 --gid 1001 -m -c "Default Application User" "pgbouncer"
 
 COPY --from=builder "${PGBOUNCER_BASE_DIR}" "${PGBOUNCER_BASE_DIR}"
 
