@@ -70,6 +70,11 @@ template:
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
+          - name: SERVICE_GROUP_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['upm.api/service-group.name']"
         livenessProbe:
           exec:
             command:
