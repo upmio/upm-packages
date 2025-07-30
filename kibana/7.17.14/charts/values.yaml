@@ -1,0 +1,16 @@
+global:
+  imageRegistry: ""
+
+image:
+  registry: quay.io
+  repository: upmio/kibana
+  tag: "7.17.14"
+  digest: ""
+  pullPolicy: IfNotPresent
+
+agent:
+  image:
+    registry: quay.io
+    repository: upmio/unit-agent
+    tag: "v2.0.0-dev"
+    pullPolicy: IfNotPresent
