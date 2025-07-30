@@ -32,16 +32,16 @@ ENV LC_ALL=en_US.UTF-8
 RUN set -eux; \
   dnf install -y supervisor
 
-RUN set -eux; \
-  groupadd --system --gid 1001 "kibana"; \
-  useradd --system --uid 1001 --gid 1001 --no-create-home -s /sbin/nologin -c "Default Application User" "kibana"
-
 ENV UNIT_APP_VERSION="7.17.14"
 ENV KIBANA_BASE_DIR="/usr/local/kibana"
 
 # Download kibana, untar and clean up
 ENV SUMMARY="Kibana gives shape to your data and is the extensible user interface" \
     DESCRIPTION="Kibana is a free and open user interface that lets you visualize your Elasticsearch data and navigate the Elastic Stack. Do anything from tracking query load to understanding the way requests flow through your apps."
+
+RUN set -eux; \
+  groupadd --system --gid 1001 "kibana"; \
+  useradd --system --uid 1001 --gid 1001 --no-create-home -s /sbin/nologin -c "Default Application User" "kibana"
 
 ARG TARGETPLATFORM
 RUN set -ex \
@@ -52,12 +52,8 @@ RUN set -ex \
        esac \
     && curl --retry 8 -s -L --output "/tmp/kibana.tar.gz" "https://artifacts.elastic.co/downloads/kibana/kibana-${UNIT_APP_VERSION}-${OS}-${TINI_ARCH}.tar.gz" \
     && tar -zxf "/tmp/kibana.tar.gz" --strip-components=1 -C "${KIBANA_BASE_DIR}" \
-    && chown -R "kibana:kibana" "${KIBANA_BASE_DIR}" \
+    && chown -R "1001:1001" "${KIBANA_BASE_DIR}" \
     && rm -rf "/tmp/kibana.tar.gz"
-
-RUN set -eux; \
-  groupadd --system --gid 1001 "kibana"; \
-  useradd --system --uid 1001 --gid 1001 --no-create-home -s /sbin/nologin -c "Default Application User" "kibana"
 
 ENV PATH="${KIBANA_BASE_DIR}/bin:${PATH}"
 
