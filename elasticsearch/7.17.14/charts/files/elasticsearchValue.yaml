@@ -1,0 +1,2 @@
+defaults:
+  network_host: "_eth0_"
