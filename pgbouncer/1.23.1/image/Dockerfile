@@ -77,6 +77,10 @@ LABEL summary="${SUMMARY}" \
   version="${UNIT_APP_VERSION}" \
   maintainer="upm"
 
+RUN set -eux; \
+  groupadd --system --gid 1001 "pgbouncer"; \
+  useradd --system --uid 1001 --gid 1001 -m -c "Default Application User" "pgbouncer"
+
 ARG TARGETPLATFORM
 # Install postgresql client
 RUN set -ex \
@@ -90,14 +94,10 @@ RUN set -ex \
   && dnf clean all \
   && /usr/pgsql-${PG_MAJOR}/bin/psql --version
 
-RUN set -eux; \
-  groupadd --system --gid 1001 "pgbouncer"; \
-  useradd --system --uid 1001 --gid 1001 -m -c "Default Application User" "pgbouncer"
-
 COPY --from=builder "${PGBOUNCER_BASE_DIR}" "${PGBOUNCER_BASE_DIR}"
 
 # Download pgbouncer package
-RUN chown -R "pgbouncer:pgbouncer" "${PGBOUNCER_BASE_DIR}"
+RUN chown -R "1001:1001" "${PGBOUNCER_BASE_DIR}"
 
 ENV PATH=$PATH:${PGBOUNCER_BASE_DIR}/bin
 
