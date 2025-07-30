@@ -81,8 +81,6 @@ initialize() {
   local func_name="${func_name}(${random})"
   info "${func_name}" "Starting run ${func_name} ..."
 
-  get_pwd || die 40 "${func_name}" "get password failed!"
-
   [[ -f "${INIT_FLAG_FILE}" ]] || {
     if [[ "${FORCE_CLEAN}" == "true" ]]; then
       rm -rf "${KBN_PATH_CONF}" || {
