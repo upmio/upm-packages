@@ -7,7 +7,7 @@ ENV MYSQL_VERSION="${UNIT_APP_VERSION}-1.el9"
 
 # Install minimal required packages and MySQL in single RUN layer
 RUN set -eux; \
-  # Install minimal packages
+  # Install minimal packages including pip
   dnf install -y --setopt=install_weak_deps=False \
     epel-release \
     procps-ng \
@@ -18,7 +18,8 @@ RUN set -eux; \
     hostname \
     glibc-common \
     glibc-langpack-en \
-    python3; \
+    python3 \
+    python3-pip; \
   # Update Python packages to fix security vulnerabilities
   python3 -m pip install --upgrade \
     setuptools>=70.0.0 \
