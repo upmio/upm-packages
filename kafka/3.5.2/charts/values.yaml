@@ -1,0 +1,16 @@
+global:
+  imageRegistry: ""
+
+image:
+  registry: quay.io
+  repository: upmio/proxysql
+  tag: "2.7.3"
+  digest: ""
+  pullPolicy: IfNotPresent
+
+agent:
+  image:
+    registry: quay.io
+    repository: upmio/unit-agent
+    tag: "v2.0-8c919f0b"
+    pullPolicy: IfNotPresent
