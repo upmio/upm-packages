@@ -80,7 +80,6 @@ COPY --from=builder /usr/bin/my* /usr/bin/
 COPY --from=builder /usr/sbin/mysqld /usr/sbin/
 COPY --from=builder /usr/lib64/mysql* /usr/lib64/
 COPY --from=builder /usr/share/mysql* /usr/share/mysql/
-COPY --from=builder /usr/libexec/mysqld /usr/libexec/
 COPY --from=builder /usr/bin/supervisord* /usr/bin/
 COPY --from=builder /usr/bin/python* /usr/bin/
 COPY --from=builder /usr/lib64/python* /usr/lib64/
