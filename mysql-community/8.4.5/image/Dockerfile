@@ -18,8 +18,14 @@ RUN set -eux; \
     hostname \
     glibc-common \
     glibc-langpack-en \
-    python3 \
-    supervisor; \
+    python3; \
+  # Update Python packages to fix security vulnerabilities
+  python3 -m pip install --upgrade \
+    setuptools>=70.0.0 \
+    cryptography>=41.0.0 \
+    pip>=23.0.0; \
+  # Install supervisor from EPEL (requires EPEL to be enabled first)
+  dnf install -y --setopt=install_weak_deps=False supervisor; \
   # Install MySQL repositories
   dnf -y install "https://repo.mysql.com/mysql84-community-release-el9.rpm" \
     "https://repo.mysql.com/mysql-community-minimal-release-el9.rpm"; \
@@ -34,6 +40,9 @@ RUN set -eux; \
   # Clean up package cache aggressively
   dnf clean all; \
   rm -rf /var/cache/dnf/* /var/log/dnf.* /usr/share/doc/* /usr/share/man/*; \
+  # Clean up Python cache
+  python3 -m pip cache purge; \
+  rm -rf /root/.cache/pip; \
   # Verify installation
   mysqlsh --version; \
   mysqld --version
