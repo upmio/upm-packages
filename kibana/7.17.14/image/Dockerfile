@@ -50,7 +50,7 @@ RUN set -ex \
          "linux/amd64")  TINI_ARCH=x86_64  ;; \
          "linux/arm64")  TINI_ARCH=aarch64  ;; \
        esac \
-    && curl --retry 8 -s -L --output "/tmp/kibana.tar.gz" "https://artifacts.elastic.co/downloads/kibana/kibana-${UNIT_APP_VERSION}-${OS}-${TINI_ARCH}.tar.gz" \
+    && curl --retry 8 -s -L --output "/tmp/kibana.tar.gz" "https://artifacts.elastic.co/downloads/kibana/kibana-${UNIT_APP_VERSION}-linux-${TINI_ARCH}.tar.gz" \
     && tar -zxf "/tmp/kibana.tar.gz" --strip-components=1 -C "${KIBANA_BASE_DIR}" \
     && chown -R "1001:1001" "${KIBANA_BASE_DIR}" \
     && rm -rf "/tmp/kibana.tar.gz"
