@@ -1,5 +1,5 @@
 # Build stage
-FROM rockylinux/rockylinux:9.5.20241118 as builder
+FROM rockylinux/rockylinux:9.5.20241118 AS builder
 
 # MySQL image for UPM
 ENV UNIT_APP_VERSION="8.4.5"
@@ -7,7 +7,7 @@ ENV MYSQL_VERSION="${UNIT_APP_VERSION}-1.el9"
 
 # Install minimal required packages and MySQL in single RUN layer
 RUN set -eux; \
-  # Install minimal packages including pip
+  # Install minimal packages including pip and dnf config-manager
   dnf install -y --setopt=install_weak_deps=False \
     epel-release \
     procps-ng \
@@ -18,6 +18,8 @@ RUN set -eux; \
     hostname \
     glibc-common \
     glibc-langpack-en \
+    dnf-plugins-core \
+    dnf-utils \
     python3 \
     python3-pip; \
   # Update Python packages to fix security vulnerabilities
