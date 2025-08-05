@@ -4,7 +4,6 @@ FROM rockylinux/rockylinux:9.5.20241118 AS builder
 # Install minimal build tools
 RUN set -eux; \
   dnf install -y \
-    curl \
     tar \
     gzip \
   && dnf clean all \
