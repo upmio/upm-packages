@@ -8,7 +8,7 @@ POSIXLY_CORRECT=1
 export POSIXLY_CORRECT
 LANG=C
 
-VERSION="v1.6.7"
+VERSION="v2.0.0"
 
 # ##############################################################################
 # common function package
@@ -40,10 +40,16 @@ info() {
   echo "[${timestamp}] INFO| (${VERSION})[${function_name}]: $* ;"
 }
 
-get_pwd() {
-  local func_name="get_pwd"
+decrypt_pwd() {
+  local func_name="decrypt_pwd"
 
-  [[ -v SECRET_MOUNT ]] || {
+  local username="${1}"
+  [[ -n "${username}" ]] || {
+    error "${func_name}" "get username failed !"
+    return 2
+  }
+
+  [[ -n "${SECRET_MOUNT:-}" ]] || {
     error "${func_name}" "get env SECRET_MOUNT failed !"
     return 2
   }
@@ -53,39 +59,35 @@ get_pwd() {
     return 2
   }
 
-  # echo -n "password" | od -A n -t x1 | tr -d ' '
-  local enc_key="3765323063323065613735363432333161373664643833616331636637303133"
-  local enc_iv="66382f4e654c734a2a732a7679675640"
-  local enc_type="-aes-256-cbc"
+  [[ -n "${AES_SECRET_KEY:-}" ]] || {
+    error "${func_name}" "get env AES_SECRET_KEY failed !"
+    return 2
+  }
+  local enc_key
+  enc_key="$(echo -n "${AES_SECRET_KEY}" | od -t x1 -An -v | tr -d ' \n')"
+  local enc_type="-aes-256-ctr"
 
-  local secret_file="${SECRET_MOUNT}/${MON_USER}"
+  local secret_file="${SECRET_MOUNT}/${username}"
   [[ -f "${secret_file}" ]] || {
     error "${func_name}" "get file ${secret_file} failed !"
     return 2
   }
-  local enc_base64
-  enc_base64="$(cat "${secret_file}")" || {
-    error "${func_name}" "get enc_base64 failed!"
-    return 2
-  }
-  export MON_PWD
-  MON_PWD=$(printf "%s\n" "${enc_base64}" | openssl enc -d "${enc_type}" -base64 -K "${enc_key}" -iv "${enc_iv}" 2>/dev/null) || {
-    error "${func_name}" "openssl enc failed"
+
+  local enc_iv
+  enc_iv=$(cat "${secret_file}" | head -c 16 | od -t x1 -An -v | tr -d ' \n')
+  [[ -n "${enc_iv}" ]] || {
+    error "${func_name}" "get enc_iv failed!"
     return 2
   }
 
-  local secret_file="${SECRET_MOUNT}/${PROV_USER}"
-  [[ -f "${secret_file}" ]] || {
-    error "${func_name}" "get file ${secret_file} failed !"
+  local enc_in
+  enc_in=$(cat "${secret_file}" | tail -c +17)
+  [[ -n "${enc_in}" ]] || {
+    error "${func_name}" "get enc_in failed!"
     return 2
   }
-  local enc_base64
-  enc_base64="$(cat "${secret_file}")" || {
-    error "${func_name}" "get enc_base64 failed!"
-    return 2
-  }
-  export PROV_PWD
-  PROV_PWD=$(printf "%s\n" "${enc_base64}" | openssl enc -d "${enc_type}" -base64 -K "${enc_key}" -iv "${enc_iv}" 2>/dev/null) || {
+
+  openssl enc -d ${enc_type} -in "${enc_in}" -iv "${enc_iv}" -K "${enc_key}" || {
     error "${func_name}" "openssl enc failed"
     return 2
   }
@@ -97,7 +99,10 @@ initialize() {
   local func_name="${func_name}(${random})"
   info "${func_name}" "Starting run ${func_name} ..."
 
-  get_pwd || die 40 "${func_name}" "get password failed!"
+  # Get environment variables
+  [[ -n "${PROV_USER:-}" ]] || die 47 "${func_name}" "PROV_USER environment variable not set!"
+  PROV_PWD=$(decrypt_pwd "${PROV_USER}")
+  [[ -n "${PROV_PWD}" ]] || die 48 "${func_name}" "get ${PROV_USER} password failed!"
 
   [[ -f "${INIT_FLAG_FILE}" ]] || {
     if [[ "${FORCE_CLEAN}" == "true" ]]; then
@@ -117,11 +122,11 @@ initialize() {
     # get primary node
     while [[ ${node_number} -lt 7 ]]; do
       local node_name="${MYSQL_SERVICE_NAME}-${node_number}.${MYSQL_SERVICE_NAME}-headless-svc"
-      primary_node=$( mysqlsh --uri "${PROV_USER}@${node_name}:${MYSQL_PORT}" --password="${PROV_PWD}" --sql -e "
+      primary_node=$(mysqlsh --uri "${PROV_USER}@${node_name}:${MYSQL_PORT}" --password="${PROV_PWD}" --sql -e "
         SELECT CONCAT(member_host, ':', member_port) AS primary_node
         FROM performance_schema.replication_group_members
         WHERE member_state = 'ONLINE' AND member_role = 'PRIMARY'
-        LIMIT 1;" | grep -v primary_node )
+        LIMIT 1;" | grep -v primary_node)
       if [[ -n ${primary_node} ]]; then
         break
       fi
@@ -136,7 +141,7 @@ initialize() {
     if mysqlsh --uri "${PROV_USER}@${primary_node}" --password="${PROV_PWD}" --sql -e "
 SELECT SCHEMA_NAME
 FROM information_schema.SCHEMATA
-WHERE SCHEMA_NAME = 'mysql_innodb_cluster_metadata';" | grep -q "mysql_innodb_cluster_metadata" ; then
+WHERE SCHEMA_NAME = 'mysql_innodb_cluster_metadata';" | grep -q "mysql_innodb_cluster_metadata"; then
       info "${func_name}" "mysql_innodb_cluster_metadata schema exists, skip initialize cluster!"
     else
       # innodb cluster initialize
@@ -179,14 +184,14 @@ if (status.defaultReplicaSet.status === 'OK') {
 
       # bootstrap mysql router
       mysqlrouter --bootstrap "${PROV_USER}@${primary_node}" \
-       --name "${SERVICE_GROUP_NAME}" \
-       --directory "${DATA_DIR}"\
-       --user mysql-router \
-       --force \
-       --account-create=never \
-       --account "${PROV_USER}" < <(echo -e "${PROV_PWD}\n${PROV_PWD}") || {
+        --name "${SERVICE_GROUP_NAME}" \
+        --directory "${DATA_DIR}" \
+        --user mysql-router \
+        --force \
+        --account-create=never \
+        --account "${PROV_USER}" < <(echo -e "${PROV_PWD}\n${PROV_PWD}") || {
         die 48 "${func_name}" "mysqlrouter bootstrap failed!"
-       }
+      }
 
       # check keyring file and state.json file and mysqlrouter.key file
       if [[ ! -f "${DATA_DIR}/data/keyring" ]] || [[ ! -f "${DATA_DIR}/data/state.json" ]] || [[ ! -f "${DATA_DIR}/mysqlrouter.key" ]]; then
@@ -224,13 +229,9 @@ main() {
 INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"
 [[ -v DATA_DIR ]] || die 10 "Globals" "get env DATA_DIR failed !"
 [[ -v CONF_DIR ]] || die 10 "Globals" "get env CONF_DIR failed !"
-[[ -v SECRET_MOUNT ]] || die 10 "Globals" "get env SECRET_MOUNT failed !"
 [[ -v LOG_MOUNT ]] || die 10 "Globals" "get env LOG_MOUNT failed !"
 [[ -d ${LOG_MOUNT} ]] || die 11 "Globals" "Not found LOG_MOUNT !"
 [[ -v SERVICE_GROUP_NAME ]] || die 10 "Globals" "get env SERVICE_GROUP_NAME failed !"
-[[ -v HTTP_PORT ]] || die 10 "Globals" "get env HTTP_PORT failed !"
-[[ -v MON_USER ]] || die 10 "Globals" "get env MON_USER failed !"
-[[ -v PROV_USER ]] || die 10 "Globals" "get env PROV_USER failed !"
 [[ -v MYSQL_SERVICE_NAME ]] || die 10 "Globals" "get env MYSQL_SERVICE_NAME failed !"
 [[ -v MYSQL_PORT ]] || die 10 "Globals" "get env MYSQL_PORT failed !"
 FORCE_CLEAN="${FORCE_CLEAN:-false}"
