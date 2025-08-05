@@ -1,5 +1,5 @@
 # Builder stage
-FROM rockylinux/rockylinux:9.5.20241118 as builder
+FROM rockylinux/rockylinux:9.5.20241118 AS builder
 
 # Install minimal build tools
 RUN set -eux; \
@@ -30,7 +30,6 @@ RUN set -eux; \
     openssl \
     epel-release \
     glibc-langpack-en \
-    glibc-locale-source \
   && localedef -i en_US -f UTF-8 en_US.UTF-8 \
   && dnf install -y supervisor \
   && dnf clean all \
