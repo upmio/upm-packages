@@ -141,7 +141,7 @@ initialize() {
       die 42 "${func_name}" "mkdir ${DATA_DIR} ${TMP_DIR} ${BIN_LOG_DIR} ${RELAY_LOG_DIR} ${CONF_DIR} failed!"
     }
 
-if [[ "${ARCH_MODE}" == "group_replication" ]]; then
+    if [[ "${ARCH_MODE}" == "group_replication" ]]; then
       local init_sql="/tmp/init_${random}.sql"
       {
         echo "SET @@SESSION.SQL_LOG_BIN=0;"
@@ -254,7 +254,6 @@ INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"
 [[ -d ${LOG_MOUNT} ]] || die 11 "Globals" "Not found LOG_MOUNT !"
 [[ -v MYSQL_PORT ]] || die 10 "Globals" "get env MYSQL_PORT failed !"
 [[ -v POD_NAME ]] || die 10 "Globals" "get env POD_NAME failed !"
-[[ -v ARCH_MODE ]] || die 10 "Globals" "get env ARCH_MODE failed !"
 FORCE_CLEAN="${FORCE_CLEAN:-false}"
 
 main "${@:-""}"
