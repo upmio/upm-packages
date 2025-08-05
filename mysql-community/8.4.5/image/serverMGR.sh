@@ -8,7 +8,7 @@ POSIXLY_CORRECT=1
 export POSIXLY_CORRECT
 LANG=C
 
-VERSION="v1.6.8"
+VERSION="v2.0.0"
 
 # ##############################################################################
 # common function package
@@ -40,10 +40,16 @@ info() {
   echo "[${timestamp}] INFO| (${VERSION})[${function_name}]: $* ;"
 }
 
-get_pwd() {
-  local func_name="get_pwd"
+decrypt_pwd() {
+  local func_name="decrypt_pwd"
 
-  [[ -v SECRET_MOUNT ]] || {
+  local username="${1}"
+  [[ -n "${username}" ]] || {
+    error "${func_name}" "get username failed !"
+    return 2
+  }
+
+  [[ -n "${SECRET_MOUNT:-}" ]] || {
     error "${func_name}" "get env SECRET_MOUNT failed !"
     return 2
   }
@@ -53,71 +59,35 @@ get_pwd() {
     return 2
   }
 
-  # echo -n "password" | od -A n -t x1 | tr -d ' '
-  local enc_key="3765323063323065613735363432333161373664643833616331636637303133"
-  local enc_iv="66382f4e654c734a2a732a7679675640"
-  local enc_type="-aes-256-cbc"
+  [[ -n "${AES_SECRET_KEY:-}" ]] || {
+    error "${func_name}" "get env AES_SECRET_KEY failed !"
+    return 2
+  }
+  local enc_key
+  enc_key="$(echo -n "${AES_SECRET_KEY}" | od -t x1 -An -v | tr -d ' \n')"
+  local enc_type="-aes-256-ctr"
 
-  local secret_file="${SECRET_MOUNT}/${ADM_USER}"
+  local secret_file="${SECRET_MOUNT}/${username}"
   [[ -f "${secret_file}" ]] || {
     error "${func_name}" "get file ${secret_file} failed !"
     return 2
   }
-  local enc_base64
-  enc_base64="$(cat "${secret_file}")" || {
-    error "${func_name}" "get enc_base64 failed!"
-    return 2
-  }
-  export ADM_PWD
-  ADM_PWD=$(printf "%s\n" "${enc_base64}" | openssl enc -d "${enc_type}" -base64 -K "${enc_key}" -iv "${enc_iv}" 2>/dev/null) || {
-    error "${func_name}" "openssl enc failed"
+
+  local enc_iv
+  enc_iv=$(cat "${secret_file}" | head -c 16 | od -t x1 -An -v | tr -d ' \n')
+  [[ -n "${enc_iv}" ]] || {
+    error "${func_name}" "get enc_iv failed!"
     return 2
   }
 
-  local secret_file="${SECRET_MOUNT}/${MON_USER}"
-  [[ -f "${secret_file}" ]] || {
-    error "${func_name}" "get file ${secret_file} failed !"
-    return 2
-  }
-  local enc_base64
-  enc_base64="$(cat "${secret_file}")" || {
-    error "${func_name}" "get enc_base64 failed!"
-    return 2
-  }
-  export MON_PWD
-  MON_PWD=$(printf "%s\n" "${enc_base64}" | openssl enc -d "${enc_type}" -base64 -K "${enc_key}" -iv "${enc_iv}" 2>/dev/null) || {
-    error "${func_name}" "openssl enc failed"
+  local enc_in
+  enc_in=$(cat "${secret_file}" | tail -c +17)
+  [[ -n "${enc_in}" ]] || {
+    error "${func_name}" "get enc_in failed!"
     return 2
   }
 
-  local secret_file="${SECRET_MOUNT}/${REPL_USER}"
-  [[ -f "${secret_file}" ]] || {
-    error "${func_name}" "get file ${secret_file} failed !"
-    return 2
-  }
-  local enc_base64
-  enc_base64="$(cat "${secret_file}")" || {
-    error "${func_name}" "get enc_base64 failed!"
-    return 2
-  }
-  export REPL_PWD
-  REPL_PWD=$(printf "%s\n" "${enc_base64}" | openssl enc -d "${enc_type}" -base64 -K "${enc_key}" -iv "${enc_iv}" 2>/dev/null) || {
-    error "${func_name}" "openssl enc failed"
-    return 2
-  }
-
-  local secret_file="${SECRET_MOUNT}/${PROV_USER}"
-  [[ -f "${secret_file}" ]] || {
-    error "${func_name}" "get file ${secret_file} failed !"
-    return 2
-  }
-  local enc_base64
-  enc_base64="$(cat "${secret_file}")" || {
-    error "${func_name}" "get enc_base64 failed!"
-    return 2
-  }
-  export PROV_PWD
-  PROV_PWD=$(printf "%s\n" "${enc_base64}" | openssl enc -d "${enc_type}" -base64 -K "${enc_key}" -iv "${enc_iv}" 2>/dev/null) || {
+  openssl enc -d ${enc_type} -in "${enc_in}" -iv "${enc_iv}" -K "${enc_key}" || {
     error "${func_name}" "openssl enc failed"
     return 2
   }
@@ -126,7 +96,14 @@ get_pwd() {
 admin_user_login() {
   local func_name="admin_user_login"
 
-  get_pwd || die 41 "${func_name}" "get ${ADM_USER} password failed!"
+  [[ -n "${ADM_USER:-}" ]] || {
+    die 41 "${func_name}" "ADM_USER environment variable not set!"
+  }
+
+  ADM_PWD=$(decrypt_pwd "${ADM_USER}")
+  [[ -n "${ADM_PWD}" ]] || {
+    die 42 "${func_name}" "get ${ADM_USER} password failed!"
+  }
 
   mysql --defaults-file="${CONF_DIR}/mysql.cnf" '-u'"${ADM_USER}"'' '-p'"${ADM_PWD}"''
 }
@@ -137,7 +114,22 @@ initialize() {
   local func_name="${func_name}(${random})"
   info "${func_name}" "Starting run ${func_name} ..."
 
-  get_pwd || die 44 "${func_name}" "get password failed!"
+  # Get environment variables
+  [[ -n "${ADM_USER:-}" ]] || die 41 "${func_name}" "ADM_USER environment variable not set!"
+  ADM_PWD=$(decrypt_pwd "${ADM_USER}")
+  [[ -n "${ADM_PWD}" ]] || die 42 "${func_name}" "get ${ADM_USER} password failed!"
+
+  [[ -n "${MON_USER:-}" ]] || die 43 "${func_name}" "MON_USER environment variable not set!"
+  MON_PWD=$(decrypt_pwd "${MON_USER}")
+  [[ -n "${MON_PWD}" ]] || die 44 "${func_name}" "get ${MON_USER} password failed!"
+
+  [[ -n "${REPL_USER:-}" ]] || die 45 "${func_name}" "REPL_USER environment variable not set!"
+  REPL_PWD=$(decrypt_pwd "${REPL_USER}")
+  [[ -n "${REPL_PWD}" ]] || die 46 "${func_name}" "get ${REPL_USER} password failed!"
+
+  [[ -n "${PROV_USER:-}" ]] || die 47 "${func_name}" "PROV_USER environment variable not set!"
+  PROV_PWD=$(decrypt_pwd "${PROV_USER}")
+  [[ -n "${PROV_PWD}" ]] || die 48 "${func_name}" "get ${PROV_USER} password failed!"
 
   [[ -f "${INIT_FLAG_FILE}" ]] || {
     if [[ "${FORCE_CLEAN}" == "true" ]]; then
@@ -262,10 +254,6 @@ INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"
 [[ -d ${LOG_MOUNT} ]] || die 11 "Globals" "Not found LOG_MOUNT !"
 [[ -v MYSQL_PORT ]] || die 10 "Globals" "get env MYSQL_PORT failed !"
 [[ -v POD_NAME ]] || die 10 "Globals" "get env POD_NAME failed !"
-[[ -v ADM_USER ]] || die 10 "Globals" "get env ADM_USER failed !"
-[[ -v MON_USER ]] || die 10 "Globals" "get env MON_USER failed !"
-[[ -v REPL_USER ]] || die 10 "Globals" "get env REPL_USER failed !"
-[[ -v PROV_USER ]] || die 10 "Globals" "get env PROV_USER failed !"
 [[ -v ARCH_MODE ]] || die 10 "Globals" "get env ARCH_MODE failed !"
 FORCE_CLEAN="${FORCE_CLEAN:-false}"
 
