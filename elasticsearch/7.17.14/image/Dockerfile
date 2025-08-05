@@ -28,10 +28,11 @@ RUN set -eux; \
   dnf install -y \
     procps-ng \
     openssl \
-    supervisor \
+    epel-release \
     glibc-langpack-en \
     glibc-locale-source \
   && localedef -i en_US -f UTF-8 en_US.UTF-8 \
+  && dnf install -y supervisor \
   && dnf clean all \
   && rm -rf /var/cache/dnf/*
 
