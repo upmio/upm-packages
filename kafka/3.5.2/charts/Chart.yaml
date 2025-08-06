@@ -6,8 +6,8 @@ dependencies:
     tags:
       - bitnami-common
     version: 2.x.x
-name: kafka
-version: 2.0.0
+name: kafka-3.5.2
+version: 1.0.0
 description:  Kafka software packages, including configuration templates and pod templates.
 type: application
 keywords:

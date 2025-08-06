@@ -7,7 +7,7 @@ dependencies:
       - bitnami-common
     version: 2.x.x
 name: postgresql-15.13
-version: 2.0.0
+version: 1.0.0
 description:  PostgreSQL software packages, including configuration templates and pod templates.
 type: application
 keywords:

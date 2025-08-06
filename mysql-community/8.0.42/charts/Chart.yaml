@@ -7,7 +7,7 @@ dependencies:
       - bitnami-common
     version: 2.x.x
 name: mysql-community-8.0.42
-version: 2.0.0
+version: 1.0.0
 description:  MySQL community edition software packages, including configuration templates and pod templates.
 type: application
 keywords:
