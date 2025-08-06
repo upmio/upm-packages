@@ -95,7 +95,7 @@ template:
               - "3"
               - "bash"
               - "-c"
-              - "serverMGR.sh health"
+              - "</dev/tcp/localhost/${HTTP_PORT}"
           failureThreshold: 3
           initialDelaySeconds: 12
           periodSeconds: 12
