@@ -76,6 +76,33 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/kafka-2.0.0/kafka-2.0.0.tgz
     version: 2.0.0
+  kafka-3.5.2:
+  - apiVersion: v2
+    appVersion: 3.5.2
+    created: "2025-08-06T10:32:15.277404532Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: Kafka software packages, including configuration templates and pod
+      templates.
+    digest: 5ad4775ffdd9fc1b676dac85d7c73b987c6166050b1cb460edc499c4db4b62c3
+    keywords:
+    - kafka
+    - streaming
+    - messaging
+    - pubsub
+    - event
+    - broker
+    - cluster
+    - distributed system
+    name: kafka-3.5.2
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/kafka-3.5.2-1.0.0/kafka-3.5.2-1.0.0.tgz
+    version: 1.0.0
   kibana-7.17.14:
   - apiVersion: v2
     appVersion: 7.17.14
@@ -719,4 +746,4 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/proxysql-2.7.3-2.0.0/proxysql-2.7.3-2.0.0.tgz
     version: 2.0.0
-generated: "2025-08-06T10:32:04.12572061Z"
+generated: "2025-08-06T10:32:15.277450088Z"
