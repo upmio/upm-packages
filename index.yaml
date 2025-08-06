@@ -127,6 +127,29 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/kibana-7.17.14-2.0.0/kibana-7.17.14-2.0.0.tgz
     version: 2.0.0
+  - apiVersion: v2
+    appVersion: 7.17.14
+    created: "2025-08-06T10:32:28.719717472Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: Kibana software packages, including configuration templates and pod
+      templates.
+    digest: b2ced114207a074363931d76c6d456210fc659689e5028edaa6683885b940d7d
+    keywords:
+    - kibana
+    - elasticsearch
+    - observability
+    - logging
+    - monitoring
+    name: kibana-7.17.14
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/kibana-7.17.14-1.0.0/kibana-7.17.14-1.0.0.tgz
+    version: 1.0.0
   mysql-community-8.0.35:
   - apiVersion: v2
     appVersion: 8.0.35
@@ -746,4 +769,4 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/proxysql-2.7.3-2.0.0/proxysql-2.7.3-2.0.0.tgz
     version: 2.0.0
-generated: "2025-08-06T10:32:15.277450088Z"
+generated: "2025-08-06T10:32:28.719760492Z"
