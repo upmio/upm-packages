@@ -14,30 +14,11 @@ TIMEOUT="300s"
 RELEASE_PREFIX="upm-packages"
 ACTION=""
 
-# Component categories
-
-# All packages array
-ALL_PACKAGES=(
-    "mysql-community-8.0.40"
-    "mysql-community-8.0.41"
-    "mysql-community-8.0.42"
-    "mysql-community-8.4.4"
-    "mysql-community-8.4.5"
-    "mysql-router-community-8.0.40"
-    "mysql-router-community-8.0.41"
-    "mysql-router-community-8.0.42"
-    "mysql-router-community-8.4.4"
-    "mysql-router-community-8.4.5"
-    "postgresql-15.12"
-    "postgresql-15.13"
-    "proxysql-2.7.2"
-    "proxysql-2.7.3"
-    "pgbouncer-1.23.1"
-    "pgbouncer-1.24.1"
-    "elasticsearch-7.17.14"
-    "kibana-7.17.14"
-    "kafka-3.5.2"
-)
+# Cache for package lists
+PACKAGE_CACHE=""
+COMPONENT_CACHE=""
+CACHE_TIMESTAMP=0
+CACHE_TTL=300  # 5 minutes cache
 
 # Colors for output
 RED='\033[0;31m'
@@ -87,15 +68,11 @@ ACTIONS:
 
 TARGETS:
     all                             All available packages
-    mysql_community                 MySQL Community Server (all versions)
-    mysql_router                    MySQL Router Community (all versions)
-    postgresql                      PostgreSQL Server (all versions)
-    proxysql                        ProxySQL (all versions)
-    pgbouncer                       PgBouncer (all versions)
-    elasticsearch                   Elasticsearch
-    kibana                          Kibana
-    kafka                           Kafka
+    <component>                     Component type (e.g., mysql_community, postgresql)
     <chart-name>                    Specific chart name (e.g., mysql-community-8.4.5)
+
+NOTE: Available components and packages are dynamically fetched from the helm repository.
+Use './upm-manager.sh list' to see currently available options.
 
 OPTIONS:
     -n, --namespace NAMESPACE      Kubernetes namespace (default: upm-system)
@@ -272,6 +249,241 @@ add_helm_repo() {
     fi
 }
 
+# Function to check if cache is valid
+is_cache_valid() {
+    local current_time
+    current_time=$(date +%s)
+    [[ $((current_time - CACHE_TIMESTAMP)) -lt $CACHE_TTL && -n "$PACKAGE_CACHE" ]]
+}
+
+# Function to fetch available packages from helm repo
+fetch_available_packages() {
+    if is_cache_valid; then
+        echo "$PACKAGE_CACHE"
+        return
+    fi
+
+    print_info "Fetching available packages from helm repository..."
+    
+    # Ensure repository is added and updated
+    if ! helm repo list | grep -q "^$HELM_REPO_NAME "; then
+        helm repo add "$HELM_REPO_NAME" "$HELM_REPO_URL" > /dev/null 2>&1
+    fi
+    helm repo update "$HELM_REPO_NAME" > /dev/null 2>&1
+
+    # Search for all charts in the repository
+    local packages
+    packages=$(helm search repo "$HELM_REPO_NAME/" --output json 2>/dev/null | jq -r '.[].name' | sed "s|^$HELM_REPO_NAME/||" | sort)
+    
+    if [[ -z "$packages" ]]; then
+        print_error "Failed to fetch packages from helm repository"
+        return 1
+    fi
+
+    # Update cache
+    PACKAGE_CACHE="$packages"
+    CACHE_TIMESTAMP=$(date +%s)
+    
+    echo "$packages"
+}
+
+# Function to categorize packages by component type
+get_component_categories() {
+    if is_cache_valid && [[ -n "$COMPONENT_CACHE" ]]; then
+        echo "$COMPONENT_CACHE"
+        return
+    fi
+
+    local packages
+    if ! packages=$(fetch_available_packages); then
+        return 1
+    fi
+    
+    local components=""
+    local mysql_community=""
+    local mysql_router=""
+    local postgresql=""
+    local proxysql=""
+    local pgbouncer=""
+    local elasticsearch=""
+    local kibana=""
+    local kafka=""
+    local other=""
+
+    for package in $packages; do
+        case "$package" in
+            mysql-community-*)
+                if [[ -z "$mysql_community" ]]; then
+                    mysql_community="$package"
+                else
+                    mysql_community="$mysql_community $package"
+                fi
+                ;;
+            mysql-router-community-*)
+                if [[ -z "$mysql_router" ]]; then
+                    mysql_router="$package"
+                else
+                    mysql_router="$mysql_router $package"
+                fi
+                ;;
+            postgresql-*)
+                if [[ -z "$postgresql" ]]; then
+                    postgresql="$package"
+                else
+                    postgresql="$postgresql $package"
+                fi
+                ;;
+            proxysql-*)
+                if [[ -z "$proxysql" ]]; then
+                    proxysql="$package"
+                else
+                    proxysql="$proxysql $package"
+                fi
+                ;;
+            pgbouncer-*)
+                if [[ -z "$pgbouncer" ]]; then
+                    pgbouncer="$package"
+                else
+                    pgbouncer="$pgbouncer $package"
+                fi
+                ;;
+            elasticsearch-*)
+                if [[ -z "$elasticsearch" ]]; then
+                    elasticsearch="$package"
+                else
+                    elasticsearch="$elasticsearch $package"
+                fi
+                ;;
+            kibana-*)
+                if [[ -z "$kibana" ]]; then
+                    kibana="$package"
+                else
+                    kibana="$kibana $package"
+                fi
+                ;;
+            kafka-*)
+                if [[ -z "$kafka" ]]; then
+                    kafka="$package"
+                else
+                    kafka="$kafka $package"
+                fi
+                ;;
+            *)
+                if [[ -z "$other" ]]; then
+                    other="$package"
+                else
+                    other="$other $package"
+                fi
+                ;;
+        esac
+    done
+
+    # Build components result
+    if [[ -n "$mysql_community" ]]; then
+        components="mysql_community:$mysql_community"
+    fi
+    if [[ -n "$mysql_router" ]]; then
+        if [[ -n "$components" ]]; then
+            components="$components|mysql_router:$mysql_router"
+        else
+            components="mysql_router:$mysql_router"
+        fi
+    fi
+    if [[ -n "$postgresql" ]]; then
+        if [[ -n "$components" ]]; then
+            components="$components|postgresql:$postgresql"
+        else
+            components="postgresql:$postgresql"
+        fi
+    fi
+    if [[ -n "$proxysql" ]]; then
+        if [[ -n "$components" ]]; then
+            components="$components|proxysql:$proxysql"
+        else
+            components="proxysql:$proxysql"
+        fi
+    fi
+    if [[ -n "$pgbouncer" ]]; then
+        if [[ -n "$components" ]]; then
+            components="$components|pgbouncer:$pgbouncer"
+        else
+            components="pgbouncer:$pgbouncer"
+        fi
+    fi
+    if [[ -n "$elasticsearch" ]]; then
+        if [[ -n "$components" ]]; then
+            components="$components|elasticsearch:$elasticsearch"
+        else
+            components="elasticsearch:$elasticsearch"
+        fi
+    fi
+    if [[ -n "$kibana" ]]; then
+        if [[ -n "$components" ]]; then
+            components="$components|kibana:$kibana"
+        else
+            components="kibana:$kibana"
+        fi
+    fi
+    if [[ -n "$kafka" ]]; then
+        if [[ -n "$components" ]]; then
+            components="$components|kafka:$kafka"
+        else
+            components="kafka:$kafka"
+        fi
+    fi
+    if [[ -n "$other" ]]; then
+        if [[ -n "$components" ]]; then
+            components="$components|other:$other"
+        else
+            components="other:$other"
+        fi
+    fi
+
+    # Update cache
+    COMPONENT_CACHE="$components"
+    
+    echo "$components"
+}
+
+# Function to get packages for a specific component
+get_component_packages() {
+    local component="$1"
+    local components
+    components=$(get_component_categories)
+    
+    # Parse components to find the requested component
+    local old_ifs="$IFS"
+    IFS='|'
+    for component_entry in $components; do
+        local comp_name="${component_entry%%:*}"
+        local comp_packages="${component_entry#*:}"
+        
+        if [[ "$comp_name" == "$component" ]]; then
+            IFS="$old_ifs"
+            echo "$comp_packages"
+            return
+        fi
+    done
+    IFS="$old_ifs"
+    
+    # If component not found, check if it's a valid package name
+    local packages
+    packages=$(fetch_available_packages)
+    for package in $packages; do
+        if [[ "$package" == "$component" ]]; then
+            echo "$component"
+            return
+        fi
+    done
+    
+    echo ""
+}
+
+# Function to get all available packages
+get_all_packages() {
+    fetch_available_packages
+}
+
 # Function to get packages from targets
 get_packages_from_targets() {
     local result=""
@@ -285,43 +497,11 @@ get_packages_from_targets() {
     for target in "${SELECTED_TARGETS[@]}"; do
         case "$target" in
             all)
-                for package in "${ALL_PACKAGES[@]}"; do
-                    if [[ -z "$result" ]]; then
-                        result="$package"
-                    else
-                        result="$result $package"
-                    fi
-                done
-                ;;
-            mysql_community|mysql_router|postgresql|proxysql|pgbouncer|elasticsearch|kibana|kafka)
-                local component_packages
-                case "$target" in
-                    mysql_community)
-                        component_packages=("mysql-community-8.0.40" "mysql-community-8.0.41" "mysql-community-8.0.42" "mysql-community-8.4.4" "mysql-community-8.4.5")
-                        ;;
-                    mysql_router)
-                        component_packages=("mysql-router-community-8.0.40" "mysql-router-community-8.0.41" "mysql-router-community-8.0.42" "mysql-router-community-8.4.4" "mysql-router-community-8.4.5")
-                        ;;
-                    postgresql)
-                        component_packages=("postgresql-15.12" "postgresql-15.13")
-                        ;;
-                    proxysql)
-                        component_packages=("proxysql-2.7.2" "proxysql-2.7.3")
-                        ;;
-                    pgbouncer)
-                        component_packages=("pgbouncer-1.23.1" "pgbouncer-1.24.1")
-                        ;;
-                    elasticsearch)
-                        component_packages=("elasticsearch-7.17.14")
-                        ;;
-                    kibana)
-                        component_packages=("kibana-7.17.14")
-                        ;;
-                    kafka)
-                        component_packages=("kafka-3.5.2")
-                        ;;
-                esac
-                for package in "${component_packages[@]}"; do
+                local all_packages
+                if ! all_packages=$(get_all_packages); then
+                    return 1
+                fi
+                for package in $all_packages; do
                     if [[ -z "$result" ]]; then
                         result="$package"
                     else
@@ -330,26 +510,23 @@ get_packages_from_targets() {
                 done
                 ;;
             *)
-                # Check if it's a valid package name
-                local valid_package=false
-                for package in "${ALL_PACKAGES[@]}"; do
-                    if [[ "$package" == "$target" ]]; then
-                        valid_package=true
-                        break
-                    fi
-                done
-
-                if [[ "$valid_package" == true ]]; then
-                    if [[ -z "$result" ]]; then
-                        result="$target"
-                    else
-                        result="$result $target"
-                    fi
+                # Check if it's a component group or specific package
+                local component_packages
+                component_packages=$(get_component_packages "$target")
+                
+                if [[ -n "$component_packages" ]]; then
+                    for package in $component_packages; do
+                        if [[ -z "$result" ]]; then
+                            result="$package"
+                        else
+                            result="$result $package"
+                        fi
+                    done
                 else
-                    print_error "Invalid package name: $target"
-                    print_info "Available packages:"
-                    printf '  %s\n' "${ALL_PACKAGES[@]}"
-                    exit 1
+                    print_error "Invalid package or component name: $target"
+                    print_info "Available components and packages:"
+                    show_available_components
+                    return 1
                 fi
                 ;;
         esac
@@ -377,6 +554,56 @@ get_packages_from_targets() {
     fi
 
     echo "$unique_result"
+}
+
+# Function to show available components
+show_available_components() {
+    local components
+    components=$(get_component_categories)
+    
+    local old_ifs="$IFS"
+    IFS='|'
+    for component_entry in $components; do
+        local comp_name="${component_entry%%:*}"
+        local comp_packages="${component_entry#*:}"
+        
+        case "$comp_name" in
+            mysql_community)
+                echo "  mysql_community: MySQL Community Server (all versions)"
+                ;;
+            mysql_router)
+                echo "  mysql_router: MySQL Router Community (all versions)"
+                ;;
+            postgresql)
+                echo "  postgresql: PostgreSQL Server (all versions)"
+                ;;
+            proxysql)
+                echo "  proxysql: ProxySQL (all versions)"
+                ;;
+            pgbouncer)
+                echo "  pgbouncer: PgBouncer (all versions)"
+                ;;
+            elasticsearch)
+                echo "  elasticsearch: Elasticsearch"
+                ;;
+            kibana)
+                echo "  kibana: Kibana"
+                ;;
+            kafka)
+                echo "  kafka: Kafka"
+                ;;
+            other)
+                echo "  other: Other packages"
+                ;;
+        esac
+        
+        # Show individual packages
+        for package in $comp_packages; do
+            echo "    - $package"
+        done
+        echo
+    done
+    IFS="$old_ifs"
 }
 
 # Function to install package
@@ -508,6 +735,65 @@ upgrade_package() {
     fi
 }
 
+# Function to filter UPM-managed releases
+filter_upm_releases() {
+    local releases="$1"
+    
+    if command -v jq &> /dev/null && [[ "$releases" == *"["* ]]; then
+        # JSON mode - validate JSON first
+        if echo "$releases" | jq . > /dev/null 2>&1; then
+            echo "$releases" | jq --arg prefix "$RELEASE_PREFIX" '.[] | select(.name | startswith($prefix))'
+        else
+            # Invalid JSON, return empty array
+            echo "[]"
+        fi
+    else
+        # Table mode - filter lines that start with the prefix
+        echo "$releases" | grep -E "^${RELEASE_PREFIX}-" || echo ""
+    fi
+}
+
+# Function to get UPM-managed releases only
+get_upm_releases() {
+    local output_format="$1"  # "json" or "table"
+    
+    if [[ "$output_format" == "json" ]]; then
+        local all_releases
+        all_releases=$(helm list --namespace "$NAMESPACE" --output json 2>/dev/null || echo "[]")
+        filter_upm_releases "$all_releases"
+    else
+        local all_releases
+        all_releases=$(helm list --namespace "$NAMESPACE" --output table 2>/dev/null | tail -n +2 || echo "")
+        if [[ -n "$all_releases" ]]; then
+            # Add header back
+            echo "NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION"
+            filter_upm_releases "$all_releases"
+        fi
+    fi
+}
+
+# Function to count UPM-managed releases
+count_upm_releases() {
+    local releases
+    local count=0
+    
+    if command -v jq &> /dev/null; then
+        releases=$(get_upm_releases "json")
+        if echo "$releases" | jq . > /dev/null 2>&1; then
+            count=$(echo "$releases" | jq '. | length' 2>/dev/null || echo "0")
+        else
+            count=0
+        fi
+    else
+        releases=$(get_upm_releases "table")
+        if [[ -n "$releases" ]]; then
+            count=$(echo "$releases" | grep -c "^${RELEASE_PREFIX}-" || echo "0")
+        fi
+    fi
+    
+    echo "$count"
+}
+
 # Function to verify package installation
 verify_package_installation() {
     local release_name="$1"
@@ -532,53 +818,18 @@ verify_package_installation() {
 list_packages() {
     print_header "Available UPM Packages"
     echo
+    
+    show_available_components
 
-    echo "mysql_community:"
-    echo "  - mysql-community-8.0.40"
-    echo "  - mysql-community-8.0.41"
-    echo "  - mysql-community-8.0.42"
-    echo "  - mysql-community-8.4.4"
-    echo "  - mysql-community-8.4.5"
+    print_header "Installed UPM Releases"
     echo
-
-    echo "mysql_router:"
-    echo "  - mysql-router-community-8.0.40"
-    echo "  - mysql-router-community-8.0.41"
-    echo "  - mysql-router-community-8.0.42"
-    echo "  - mysql-router-community-8.4.4"
-    echo "  - mysql-router-community-8.4.5"
-    echo
-
-    echo "postgresql:"
-    echo "  - postgresql-15.12"
-    echo "  - postgresql-15.13"
-    echo
-
-    echo "proxysql:"
-    echo "  - proxysql-2.7.2"
-    echo "  - proxysql-2.7.3"
-    echo
-
-    echo "pgbouncer:"
-    echo "  - pgbouncer-1.23.1"
-    echo "  - pgbouncer-1.24.1"
-    echo
-
-    echo "elasticsearch:"
-    echo "  - elasticsearch-7.17.14"
-    echo
-
-    echo "kibana:"
-    echo "  - kibana-7.17.14"
-    echo
-
-    echo "kafka:"
-    echo "  - kafka-3.5.2"
-    echo
-
-    print_header "Installed Releases"
-    echo
-    helm list --namespace "$NAMESPACE" --output table 2>/dev/null || echo "No releases found in namespace $NAMESPACE"
+    local releases
+    releases=$(get_upm_releases "table")
+    if [[ -n "$releases" && "$releases" != "[]" ]]; then
+        echo "$releases"
+    else
+        echo "No UPM releases found in namespace $NAMESPACE"
+    fi
 }
 
 # Function to show status of installed packages
@@ -586,25 +837,14 @@ show_status() {
     print_header "UPM Packages Status"
     echo
 
-    local releases
     local installed_count
-
-    if command -v jq &> /dev/null; then
-        releases=$(helm list --namespace "$NAMESPACE" --output json 2>/dev/null || echo "[]")
-        installed_count=$(echo "$releases" | jq '. | length' 2>/dev/null || echo "0")
-    else
-        releases=$(helm list --namespace "$NAMESPACE" --output table 2>/dev/null | tail -n +2)
-        installed_count=$(echo "$releases" | grep -c "^" || echo "0")
-        if [[ "$installed_count" -gt 0 ]]; then
-            installed_count=$((installed_count - 1))  # Subtract header line
-        fi
-    fi
+    installed_count=$(count_upm_releases)
 
     print_info "Found $installed_count UPM package releases in namespace $NAMESPACE"
 
     if [[ "$installed_count" -gt 0 ]]; then
         echo
-        helm list --namespace "$NAMESPACE" --output table
+        get_upm_releases "table"
     else
         print_warning "No UPM package releases found in namespace $NAMESPACE"
     fi
@@ -613,7 +853,9 @@ show_status() {
 # Function to execute action on packages
 execute_action() {
     local package_list
-    package_list=$(get_packages_from_targets)
+    if ! package_list=$(get_packages_from_targets); then
+        return 1
+    fi
 
     if [[ -z "$package_list" ]]; then
         print_warning "No packages to process"
