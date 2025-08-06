@@ -42,6 +42,10 @@ info() {
 
 decrypt_pwd() {
   local func_name="decrypt_pwd"
+  local enc_in="/tmp/${1}-ciphertext.bin"
+
+  # Clean up temporary file on exit
+  trap 'rm -f "${enc_in}"' RETURN
 
   local username="${1}"
   [[ -n "${username}" ]] || {
@@ -54,7 +58,7 @@ decrypt_pwd() {
     return 2
   }
 
-  [[ -d ${SECRET_MOUNT} ]] || {
+  [[ -d "${SECRET_MOUNT}" ]] || {
     error "${func_name}" "Not found ${SECRET_MOUNT} failed !"
     return 2
   }
@@ -63,6 +67,7 @@ decrypt_pwd() {
     error "${func_name}" "get env AES_SECRET_KEY failed !"
     return 2
   }
+
   local enc_key
   enc_key="$(echo -n "${AES_SECRET_KEY}" | od -t x1 -An -v | tr -d ' \n')"
   local enc_type="-aes-256-ctr"
@@ -80,17 +85,19 @@ decrypt_pwd() {
     return 2
   }
 
-  local enc_in
-  enc_in=$(cat "${secret_file}" | tail -c +17)
-  [[ -n "${enc_in}" ]] || {
+  tail -c +17 "${secret_file}" >"${enc_in}"
+  [[ -f "${enc_in}" ]] || {
     error "${func_name}" "get enc_in failed!"
     return 2
   }
 
-  openssl enc -d ${enc_type} -in "${enc_in}" -iv "${enc_iv}" -K "${enc_key}" || {
+  local decrypted_pwd
+  decrypted_pwd=$(openssl enc -d ${enc_type} -in "${enc_in}" -iv "${enc_iv}" -K "${enc_key}" 2>/dev/null) || {
     error "${func_name}" "openssl enc failed"
     return 2
   }
+
+  echo "${decrypted_pwd}"
 }
 
 initialize() {
