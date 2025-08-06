@@ -700,6 +700,12 @@ upgrade_package() {
         return 0
     fi
 
+    # Ensure helm repository is updated to get latest versions
+    print_info "Updating helm repository to ensure latest versions..."
+    if ! helm repo update "$HELM_REPO_NAME" > /dev/null 2>&1; then
+        print_warning "Failed to update helm repository, continuing with upgrade..."
+    fi
+
     local helm_cmd="helm upgrade"
     local helm_opts=()
 
