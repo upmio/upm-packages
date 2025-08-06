@@ -67,7 +67,7 @@ decrypt_pwd() {
     error "${func_name}" "get env AES_SECRET_KEY failed !"
     return 2
   }
-  
+
   local enc_key
   enc_key="$(echo -n "${AES_SECRET_KEY}" | od -t x1 -An -v | tr -d ' \n')"
   local enc_type="-aes-256-ctr"
@@ -98,6 +98,26 @@ decrypt_pwd() {
   }
 
   echo "${decrypted_pwd}"
+}
+
+get_mysql_auth_method() {
+  local func_name="get_mysql_auth_method"
+
+  [[ -n "${UNIT_APP_VERSION:-}" ]] || {
+    error "${func_name}" "UNIT_APP_VERSION environment variable not set!"
+    return 2
+  }
+
+  local version="${UNIT_APP_VERSION}"
+
+  if [[ "${version}" =~ ^8\.0\. ]]; then
+    echo "mysql_native_password"
+  elif [[ "${version}" =~ ^8\.[4-9]\. ]] || [[ "${version}" =~ ^[9-9]\. ]]; then
+    echo "caching_sha2_password"
+  else
+    error "${func_name}" "Unsupported MySQL version: ${version}"
+    return 2
+  fi
 }
 
 admin_user_login() {
@@ -150,20 +170,24 @@ initialize() {
 
     if [[ "${ARCH_MODE}" == "group_replication" ]]; then
       local init_sql="/tmp/init_${random}.sql"
+      local auth_method
+      auth_method=$(get_mysql_auth_method) || {
+        die 43 "${func_name}" "Failed to determine MySQL authentication method!"
+      }
       {
         echo "SET @@SESSION.SQL_LOG_BIN=0;"
         echo "INSTALL PLUGIN group_replication SONAME 'group_replication.so';"
         echo "INSTALL PLUGIN clone SONAME 'mysql_clone.so';"
-        echo "ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY '${ADM_PWD}';"
+        echo "ALTER USER 'root'@'localhost' IDENTIFIED WITH ${auth_method} BY '${ADM_PWD}';"
         echo "UPDATE mysql.user SET user='${ADM_USER}' WHERE user='root' AND host='localhost';"
-        echo "CREATE USER '${MON_USER}'@'%' IDENTIFIED WITH caching_sha2_password BY '${MON_PWD}';"
+        echo "CREATE USER '${MON_USER}'@'%' IDENTIFIED WITH ${auth_method} BY '${MON_PWD}';"
         echo "GRANT USAGE, PROCESS, REPLICATION CLIENT, REPLICATION SLAVE, SELECT ON *.* TO '${MON_USER}'@'%';"
         echo "GRANT SELECT ON mysql.user TO '${MON_USER}'@'%';"
-        echo "CREATE USER '${REPL_USER}'@'%' IDENTIFIED WITH caching_sha2_password BY '${REPL_PWD}';"
+        echo "CREATE USER '${REPL_USER}'@'%' IDENTIFIED WITH ${auth_method} BY '${REPL_PWD}';"
         echo "GRANT REPLICATION CLIENT, REPLICATION SLAVE, SYSTEM_VARIABLES_ADMIN, REPLICATION_SLAVE_ADMIN, GROUP_REPLICATION_ADMIN, RELOAD, BACKUP_ADMIN, CLONE_ADMIN ON *.* TO '${REPL_USER}'@'%';"
         echo "GRANT SELECT ON performance_schema.* TO '${REPL_USER}'@'%';"
         echo "DROP DATABASE IF EXISTS test;"
-        echo "CREATE USER '${PROV_USER}'@'%' IDENTIFIED WITH caching_sha2_password BY '${PROV_PWD}';"
+        echo "CREATE USER '${PROV_USER}'@'%' IDENTIFIED WITH ${auth_method} BY '${PROV_PWD}';"
         echo "GRANT ALL PRIVILEGES ON *.* TO '${PROV_USER}'@'%' WITH GRANT OPTION;"
         echo "DELETE FROM mysql.user WHERE User='';"
         echo "DELETE FROM mysql.user WHERE authentication_string='';"
@@ -171,21 +195,25 @@ initialize() {
       } >"${init_sql}"
     else
       local init_sql="/tmp/init_${random}.sql"
+      local auth_method
+      auth_method=$(get_mysql_auth_method) || {
+        die 44 "${func_name}" "Failed to determine MySQL authentication method!"
+      }
       {
         echo "SET @@SESSION.SQL_LOG_BIN=0;"
         echo "INSTALL PLUGIN rpl_semi_sync_source SONAME 'semisync_source.so';"
         echo "INSTALL PLUGIN rpl_semi_sync_replica SONAME 'semisync_replica.so';"
         echo "INSTALL PLUGIN clone SONAME 'mysql_clone.so';"
-        echo "ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY '${ADM_PWD}';"
+        echo "ALTER USER 'root'@'localhost' IDENTIFIED WITH ${auth_method} BY '${ADM_PWD}';"
         echo "UPDATE mysql.user SET user='${ADM_USER}' WHERE user='root' AND host='localhost';"
-        echo "CREATE USER '${MON_USER}'@'%' IDENTIFIED WITH caching_sha2_password BY '${MON_PWD}';"
+        echo "CREATE USER '${MON_USER}'@'%' IDENTIFIED WITH ${auth_method} BY '${MON_PWD}';"
         echo "GRANT USAGE, PROCESS, REPLICATION CLIENT, REPLICATION SLAVE, SELECT ON *.* TO '${MON_USER}'@'%';"
         echo "GRANT SELECT ON mysql.user TO '${MON_USER}'@'%';"
-        echo "CREATE USER '${REPL_USER}'@'%' IDENTIFIED WITH caching_sha2_password BY '${REPL_PWD}';"
+        echo "CREATE USER '${REPL_USER}'@'%' IDENTIFIED WITH ${auth_method} BY '${REPL_PWD}';"
         echo "GRANT REPLICATION CLIENT, REPLICATION SLAVE, SYSTEM_VARIABLES_ADMIN, REPLICATION_SLAVE_ADMIN, GROUP_REPLICATION_ADMIN, RELOAD, BACKUP_ADMIN, CLONE_ADMIN ON *.* TO '${REPL_USER}'@'%';"
         echo "GRANT SELECT ON performance_schema.* TO '${REPL_USER}'@'%';"
         echo "DROP DATABASE IF EXISTS test;"
-        echo "CREATE USER '${PROV_USER}'@'%' IDENTIFIED WITH caching_sha2_password BY '${PROV_PWD}';"
+        echo "CREATE USER '${PROV_USER}'@'%' IDENTIFIED WITH ${auth_method} BY '${PROV_PWD}';"
         echo "GRANT ALL PRIVILEGES ON *.* TO '${PROV_USER}'@'%' WITH GRANT OPTION;"
         echo "DELETE FROM mysql.user WHERE User='';"
         echo "DELETE FROM mysql.user WHERE authentication_string='';"
