@@ -123,14 +123,9 @@ get_mysql_auth_method() {
 admin_user_login() {
   local func_name="admin_user_login"
 
-  [[ -n "${ADM_USER:-}" ]] || {
-    die 41 "${func_name}" "ADM_USER environment variable not set!"
-  }
-
+  [[ -n "${ADM_USER:-}" ]] || die 41 "${func_name}" "ADM_USER environment variable not set!"
   ADM_PWD=$(decrypt_pwd "${ADM_USER}")
-  [[ -n "${ADM_PWD}" ]] || {
-    die 42 "${func_name}" "get ${ADM_USER} password failed!"
-  }
+  [[ -n "${ADM_PWD}" ]] || die 42 "${func_name}" "get ${ADM_USER} password failed!"
 
   mysql --defaults-file="${CONF_DIR}/mysql.cnf" '-u'"${ADM_USER}"'' '-p'"${ADM_PWD}"''
 }

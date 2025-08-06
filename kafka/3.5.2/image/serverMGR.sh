@@ -8,7 +8,7 @@ POSIXLY_CORRECT=1
 export POSIXLY_CORRECT
 LANG=C
 
-VERSION="v1.3.0"
+VERSION="v2.0.0"
 
 # ##############################################################################
 # common function package

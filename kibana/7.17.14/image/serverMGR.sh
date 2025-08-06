@@ -8,7 +8,7 @@ POSIXLY_CORRECT=1
 export POSIXLY_CORRECT
 LANG=C
 
-VERSION="v1.6.7"
+VERSION="v2.0.0"
 
 # ##############################################################################
 # common function package
@@ -40,39 +40,64 @@ info() {
   echo "[${timestamp}] INFO| (${VERSION})[${function_name}]: $* ;"
 }
 
-get_pwd() {
-  local func_name="get_pwd"
+decrypt_pwd() {
+  local func_name="decrypt_pwd"
+  local enc_in="/tmp/${1}-ciphertext.bin"
 
-  [[ -v SECRET_MOUNT ]] || {
+  # Clean up temporary file on exit
+  trap 'rm -f "${enc_in}"' RETURN
+
+  local username="${1}"
+  [[ -n "${username}" ]] || {
+    error "${func_name}" "get username failed !"
+    return 2
+  }
+
+  [[ -n "${SECRET_MOUNT:-}" ]] || {
     error "${func_name}" "get env SECRET_MOUNT failed !"
     return 2
   }
 
-  [[ -d ${SECRET_MOUNT} ]] || {
+  [[ -d "${SECRET_MOUNT}" ]] || {
     error "${func_name}" "Not found ${SECRET_MOUNT} failed !"
     return 2
   }
 
-  # echo -n "password" | od -A n -t x1 | tr -d ' '
-  local enc_key="3765323063323065613735363432333161373664643833616331636637303133"
-  local enc_iv="66382f4e654c734a2a732a7679675640"
-  local enc_type="-aes-256-cbc"
+  [[ -n "${AES_SECRET_KEY:-}" ]] || {
+    error "${func_name}" "get env AES_SECRET_KEY failed !"
+    return 2
+  }
 
-  local secret_file="${SECRET_MOUNT}/${ADM_USER}"
+  local enc_key
+  enc_key="$(echo -n "${AES_SECRET_KEY}" | od -t x1 -An -v | tr -d ' \n')"
+  local enc_type="-aes-256-ctr"
+
+  local secret_file="${SECRET_MOUNT}/${username}"
   [[ -f "${secret_file}" ]] || {
     error "${func_name}" "get file ${secret_file} failed !"
     return 2
   }
-  local enc_base64
-  enc_base64="$(cat "${secret_file}")" || {
-    error "${func_name}" "get enc_base64 failed!"
+
+  local enc_iv
+  enc_iv=$(cat "${secret_file}" | head -c 16 | od -t x1 -An -v | tr -d ' \n')
+  [[ -n "${enc_iv}" ]] || {
+    error "${func_name}" "get enc_iv failed!"
     return 2
   }
-  export ADM_PWD
-  ADM_PWD=$(printf "%s\n" "${enc_base64}" | openssl enc -d "${enc_type}" -base64 -K "${enc_key}" -iv "${enc_iv}" 2>/dev/null) || {
+
+  tail -c +17 "${secret_file}" >"${enc_in}"
+  [[ -f "${enc_in}" ]] || {
+    error "${func_name}" "get enc_in failed!"
+    return 2
+  }
+
+  local decrypted_pwd
+  decrypted_pwd=$(openssl enc -d ${enc_type} -in "${enc_in}" -iv "${enc_iv}" -K "${enc_key}" 2>/dev/null) || {
     error "${func_name}" "openssl enc failed"
     return 2
   }
+
+  echo "${decrypted_pwd}"
 }
 
 initialize() {
@@ -149,7 +174,10 @@ EOF
 status() {
   local func_name="status"
 
-  get_pwd || die 40 "${func_name}" "get ${ADM_USER} password failed!"
+  # Get environment variables
+  [[ -n "${ADM_USER:-}" ]] || die 41 "${func_name}" "ADM_USER environment variable not set!"
+  ADM_PWD=$(decrypt_pwd "${ADM_USER}")
+  [[ -n "${ADM_PWD}" ]] || die 42 "${func_name}" "get ${ADM_USER} password failed!"
 
   local http_code
   http_code=$(curl --output /dev/null -X GET -s -w '%{http_code}' -u "${ADM_USER}:${ADM_PWD}" "http://${POD_NAME}:${KIBANA_PORT}/app/kibana")
@@ -190,9 +218,6 @@ INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"
 [[ -v KBN_PATH_CONF ]] || die 10 "Globals" "get env KBN_PATH_CONF failed !"
 [[ -v LOG_MOUNT ]] || die 10 "Globals" "get env LOG_MOUNT failed !"
 [[ -d ${LOG_MOUNT} ]] || die 11 "Globals" "Not found LOG_MOUNT !"
-[[ -v CERT_MOUNT ]] || die 10 "Globals" "get env CERT_MOUNT failed !"
-[[ -d ${CERT_MOUNT} ]] || die 11 "Globals" "Not found CERT_MOUNT !"
-[[ -v ADM_USER ]] || die 10 "Globals" "get env ADM_USER failed !"
 [[ -v POD_NAME ]] || die 10 "Globals" "get env POD_NAME failed !"
 [[ -v KIBANA_PORT ]] || die 10 "Globals" "get env KIBANA_PORT failed !"
 FORCE_CLEAN="${FORCE_CLEAN:-false}"
