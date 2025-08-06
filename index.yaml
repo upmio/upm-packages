@@ -25,6 +25,30 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/elasticsearch-7.17.14-2.0.0/elasticsearch-7.17.14-2.0.0.tgz
     version: 2.0.0
+  - apiVersion: v2
+    appVersion: 7.17.14
+    created: "2025-08-06T10:32:04.125686216Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: Elasticsearch software packages, including configuration templates
+      and pod templates.
+    digest: e89a395b3b96ec1b7fd5fba81df569b56d809b7436cf4e87f886b38592603243
+    keywords:
+    - elasticsearch
+    - search
+    - analytics
+    - observability
+    - logging
+    - monitoring
+    name: elasticsearch-7.17.14
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/elasticsearch-7.17.14-1.0.0/elasticsearch-7.17.14-1.0.0.tgz
+    version: 1.0.0
   kafka:
   - apiVersion: v2
     appVersion: 3.5.2
@@ -695,4 +719,4 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/proxysql-2.7.3-2.0.0/proxysql-2.7.3-2.0.0.tgz
     version: 2.0.0
-generated: "2025-08-04T05:31:15.92260444Z"
+generated: "2025-08-06T10:32:04.12572061Z"
