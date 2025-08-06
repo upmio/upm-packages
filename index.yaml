@@ -1,0 +1,135 @@
+apiVersion: v1
+entries:
+  mysql-community-8.0.40:
+  - apiVersion: v2
+    appVersion: 8.0.40
+    created: "2025-08-06T10:32:54.469428998Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: MySQL community edition software packages, including configuration templates
+      and pod templates.
+    digest: 47fccd06fb341c0b5ab6eb5bab5fcabf4f65bc64058c59a0fabc3f3c7384540d
+    keywords:
+    - mysql
+    - database
+    - sql
+    name: mysql-community-8.0.40
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/mysql-community-8.0.40-1.0.0/mysql-community-8.0.40-1.0.0.tgz
+    version: 1.0.0
+  mysql-community-8.0.41:
+  - apiVersion: v2
+    appVersion: 8.0.41
+    created: "2025-08-06T10:33:06.788643357Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: MySQL community edition software packages, including configuration templates
+      and pod templates.
+    digest: 3ef596e4b0cc334530131a278c2f71d163b0a0779dbbfcc1ec3e0ca5f2ef4fe4
+    keywords:
+    - mysql
+    - database
+    - sql
+    name: mysql-community-8.0.41
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/mysql-community-8.0.41-1.0.0/mysql-community-8.0.41-1.0.0.tgz
+    version: 1.0.0
+  mysql-community-8.0.42:
+  - apiVersion: v2
+    appVersion: 8.0.42
+    created: "2025-08-06T10:33:31.808991925Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: MySQL community edition software packages, including configuration templates
+      and pod templates.
+    digest: 5ccc5fc201d5b9128285d8fd74df841cd846907980fcc1ce7076793d0b678031
+    keywords:
+    - mysql
+    - database
+    - sql
+    name: mysql-community-8.0.42
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/mysql-community-8.0.42-1.0.0/mysql-community-8.0.42-1.0.0.tgz
+    version: 1.0.0
+  mysql-community-8.4.4:
+  - apiVersion: v2
+    appVersion: 8.4.4
+    created: "2025-08-06T10:33:45.073143982Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: MySQL community edition software packages, including configuration templates
+      and pod templates.
+    digest: c2ae865728c47f1278e838dfeb6737d53cbee1410e9f9e26b42bfb5e94c1f690
+    keywords:
+    - mysql
+    - database
+    - sql
+    name: mysql-community-8.4.4
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/mysql-community-8.4.4-1.0.0/mysql-community-8.4.4-1.0.0.tgz
+    version: 1.0.0
+  mysql-community-8.4.5:
+  - apiVersion: v2
+    appVersion: 8.4.5
+    created: "2025-08-06T10:33:58.434016829Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: MySQL community edition software packages, including configuration templates
+      and pod templates.
+    digest: c66bc1a3f055ed64e9e44fc0af0fce92e09b6455bc8d033ba4067a10463f87cd
+    keywords:
+    - mysql
+    - database
+    - sql
+    name: mysql-community-8.4.5
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/mysql-community-8.4.5-1.0.0/mysql-community-8.4.5-1.0.0.tgz
+    version: 1.0.0
+  postgresql-15.13:
+  - apiVersion: v2
+    appVersion: "15.13"
+    created: "2025-08-06T10:36:37.707360016Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: PostgreSQL software packages, including configuration templates and
+      pod templates.
+    digest: 6ad5d0838fd26fe0bf5ab2185fd040854562a410ab26b6cb8313c3a94d8019c0
+    keywords:
+    - postgresql
+    - database
+    - sql
+    name: postgresql-15.13
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/postgresql-15.13-1.0.0/postgresql-15.13-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-08-06T10:37:11.643963461Z"
