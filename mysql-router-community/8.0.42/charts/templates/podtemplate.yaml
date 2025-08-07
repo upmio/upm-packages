@@ -39,7 +39,7 @@ template:
         command:
           - "bash"
           - "-c"
-          - "serverMGR.sh initialize"
+          - "service-ctl.sh initialize"
         env:
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
@@ -95,7 +95,7 @@ template:
               - "3"
               - "bash"
               - "-c"
-              - "serverMGR.sh health"
+              - "service-ctl.sh health"
           failureThreshold: 3
           initialDelaySeconds: 12
           periodSeconds: 12
