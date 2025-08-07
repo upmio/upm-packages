@@ -11,6 +11,38 @@ LANG=C
 VERSION="v2.0.0"
 
 # ##############################################################################
+# Exit Code Conventions
+# ##############################################################################
+# 1-9: General system errors
+# 10-19: Environment validation errors
+# 20-29: Argument/usage errors
+# 30-39: Network/communication errors
+# 40-49: Filesystem/permission errors
+# 50-59: Database operation errors
+# 60-69: Configuration errors
+# 70-79: Process management errors
+# 80-89: Resource allocation errors
+# 90-99: Unknown/unexpected errors
+
+# Exit code definitions:
+# 1: General error (fallback)
+# 2: General operation failure
+# 10: Missing environment variable
+# 11: Directory not found
+# 21: Unsupported action/argument
+# 41: Directory removal failed
+# 42: Directory creation failed
+# 43: HTTP request failed
+# 44: Primary node discovery failed
+# 45: MySQL cluster creation failed
+# 46: MySQL cluster status check failed
+# 47: PROV_USER validation failed
+# 48: Password decryption failed
+# 49: Router file validation failed
+# 50: Router password setting failed
+# 51: Flag file creation failed
+
+# ##############################################################################
 # common function package
 # ##############################################################################
 die() {
@@ -106,10 +138,9 @@ initialize() {
   local func_name="${func_name}(${random})"
   info "${func_name}" "Starting run ${func_name} ..."
 
-  # Get environment variables
-  [[ -n "${PROV_USER:-}" ]] || die 47 "${func_name}" "PROV_USER environment variable not set!"
+  [[ -n "${PROV_USER:-}" ]] || die 10 "${func_name}" "PROV_USER environment variable not set!"
   PROV_PWD=$(decrypt_pwd "${PROV_USER}")
-  [[ -n "${PROV_PWD}" ]] || die 48 "${func_name}" "get ${PROV_USER} password failed!"
+  [[ -n "${PROV_PWD}" ]] || die 2 "${func_name}" "get ${PROV_USER} password failed!"
 
   [[ -f "${INIT_FLAG_FILE}" ]] || {
     if [[ "${FORCE_CLEAN}" == "true" ]]; then
@@ -187,7 +218,7 @@ if (status.defaultReplicaSet.status === 'OK') {
     # If keyring file or state.json file or mysqlrouter.key file is not exists, then bootstrap mysql router
     if [[ ! -f "${DATA_DIR}/data/keyring" ]] || [[ ! -f "${DATA_DIR}/data/state.json" ]] || [[ ! -f "${DATA_DIR}/mysqlrouter.key" ]]; then
       # remove all files in DATA_DIR directory
-      rm -rf "${DATA_DIR:?}"/* || die 47 "${func_name}" "Force remove ${DATA_DIR} failed!"
+      rm -rf "${DATA_DIR:?}"/* || die 41 "${func_name}" "Force remove ${DATA_DIR} failed!"
 
       # bootstrap mysql router
       mysqlrouter --bootstrap "${PROV_USER}@${primary_node}" \
@@ -195,22 +226,47 @@ if (status.defaultReplicaSet.status === 'OK') {
         --directory "${DATA_DIR}" \
         --user mysql-router \
         --force \
+        --disable-rest \
+        --ssl-mode=DISABLED \
         --account-create=never \
         --account "${PROV_USER}" < <(echo -e "${PROV_PWD}\n${PROV_PWD}") || {
-        die 48 "${func_name}" "mysqlrouter bootstrap failed!"
+        die 45 "${func_name}" "mysqlrouter bootstrap failed!"
       }
 
       # check keyring file and state.json file and mysqlrouter.key file
       if [[ ! -f "${DATA_DIR}/data/keyring" ]] || [[ ! -f "${DATA_DIR}/data/state.json" ]] || [[ ! -f "${DATA_DIR}/mysqlrouter.key" ]]; then
         die 49 "${func_name}" "check keyring file or state.json file or mysqlrouter.key file failed!"
       fi
+
+      mysqlrouter_passwd set "${DATA_MOUNT}/.mysqlrouter.pwd" "${PROV_USER}" < <(echo -e "${PROV_PWD}") || {
+        die 50 "${func_name}" "mysqlrouter_passwd set failed!"
+      }
     fi
     info "${func_name}" "Initialize mysql router done !"
     touch "${INIT_FLAG_FILE}"
-    [[ -f ${INIT_FLAG_FILE} ]] || die 50 "${func_name}" "create ${INIT_FLAG_FILE} failed!"
+    [[ -f ${INIT_FLAG_FILE} ]] || die 51 "${func_name}" "create ${INIT_FLAG_FILE} failed!"
   }
 
   info "${func_name}" "run ${func_name} done."
+}
+
+check_health() {
+  local func_name="check_health"
+
+  [[ -n "${PROV_USER:-}" ]] || die 10 "${func_name}" "PROV_USER environment variable not set!"
+  PROV_PWD=$(decrypt_pwd "${PROV_USER}")
+  [[ -n "${PROV_PWD}" ]] || die 2 "${func_name}" "get ${PROV_USER} password failed!"
+
+  # use rest api GET /routes/{routeName}/health check router
+  local route_name="mysql_rw"
+  local url="http://localhost:${HTTP_PORT}/api/20190715/routes/${route_name}/health"
+  local status_code
+  status_code=$(curl -s -o /dev/null -w "%{http_code}" -u "${PROV_USER}:${PROV_PWD}" "${url}") || {
+    die 43 "${func_name}" "curl ${url} failed!"
+  }
+  if [[ "${status_code}" -ne 200 ]]; then
+    die 43 "${func_name}" "curl ${url} failed! status code: ${status_code}"
+  fi
 }
 
 # ##############################################################################
@@ -224,6 +280,9 @@ main() {
   case "${action}" in
   "initialize")
     initialize
+    ;;
+  "health")
+    check_health
     ;;
   *)
     die 21 "${func_name}" "service action(${action}) nonsupport"
@@ -239,6 +298,7 @@ INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"
 [[ -v LOG_MOUNT ]] || die 10 "Globals" "get env LOG_MOUNT failed !"
 [[ -d ${LOG_MOUNT} ]] || die 11 "Globals" "Not found LOG_MOUNT !"
 [[ -v SERVICE_GROUP_NAME ]] || die 10 "Globals" "get env SERVICE_GROUP_NAME failed !"
+[[ -v HTTP_PORT ]] || die 10 "Globals" "get env HTTP_PORT failed !"
 [[ -v MYSQL_SERVICE_NAME ]] || die 10 "Globals" "get env MYSQL_SERVICE_NAME failed !"
 [[ -v MYSQL_PORT ]] || die 10 "Globals" "get env MYSQL_PORT failed !"
 FORCE_CLEAN="${FORCE_CLEAN:-false}"
