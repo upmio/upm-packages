@@ -40,3 +40,7 @@ gen
 .crush
 
 CLAUDE.md
+
+# Helm chart dependencies
+**/charts/*.tgz
+**/charts/charts/*.tgz
