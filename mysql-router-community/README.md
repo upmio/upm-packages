@@ -18,11 +18,11 @@ This component provides containerized MySQL Router Community Edition as part of 
 
 | Version | Status | Kubernetes | Notes |
 |---------|--------|------------|-------|
-| 8.0.40 | ✅ Stable | 1.19+ | Legacy support |
-| 8.0.41 | ✅ Stable | 1.19+ | Legacy support |
-| 8.0.42 | ✅ Stable | 1.19+ | Legacy support |
-| 8.4.4 | ✅ Stable | 1.19+ | Current stable |
-| 8.4.5 | ✅ Latest | 1.19+ | Latest version |
+| 8.0.40 | ✅ Stable | 1.29+      | Legacy support |
+| 8.0.41 | ✅ Stable | 1.29+      | Legacy support |
+| 8.0.42 | ✅ Stable | 1.29+      | Legacy support |
+| 8.4.4 | ✅ Stable | 1.29+      | Current stable |
+| 8.4.5 | ✅ Latest | 1.29+      | Latest version |
 
 ## Quick Start
 
@@ -232,9 +232,8 @@ Uses UPM's standard template system:
 
 For support and issues:
 
-1. Check the main [UPM Packages documentation](https://upmio.github.io/upm-packages/)
-2. Review [UPM Packages issues](https://github.com/upmio/upm-packages/issues)
-3. Contact UPM support team
+1. Review [UPM Packages issues](https://github.com/upmio/upm-packages/issues)
+2. Contact UPM support team
 
 ## Changelog
 
