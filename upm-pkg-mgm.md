@@ -1,8 +1,8 @@
-# UPM Manager Script Documentation
+# UPM Package Management Script Documentation
 
 ## Overview
 
-The `upm-manager.sh` script is a unified management tool for UPM (Universal Platform Manager) packages. It provides a comprehensive interface for installing, uninstalling, upgrading, and managing UPM software components in Kubernetes environments.
+The `upm-pkg-mgm.sh` script is a unified management tool for UPM (Universal Platform Manager) packages. It provides a comprehensive interface for installing, uninstalling, upgrading, and managing UPM software components in Kubernetes environments.
 
 ## Features
 
@@ -28,18 +28,18 @@ The `upm-manager.sh` script is a unified management tool for UPM (Universal Plat
 
 1. **Download the script**:
    ```bash
-   curl -o upm-manager.sh https://raw.githubusercontent.com/upmio/upm-packages/main/upm-manager.sh
-   chmod +x upm-manager.sh
+   curl -o upm-pkg-mgm.sh https://raw.githubusercontent.com/upmio/upm-packages/main/upm-pkg-mgm.sh
+   chmod +x upm-pkg-mgm.sh
    ```
 
 2. **Make it executable**:
    ```bash
-   chmod +x upm-manager.sh
+   chmod +x upm-pkg-mgm.sh
    ```
 
 3. **Verify prerequisites**:
    ```bash
-   ./upm-manager.sh list
+   ./upm-pkg-mgm.sh list
    ```
 
 ## Usage
@@ -47,7 +47,7 @@ The `upm-manager.sh` script is a unified management tool for UPM (Universal Plat
 ### Basic Syntax
 
 ```bash
-./upm-manager.sh <ACTION> [OPTIONS] [TARGETS]
+./upm-pkg-mgm.sh <ACTION> [OPTIONS] [TARGETS]
 ```
 
 ### Actions
@@ -91,44 +91,44 @@ The `upm-manager.sh` script is a unified management tool for UPM (Universal Plat
 
 **Show help**:
 ```bash
-./upm-manager.sh --help
+./upm-pkg-mgm.sh --help
 ```
 
 **List available packages**:
 ```bash
-./upm-manager.sh list
+./upm-pkg-mgm.sh list
 ```
 
 **Check status of installed packages**:
 ```bash
-./upm-manager.sh status
+./upm-pkg-mgm.sh status
 ```
 
 ### Installation Examples
 
 **Install all packages**:
 ```bash
-./upm-manager.sh install all
+./upm-pkg-mgm.sh install all
 ```
 
 **Install MySQL components only**:
 ```bash
-./upm-manager.sh install mysql_community mysql_router
+./upm-pkg-mgm.sh install mysql_community mysql_router
 ```
 
 **Install specific package**:
 ```bash
-./upm-manager.sh install mysql-community-8.4.5
+./upm-pkg-mgm.sh install mysql-community-8.4.5
 ```
 
 **Dry run installation**:
 ```bash
-./upm-manager.sh install --dry-run mysql_community
+./upm-pkg-mgm.sh install --dry-run mysql_community
 ```
 
 **Install with custom namespace**:
 ```bash
-./upm-manager.sh install -n my-namespace postgresql
+./upm-pkg-mgm.sh install -n my-namespace postgresql
 ```
 
 
@@ -136,24 +136,24 @@ The `upm-manager.sh` script is a unified management tool for UPM (Universal Plat
 
 **Upgrade all packages**:
 ```bash
-./upm-manager.sh upgrade all
+./upm-pkg-mgm.sh upgrade all
 ```
 
 **Upgrade specific package**:
 ```bash
-./upm-manager.sh upgrade mysql-community-8.4.5
+./upm-pkg-mgm.sh upgrade mysql-community-8.4.5
 ```
 
 ### Uninstall Examples
 
 **Uninstall specific package**:
 ```bash
-./upm-manager.sh uninstall mysql-community-8.4.5
+./upm-pkg-mgm.sh uninstall mysql-community-8.4.5
 ```
 
 **Uninstall multiple packages**:
 ```bash
-./upm-manager.sh uninstall mysql-community-8.4.5 postgresql-15.13
+./upm-pkg-mgm.sh uninstall mysql-community-8.4.5 postgresql-15.13
 ```
 
 ## Available Packages
@@ -208,7 +208,7 @@ The script can be configured through environment variables:
 export NAMESPACE="custom-namespace"
 export RELEASE_PREFIX="my-prefix"
 export HELM_REPO_URL="https://custom-repo.example.com/charts"
-./upm-manager.sh install mysql_community
+./upm-pkg-mgm.sh install mysql_community
 ```
 
 ## Release Naming
@@ -246,7 +246,7 @@ The script includes comprehensive error handling:
 
 **Permission Denied**:
 ```bash
-chmod +x upm-manager.sh
+chmod +x upm-pkg-mgm.sh
 ```
 
 **Helm Repository Not Found**:
@@ -262,22 +262,22 @@ kubectl cluster-info
 
 **Package Not Found**:
 ```bash
-./upm-manager.sh list  # Check available packages
+./upm-pkg-mgm.sh list  # Check available packages
 ```
 
 ### Debug Mode
 
 Use dry run mode to debug operations:
 ```bash
-./upm-manager.sh install --dry-run --debug mysql-community-8.4.5
+./upm-pkg-mgm.sh install --dry-run --debug mysql-community-8.4.5
 ```
 
 ## Support
 
 For issues and questions:
-- Check the script's help: `./upm-manager.sh --help`
-- Verify prerequisites: `./upm-manager.sh list`
-- Use dry run mode for testing: `./upm-manager.sh install --dry-run <package>`
+- Check the script's help: `./upm-pkg-mgm.sh --help`
+- Verify prerequisites: `./upm-pkg-mgm.sh list`
+- Use dry run mode for testing: `./upm-pkg-mgm.sh install --dry-run <package>`
 
 ## License
 

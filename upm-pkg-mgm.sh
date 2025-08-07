@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# UPM Packages Unified Management Script
+# UPM Package Management Script
 # This script provides unified management for all UPM packages including install, uninstall, and upgrade operations
 
 set -euo pipefail
@@ -52,7 +52,7 @@ print_header() {
 # Function to display help
 show_help() {
     cat << EOF
-UPM Packages Unified Management Script
+UPM Package Management Script
 
 This script provides unified management for all UPM packages including install, uninstall, and upgrade operations.
 
@@ -72,7 +72,7 @@ TARGETS:
     <chart-name>                    Specific chart name (e.g., mysql-community-8.4.5)
 
 NOTE: Available components and packages are dynamically fetched from the helm repository.
-Use './upm-manager.sh list' to see currently available options.
+Use './upm-pkg-mgm.sh list' to see currently available options.
 
 OPTIONS:
     -n, --namespace NAMESPACE      Kubernetes namespace (default: upm-system)
@@ -915,7 +915,7 @@ execute_action() {
 
 # Main function
 main() {
-    print_header "UPM Packages Unified Management"
+    print_header "UPM Package Management"
     echo
 
     parse_args "$@"
