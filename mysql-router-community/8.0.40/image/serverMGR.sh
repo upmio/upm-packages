@@ -240,7 +240,7 @@ if (status.defaultReplicaSet.status === 'OK') {
       # Validate router files
       if [[ ! -f "${DATA_DIR}/data/keyring" ]] || [[ ! -f "${DATA_DIR}/data/state.json" ]] || [[ ! -f "${DATA_DIR}/mysqlrouter.key" ]]; then
         die "${EXIT_ROUTER_FILE_VALIDATION_FAILED}" "${func_name}" "check keyring file or state.json file or mysqlrouter.key file failed!"
-      }
+      fi
 
       # Set router password
       mysqlrouter_passwd set "${DATA_MOUNT}/.mysqlrouter.pwd" "${PROV_USER}" < <(echo -e "${prov_pwd}") || {
@@ -308,16 +308,16 @@ validate_environment() {
   local func_name="validate_environment"
 
   # Validate required environment variables
-  [[ -v DATA_MOUNT ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env DATA_MOUNT failed !"
+  [[ -n "${DATA_MOUNT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env DATA_MOUNT failed !"
   [[ -d ${DATA_MOUNT} ]] || die "${EXIT_DIR_NOT_FOUND}" "${func_name}" "Not found DATA_MOUNT !"
-  [[ -v DATA_DIR ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env DATA_DIR failed !"
-  [[ -v CONF_DIR ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env CONF_DIR failed !"
-  [[ -v LOG_MOUNT ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env LOG_MOUNT failed !"
+  [[ -n "${DATA_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env DATA_DIR failed !"
+  [[ -n "${CONF_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env CONF_DIR failed !"
+  [[ -n "${LOG_MOUNT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env LOG_MOUNT failed !"
   [[ -d ${LOG_MOUNT} ]] || die "${EXIT_DIR_NOT_FOUND}" "${func_name}" "Not found LOG_MOUNT !"
-  [[ -v SERVICE_GROUP_NAME ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env SERVICE_GROUP_NAME failed !"
-  [[ -v HTTP_PORT ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env HTTP_PORT failed !"
-  [[ -v MYSQL_SERVICE_NAME ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env MYSQL_SERVICE_NAME failed !"
-  [[ -v MYSQL_PORT ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env MYSQL_PORT failed !"
+  [[ -n "${SERVICE_GROUP_NAME:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env SERVICE_GROUP_NAME failed !"
+  [[ -n "${HTTP_PORT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env HTTP_PORT failed !"
+  [[ -n "${MYSQL_SERVICE_NAME:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env MYSQL_SERVICE_NAME failed !"
+  [[ -n "${MYSQL_PORT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env MYSQL_PORT failed !"
 
   # Set global variables with defaults
   readonly INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"
