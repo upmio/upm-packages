@@ -55,7 +55,7 @@ RUN set -eux; \
 
 # Download mysql80-community mysql-shell and mysql-router
 RUN set -eu; \
-  dnf -y install "https://repo.mysql.com/mysql84-community-release-el9.rpm"; \
+  dnf -y install "https://repo.mysql.com/mysql80-community-release-el9.rpm"; \
   dnf config-manager --set-enabled mysql-tools-community; \
   dnf install -y "mysql-shell-${MYSQL_VERSION}" "mysql-router-community-${MYSQL_VERSION}"; \
   dnf clean all; \
