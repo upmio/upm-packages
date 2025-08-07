@@ -1,0 +1,255 @@
+name: Incremental Build and Release
+
+run-name: ${{ github.actor }} is running incremental build and release
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      changed_components: ${{ steps.analyze-changes.outputs.changed_components }}
+      changed_image_dirs: ${{ steps.analyze-changes.outputs.changed_image_dirs }}
+      changed_chart_dirs: ${{ steps.analyze-changes.outputs.changed_chart_dirs }}
+      has_image_changes: ${{ steps.analyze-changes.outputs.has_image_changes }}
+      has_chart_changes: ${{ steps.analyze-changes.outputs.has_chart_changes }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Analyze Changes
+        id: analyze-changes
+        run: |
+          echo "=== Analyzing repository changes ==="
+          
+          # 获取变更的文件列表
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            changed_files=$(git diff --name-only origin/${{ github.base_ref }} HEAD)
+          else
+            changed_files=$(git diff --name-only HEAD^ HEAD)
+          fi
+          
+          echo "Changed files:"
+          echo "$changed_files"
+          
+          # 分析变更的组件
+          changed_components_json="$(echo "$changed_files" | while read -r file; do
+            if [ -n "$file" ]; then
+              # 提取组件名
+              component=$(echo "$file" | awk -F'/' '{print $1}')
+              if [[ -n "$component" && "$component" != "." && "$component" != ".github" ]]; then
+                echo "$component"
+              fi
+            fi
+          done | sort | uniq | jq -R . | jq -sc .)"
+          
+          # 分析变更的 image 目录
+          changed_image_dirs_json="$(echo "$changed_files" | grep "image/" | while read -r file; do
+            if [ -n "$file" ]; then
+              # 提取 image 目录路径
+              dir=$(dirname "$file" | sed 's|^\./||')
+              while [[ "$dir" != "." && "$dir" != *"image" ]]; do
+                dir=$(dirname "$dir")
+              done
+              
+              if [[ "$dir" == *"image" ]]; then
+                component=$(echo "$dir" | awk -F'/' '{print $1}')
+                version=$(echo "$dir" | awk -F'/' '{print $2}')
+                if [[ -n "$component" && -n "$version" ]]; then
+                  echo "{\"component\": \"$component\", \"version\": \"$version\", \"context\": \"$dir\"}"
+                fi
+              fi
+            fi
+          done | sort | uniq | jq -sc .)"
+          
+          # 分析变更的 chart 目录
+          changed_chart_dirs_json="$(echo "$changed_files" | grep "charts/" | while read -r file; do
+            if [ -n "$file" ]; then
+              # 提取 chart 目录路径
+              dir=$(dirname "$file" | sed 's|^\./||')
+              while [[ "$dir" != "." && "$dir" != *"charts" ]]; do
+                dir=$(dirname "$dir")
+              done
+              
+              if [[ "$dir" == *"charts" ]]; then
+                echo "$dir"
+              fi
+            fi
+          done | sort | uniq | jq -R . | jq -sc .)"
+          
+          # 检查是否有变更
+          has_image_changes=$(echo "$changed_files" | grep -q "image/" && echo "true" || echo "false")
+          has_chart_changes=$(echo "$changed_files" | grep -q "charts/" && echo "true" || echo "false")
+          
+          echo "Changed components: $changed_components_json"
+          echo "Changed image directories: $changed_image_dirs_json"
+          echo "Changed chart directories: $changed_chart_dirs_json"
+          echo "Has image changes: $has_image_changes"
+          echo "Has chart changes: $has_chart_changes"
+          
+          echo "changed_components=$changed_components_json" >> $GITHUB_OUTPUT
+          echo "changed_image_dirs=$changed_image_dirs_json" >> $GITHUB_OUTPUT
+          echo "changed_chart_dirs=$changed_chart_dirs_json" >> $GITHUB_OUTPUT
+          echo "has_image_changes=$has_image_changes" >> $GITHUB_OUTPUT
+          echo "has_chart_changes=$has_chart_changes" >> $GITHUB_OUTPUT
+
+  component-build-test:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_image_changes == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        component: ${{ fromJson(needs.detect-changes.outputs.changed_components) }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Test Component Build
+        run: |
+          echo "=== Testing build for component: ${{ matrix.component }} ==="
+          
+          # Find all image directories for this component
+          find . -path "*/${{ matrix.component }}/*/image/Dockerfile" -type f | while read dockerfile; do
+            component_dir=$(dirname "$dockerfile")
+            echo "Testing build: $component_dir"
+            
+            # Test build without pushing
+            docker build --no-cache --pull --rm -t test-build:${{ matrix.component }} "$component_dir" || {
+              echo "Build failed for: $component_dir"
+              exit 1
+            }
+            
+            # Clean up
+            docker rmi test-build:${{ matrix.component }} || true
+          done
+
+  image-release:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_image_changes == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 3
+      matrix:
+        image_info: ${{ fromJson(needs.detect-changes.outputs.changed_image_dirs) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAYIO_USERNAME }}
+          password: ${{ secrets.QUAYIO_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.image_info.context }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            quay.io/upmio/${{ matrix.image_info.component }}:${{ matrix.image_info.version }}
+
+  chart-release:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_chart_changes == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        chart_dir: ${{ fromJson(needs.detect-changes.outputs.changed_chart_dirs) }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git fetch --all
+          git fetch --tags
+
+      - name: Check if Chart version exists
+        id: check-version
+        run: |
+          # 读取Chart.yaml中的版本号
+          CHART_VERSION=$(yq eval '.version' ${{ matrix.chart_dir }}/Chart.yaml)
+          CHART_NAME=$(yq eval '.name' ${{ matrix.chart_dir }}/Chart.yaml)
+          
+          # 检查是否已存在相同版本的release
+          if gh release view "$CHART_NAME-$CHART_VERSION" &> /dev/null; then
+            echo "Chart version $CHART_NAME-$CHART_VERSION already exists, skipping release"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "Chart version $CHART_NAME-$CHART_VERSION does not exist, proceeding with release"
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Package Chart
+        if: steps.check-version.outputs.skip != 'true'
+        run: |
+          rm -rf .cr-release-packages
+          mkdir -p .cr-release-packages
+          helm package ${{ matrix.chart_dir }} --destination=.cr-release-packages -u
+
+      - name: Release Chart
+        if: steps.check-version.outputs.skip != 'true'
+        uses: helm/chart-releaser-action@v1.5.0
+        with:
+          charts_dir: ${{ matrix.chart_dir }}
+          skip_packaging: true
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+  summary:
+    needs: [detect-changes, component-build-test, image-release, chart-release]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "=== Incremental Build Summary ===" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### Changes Detected" >> $GITHUB_STEP_SUMMARY
+          echo "- **Components changed**: ${{ needs.detect-changes.outputs.changed_components }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image changes**: ${{ needs.detect-changes.outputs.has_image_changes }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Chart changes**: ${{ needs.detect-changes.outputs.has_chart_changes }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.detect-changes.outputs.has_image_changes }}" = "true" ]; then
+            echo "### Image Build Results" >> $GITHUB_STEP_SUMMARY
+            echo "- **Build test**: ${{ needs.component-build-test.result }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Image release**: ${{ needs.image-release.result }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.detect-changes.outputs.has_chart_changes }}" = "true" ]; then
+            echo "### Chart Release Results" >> $GITHUB_STEP_SUMMARY
+            echo "- **Chart release**: ${{ needs.chart-release.result }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "### Optimization Achieved" >> $GITHUB_STEP_SUMMARY
+          echo "- **Only changed components were built**" >> $GITHUB_STEP_SUMMARY
+          echo "- **Reduced CI time and resource usage**" >> $GITHUB_STEP_SUMMARY
+          echo "- **Parallel processing for independent components**" >> $GITHUB_STEP_SUMMARY

@@ -2,8 +2,6 @@ name: Release images
 run-name: ${{ github.actor }} is building images
 on:
   push:
-    paths:
-      - '**/**/image/**' # 监听这些路径的变化
     branches:
       - 'main'
 
@@ -12,36 +10,67 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       image_dirs: ${{ steps.set-output.outputs.image_dirs }}
+      has_changes: ${{ steps.check-changes.outputs.has_changes }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Find image directories
-        id: set-output
+      - name: Check for image changes
+        id: check-changes
         run: |
-          # 提取 image 的目录并转换为包含 image、version 和 context 属性的对象数组
-          #!/bin/bash
-        
-          image_dirs_json="$(find . -type f -name "Dockerfile" -exec dirname {} \; | sed 's|^\./||' | sort | uniq | while read -r dir; do            
-            # 使用 awk 按目录层级分割路径
-            if echo "$dir" | grep -q "/image$"; then
-             
-              if echo "$dir" | awk -F'/' 'NF==3 && $3=="image" && $2 ~ /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/ {print}' > /dev/null; then
-                component=$(echo "$dir" | awk -F'/' '{print $1}')
-                version=$(echo "$dir" | awk -F'/' '{print $2}')
-                echo "{\"image\": \"$component\", \"version\": \"${version}\", \"context\": \"$dir\"}"
-              fi
-            fi
-          done | jq -sc .)"
+          # 检查是否有 image 相关的文件变更
+          if git diff --name-only HEAD^ HEAD | grep -q "image/"; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Image changes detected"
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No image changes detected, skipping build"
+          fi
+
+      - name: Find changed image directories
+        id: set-output
+        if: steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          # 获取变更的文件列表，找出对应的需要构建的 image 目录
+          changed_files=$(git diff --name-only HEAD^ HEAD | grep "image/" || true)
+          
+          if [ -n "$changed_files" ]; then
+            echo "Changed files:"
+            echo "$changed_files"
+            
+            # 提取需要构建的 image 目录
+            image_dirs_json="$(echo "$changed_files" | while read -r file; do
+              if [ -n "$file" ]; then
+                # 提取组件和版本信息
+                dir=$(dirname "$file" | sed 's|^\./||')
+                while [[ "$dir" != "." && "$dir" != *"image" ]]; do
+                  dir=$(dirname "$dir")
+                done
+                
+                if [[ "$dir" == *"image" ]]; then
+                  # 获取组件和版本
+                  component=$(echo "$dir" | awk -F'/' '{print $1}')
+                  version=$(echo "$dir" | awk -F'/' '{print $2}')
                   
-          echo "Image directories:"
-          echo "$image_dirs_json"
-          echo "image_dirs=$image_dirs_json" >> $GITHUB_OUTPUT
+                  if [[ -n "$component" && -n "$version" ]]; then
+                    echo "{\"image\": \"$component\", \"version\": \"${version}\", \"context\": \"$dir\"}"
+                  fi
+                fi
+              fi
+            done | sort | uniq | jq -sc .)"
+            
+            echo "Image directories to build:"
+            echo "$image_dirs_json"
+            echo "image_dirs=$image_dirs_json" >> $GITHUB_OUTPUT
+          else
+            echo "image_dirs=[]" >> $GITHUB_OUTPUT
+          fi
 
   release-images:
     needs: determine-images
+    if: needs.determine-images.outputs.has_changes == 'true'
     permissions:
       contents: write
     runs-on: ubuntu-latest
