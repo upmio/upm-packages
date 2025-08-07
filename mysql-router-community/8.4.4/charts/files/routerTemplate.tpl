@@ -34,14 +34,14 @@ use_gr_notifications=0
 
 [routing:{{ getenv "SERVICE_GROUP_NAME" }}_rw]
 bind_address=0.0.0.0
-bind_port={{ getenv "MYSQL_ROUTER_PORT" }}
+bind_port={{ getenv "MYSQL-ROUTER_PORT" }}
 destinations=metadata-cache://mycluster/?role=PRIMARY
 routing_strategy=first-available
 protocol=classic
 
 [routing:{{ getenv "SERVICE_GROUP_NAME" }}_x_rw]
 bind_address=0.0.0.0
-bind_port={{ getenv "MYSQLX_ROUTER_PORT" }}
+bind_port={{ getenv "MYSQLX-ROUTER_PORT" }}
 destinations=metadata-cache://testCluster/?role=PRIMARY
 routing_strategy=first-available
 protocol=x
