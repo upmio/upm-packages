@@ -2,8 +2,6 @@ name: Release charts
 run-name: ${{ github.actor }} is building charts
 on:
   push:
-    paths:
-      - '**/**/charts/**' # 监听这些路径的变化
     branches:
       - 'main'
 
