@@ -151,7 +151,7 @@ health() {
 
   # Validate required environment variables
   [[ -n "${MON_USER:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "MON_USER environment variable not set!"
-  
+
   local mon_pwd
   mon_pwd=$(decrypt_pwd "${MON_USER}")
   [[ -n "${mon_pwd}" ]] || die "${EXIT_GENERAL_FAILURE}" "${func_name}" "get ${MON_USER} password failed!"
@@ -163,7 +163,7 @@ health() {
   if [[ ${rc} -ne 0 ]]; then
     die "${EXIT_GENERAL_FAILURE}" "${func_name}" "curl health check failed with RC ${rc}"
   fi
-  
+
   # ready if HTTP code 200
   [[ ${http_code} == "200" ]] || {
     die "${EXIT_GENERAL_FAILURE}" "${func_name}" "health check failed with HTTP code ${http_code}"
@@ -255,8 +255,8 @@ initialize() {
     }
 
     # Store KBN user's username and password for elasticsearch-exporter
-    echo "${KBN_USER}_user" > "${DATA_DIR}/kbn_user.txt"
-    echo "${kbn_pwd}" >> "${DATA_DIR}/kbn_user.txt"
+    echo "${KBN_USER}_user" >"${DATA_DIR}/kbn_user.txt"
+    echo "${kbn_pwd}" >>"${DATA_DIR}/kbn_user.txt"
 
     info "${func_name}" "Initialize elasticsearch done !"
     touch "${INIT_FLAG_FILE}"

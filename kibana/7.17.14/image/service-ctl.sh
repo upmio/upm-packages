@@ -151,7 +151,7 @@ health() {
 
   # Validate required environment variables
   [[ -n "${ADM_USER:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "ADM_USER environment variable not set!"
-  
+
   local adm_pwd
   adm_pwd=$(decrypt_pwd "${ADM_USER}")
   [[ -n "${adm_pwd}" ]] || die "${EXIT_GENERAL_FAILURE}" "${func_name}" "get ${ADM_USER} password failed!"
@@ -163,7 +163,7 @@ health() {
   if [[ ${rc} -ne 0 ]]; then
     die "${EXIT_GENERAL_FAILURE}" "${func_name}" "curl health check failed with RC ${rc}"
   fi
-  
+
   # ready if HTTP code 200
   [[ ${http_code} == "200" ]] || {
     die "${EXIT_GENERAL_FAILURE}" "${func_name}" "health check failed with HTTP code ${http_code}"

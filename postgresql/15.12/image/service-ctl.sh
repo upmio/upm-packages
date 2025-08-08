@@ -183,7 +183,7 @@ initialize() {
     # Initialize PostgreSQL database
     info "${func_name}" "Starting initialize postgresql !"
     initdb --data-checksums --pgdata="${DATA_DIR}" -A md5 --pwfile=<(echo "${adm_pwd}") || {
-        die "${EXIT_POSTGRES_INIT_FAILED}" "${func_name}" "initdb failed!"
+      die "${EXIT_POSTGRES_INIT_FAILED}" "${func_name}" "initdb failed!"
     }
 
     # Create PostgreSQL configuration

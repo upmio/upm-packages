@@ -70,16 +70,16 @@ health() {
   local func_name="health"
 
   # Check if ZooKeeper process is running
-  if pgrep -f "QuorumPeerMain" > /dev/null; then
+  if pgrep -f "QuorumPeerMain" >/dev/null; then
     info "${func_name}" "ZooKeeper process is running"
-    
+
     # Check ZooKeeper port availability
     if timeout 5 bash -c "</dev/tcp/localhost/${CLIENT_PORT}" 2>/dev/null; then
       info "${func_name}" "ZooKeeper port ${CLIENT_PORT} is accessible"
     else
       die "${EXIT_GENERAL_FAILURE}" "${func_name}" "ZooKeeper port ${CLIENT_PORT} is not accessible"
     fi
-    
+
     # Check ZooKeeper health using four-letter commands
     if echo "ruok" | nc localhost "${CLIENT_PORT}" | grep -q "imok"; then
       info "${func_name}" "ZooKeeper health check passed"

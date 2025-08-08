@@ -171,7 +171,7 @@ initialize() {
     if [[ -f "${CONF_TEMPLATE}" ]]; then
       # Render configuration template
       local config_file="${CONF_DIR}/proxysql.cnf"
-      
+
       # Copy template to config location
       cp "${CONF_TEMPLATE}" "${config_file}" || {
         die "${EXIT_PROXYSQL_CONFIG_FAILED}" "${func_name}" "copy config template failed!"
@@ -190,26 +190,26 @@ initialize() {
     # Discover MySQL backend servers if not already configured
     if [[ -n "${MYSQL_SERVICE_NAME:-}" ]]; then
       info "${func_name}" "Discovering MySQL backend servers..."
-      
+
       local mysql_servers=()
       local node_number=0
-      
+
       while [[ ${node_number} -lt 7 ]]; do
         local node_name="${MYSQL_SERVICE_NAME}-${node_number}.${MYSQL_SERVICE_NAME}-headless-svc"
-        
+
         # Test MySQL connectivity
         if mysqladmin --user="${PROV_USER}" --password="${prov_pwd}" --host="${node_name}" --port="${MYSQL_PORT:-3306}" ping &>/dev/null; then
           mysql_servers+=("${node_name}:${MYSQL_PORT:-3306}")
           info "${func_name}" "Discovered MySQL server: ${node_name}:${MYSQL_PORT:-3306}"
         fi
-        
+
         node_number=$((node_number + 1))
       done
 
       # Configure ProxySQL with discovered MySQL servers
       if [[ ${#mysql_servers[@]} -gt 0 ]]; then
         info "${func_name}" "Configuring ProxySQL with ${#mysql_servers[@]} MySQL servers"
-        
+
         # Start ProxySQL temporarily to configure it
         if ! proxysql --config="${CONF_DIR}/proxysql.cnf" --datadir="${DATA_DIR}" --pidfile="${DATA_DIR}/proxysql.pid" --daemon; then
           die "${EXIT_PROXYSQL_START_FAILED}" "${func_name}" "ProxySQL temporary start failed!"
@@ -222,7 +222,7 @@ initialize() {
         for server in "${mysql_servers[@]}"; do
           local host="${server%:*}"
           local port="${server#*:}"
-          
+
           # Add MySQL server to ProxySQL
           mysql --user="admin" --password="${admin_pwd}" --host="localhost" --port="${ADMIN_PORT:-6032}" --execute="
             INSERT INTO mysql_servers (hostgroup_id, hostname, port) 
@@ -253,7 +253,7 @@ initialize() {
     # Initialize ProxySQL data directory
     if [[ ! -f "${DATA_DIR}/proxysql.db" ]]; then
       info "${func_name}" "Initializing ProxySQL data directory..."
-      
+
       # Initialize ProxySQL database
       proxysql --initial --config="${CONF_DIR}/proxysql.cnf" --datadir="${DATA_DIR}" --daemon || {
         die "${EXIT_PROXYSQL_START_FAILED}" "${func_name}" "ProxySQL initialization failed!"
@@ -279,7 +279,7 @@ initialize() {
     # Set up admin credentials
     if [[ -n "${admin_pwd}" ]]; then
       info "${func_name}" "Setting up admin credentials..."
-      
+
       # Update admin password in configuration
       sed -i "s/admin_credentials=\"admin:.*/admin_credentials=\"admin:${admin_pwd}\"/g" "${CONF_DIR}/proxysql.cnf" || {
         error "${func_name}" "Failed to update admin credentials"

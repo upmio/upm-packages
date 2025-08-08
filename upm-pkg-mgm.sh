@@ -18,7 +18,7 @@ ACTION=""
 PACKAGE_CACHE=""
 COMPONENT_CACHE=""
 CACHE_TIMESTAMP=0
-CACHE_TTL=300  # 5 minutes cache
+CACHE_TTL=300 # 5 minutes cache
 
 # Colors for output
 RED='\033[0;31m'
@@ -30,28 +30,28 @@ NC='\033[0m' # No Color
 
 # Function to print colored output
 print_info() {
-    echo -e "${BLUE}[INFO]${NC} $1" >&2
+  echo -e "${BLUE}[INFO]${NC} $1" >&2
 }
 
 print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1" >&2
+  echo -e "${GREEN}[SUCCESS]${NC} $1" >&2
 }
 
 print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1" >&2
+  echo -e "${YELLOW}[WARNING]${NC} $1" >&2
 }
 
 print_error() {
-    echo -e "${RED}[ERROR]${NC} $1" >&2
+  echo -e "${RED}[ERROR]${NC} $1" >&2
 }
 
 print_header() {
-    echo -e "${CYAN}$1${NC}"
+  echo -e "${CYAN}$1${NC}"
 }
 
 # Function to display help
 show_help() {
-    cat << EOF
+  cat <<EOF
 UPM Package Management Script
 
 This script provides unified management for all UPM packages including install, uninstall, and upgrade operations.
@@ -110,838 +110,837 @@ EOF
 
 # Function to parse command line arguments
 parse_args() {
-    # Check if help is requested first
-    for arg in "$@"; do
-        if [[ "$arg" == "-h" || "$arg" == "--help" ]]; then
-            show_help
-            exit 0
-        fi
-    done
-
-    if [[ $# -eq 0 ]]; then
-        print_error "No action specified. Use --help for usage information."
-        exit 1
+  # Check if help is requested first
+  for arg in "$@"; do
+    if [[ "$arg" == "-h" || "$arg" == "--help" ]]; then
+      show_help
+      exit 0
     fi
+  done
 
-    ACTION="$1"
-    shift
+  if [[ $# -eq 0 ]]; then
+    print_error "No action specified. Use --help for usage information."
+    exit 1
+  fi
 
-    # Validate action
-    case "$ACTION" in
-        install|uninstall|upgrade|list|status)
-            ;;
-        *)
-            print_error "Invalid action: $ACTION"
-            show_help
-            exit 1
-            ;;
+  ACTION="$1"
+  shift
+
+  # Validate action
+  case "$ACTION" in
+  install | uninstall | upgrade | list | status) ;;
+  *)
+    print_error "Invalid action: $ACTION"
+    show_help
+    exit 1
+    ;;
+  esac
+
+  local targets=()
+
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+    -n | --namespace)
+      NAMESPACE="$2"
+      shift 2
+      ;;
+    -d | --dry-run)
+      DRY_RUN=true
+      shift
+      ;;
+    -t | --timeout)
+      TIMEOUT="$2"
+      shift 2
+      ;;
+    -p | --prefix)
+      RELEASE_PREFIX="$2"
+      shift 2
+      ;;
+    -h | --help)
+      show_help
+      exit 0
+      ;;
+    -*)
+      print_error "Unknown option: $1"
+      show_help
+      exit 1
+      ;;
+    *)
+      targets+=("$1")
+      shift
+      ;;
     esac
+  done
 
-    local targets=()
-
-    while [[ $# -gt 0 ]]; do
-        case $1 in
-            -n|--namespace)
-                NAMESPACE="$2"
-                shift 2
-                ;;
-            -d|--dry-run)
-                DRY_RUN=true
-                shift
-                ;;
-            -t|--timeout)
-                TIMEOUT="$2"
-                shift 2
-                ;;
-            -p|--prefix)
-                RELEASE_PREFIX="$2"
-                shift 2
-                ;;
-            -h|--help)
-                show_help
-                exit 0
-                ;;
-            -*)
-                print_error "Unknown option: $1"
-                show_help
-                exit 1
-                ;;
-            *)
-                targets+=("$1")
-                shift
-                ;;
-        esac
-    done
-
-    # Set targets based on action
-    case "$ACTION" in
-        install|uninstall|upgrade)
-            if [[ ${#targets[@]} -eq 0 ]]; then
-                print_error "No targets specified for $ACTION action"
-                show_help
-                exit 1
-            fi
-            SELECTED_TARGETS=("${targets[@]}")
-            ;;
-        list|status)
-            # These actions don't require targets
-            SELECTED_TARGETS=()
-            ;;
-    esac
+  # Set targets based on action
+  case "$ACTION" in
+  install | uninstall | upgrade)
+    if [[ ${#targets[@]} -eq 0 ]]; then
+      print_error "No targets specified for $ACTION action"
+      show_help
+      exit 1
+    fi
+    SELECTED_TARGETS=("${targets[@]}")
+    ;;
+  list | status)
+    # These actions don't require targets
+    SELECTED_TARGETS=()
+    ;;
+  esac
 }
 
 # Function to check prerequisites
 check_prerequisites() {
-    print_info "Checking prerequisites..."
+  print_info "Checking prerequisites..."
 
-    # Check if kubectl is installed
-    if ! command -v kubectl &> /dev/null; then
-        print_error "kubectl is not installed"
-        exit 1
-    fi
+  # Check if kubectl is installed
+  if ! command -v kubectl &>/dev/null; then
+    print_error "kubectl is not installed"
+    exit 1
+  fi
 
-    # Check if helm is installed
-    if ! command -v helm &> /dev/null; then
-        print_error "helm is not installed"
-        exit 1
-    fi
+  # Check if helm is installed
+  if ! command -v helm &>/dev/null; then
+    print_error "helm is not installed"
+    exit 1
+  fi
 
-    # Check if kubernetes cluster is accessible
-    if ! kubectl cluster-info &> /dev/null; then
-        print_error "Kubernetes cluster is not accessible"
-        exit 1
-    fi
+  # Check if kubernetes cluster is accessible
+  if ! kubectl cluster-info &>/dev/null; then
+    print_error "Kubernetes cluster is not accessible"
+    exit 1
+  fi
 
-    # Check if jq is installed for JSON parsing (optional)
-    if ! command -v jq &> /dev/null; then
-        print_warning "jq is not installed. JSON parsing will be limited."
-    fi
+  # Check if jq is installed for JSON parsing (optional)
+  if ! command -v jq &>/dev/null; then
+    print_warning "jq is not installed. JSON parsing will be limited."
+  fi
 
-    print_success "Prerequisites check passed"
+  print_success "Prerequisites check passed"
 }
 
 # Function to create namespace if it doesn't exist
 create_namespace() {
-    if [[ "$ACTION" == "install" ]]; then
-        print_info "Creating namespace: $NAMESPACE"
+  if [[ "$ACTION" == "install" ]]; then
+    print_info "Creating namespace: $NAMESPACE"
 
-        if kubectl get namespace "$NAMESPACE" &> /dev/null; then
-            print_warning "Namespace $NAMESPACE already exists"
-        else
-            kubectl create namespace "$NAMESPACE"
-            print_success "Namespace $NAMESPACE created"
-        fi
+    if kubectl get namespace "$NAMESPACE" &>/dev/null; then
+      print_warning "Namespace $NAMESPACE already exists"
+    else
+      kubectl create namespace "$NAMESPACE"
+      print_success "Namespace $NAMESPACE created"
     fi
+  fi
 }
 
 # Function to add helm repository
 add_helm_repo() {
-    if [[ "$ACTION" == "install" ]]; then
-        print_info "Adding helm repository: $HELM_REPO_NAME"
+  if [[ "$ACTION" == "install" ]]; then
+    print_info "Adding helm repository: $HELM_REPO_NAME"
 
-        if helm repo list | grep -q "^$HELM_REPO_NAME "; then
-            print_info "Repository $HELM_REPO_NAME already exists, updating..."
-            helm repo update "$HELM_REPO_NAME"
-        else
-            helm repo add "$HELM_REPO_NAME" "$HELM_REPO_URL"
-            print_success "Repository $HELM_REPO_NAME added"
-        fi
+    if helm repo list | grep -q "^$HELM_REPO_NAME "; then
+      print_info "Repository $HELM_REPO_NAME already exists, updating..."
+      helm repo update "$HELM_REPO_NAME"
+    else
+      helm repo add "$HELM_REPO_NAME" "$HELM_REPO_URL"
+      print_success "Repository $HELM_REPO_NAME added"
     fi
+  fi
 }
 
 # Function to check if cache is valid
 is_cache_valid() {
-    local current_time
-    current_time=$(date +%s)
-    [[ $((current_time - CACHE_TIMESTAMP)) -lt $CACHE_TTL && -n "$PACKAGE_CACHE" ]]
+  local current_time
+  current_time=$(date +%s)
+  [[ $((current_time - CACHE_TIMESTAMP)) -lt $CACHE_TTL && -n "$PACKAGE_CACHE" ]]
 }
 
 # Function to fetch available packages from helm repo
 fetch_available_packages() {
-    if is_cache_valid; then
-        echo "$PACKAGE_CACHE"
-        return
-    fi
+  if is_cache_valid; then
+    echo "$PACKAGE_CACHE"
+    return
+  fi
 
-    print_info "Fetching available packages from helm repository..."
-    
-    # Ensure repository is added and updated
-    if ! helm repo list | grep -q "^$HELM_REPO_NAME "; then
-        helm repo add "$HELM_REPO_NAME" "$HELM_REPO_URL" > /dev/null 2>&1
-    fi
-    helm repo update "$HELM_REPO_NAME" > /dev/null 2>&1
+  print_info "Fetching available packages from helm repository..."
 
-    # Search for all charts in the repository
-    local packages
-    packages=$(helm search repo "$HELM_REPO_NAME/" --output json 2>/dev/null | jq -r '.[].name' | sed "s|^$HELM_REPO_NAME/||" | sort)
-    
-    if [[ -z "$packages" ]]; then
-        print_error "Failed to fetch packages from helm repository"
-        return 1
-    fi
+  # Ensure repository is added and updated
+  if ! helm repo list | grep -q "^$HELM_REPO_NAME "; then
+    helm repo add "$HELM_REPO_NAME" "$HELM_REPO_URL" >/dev/null 2>&1
+  fi
+  helm repo update "$HELM_REPO_NAME" >/dev/null 2>&1
 
-    # Update cache
-    PACKAGE_CACHE="$packages"
-    CACHE_TIMESTAMP=$(date +%s)
-    
-    echo "$packages"
+  # Search for all charts in the repository
+  local packages
+  packages=$(helm search repo "$HELM_REPO_NAME/" --output json 2>/dev/null | jq -r '.[].name' | sed "s|^$HELM_REPO_NAME/||" | sort)
+
+  if [[ -z "$packages" ]]; then
+    print_error "Failed to fetch packages from helm repository"
+    return 1
+  fi
+
+  # Update cache
+  PACKAGE_CACHE="$packages"
+  CACHE_TIMESTAMP=$(date +%s)
+
+  echo "$packages"
 }
 
 # Function to categorize packages by component type
 get_component_categories() {
-    if is_cache_valid && [[ -n "$COMPONENT_CACHE" ]]; then
-        echo "$COMPONENT_CACHE"
-        return
-    fi
+  if is_cache_valid && [[ -n "$COMPONENT_CACHE" ]]; then
+    echo "$COMPONENT_CACHE"
+    return
+  fi
 
-    local packages
-    if ! packages=$(fetch_available_packages); then
-        return 1
-    fi
-    
-    local components=""
-    local mysql_community=""
-    local mysql_router=""
-    local postgresql=""
-    local proxysql=""
-    local pgbouncer=""
-    local elasticsearch=""
-    local kibana=""
-    local kafka=""
-    local other=""
+  local packages
+  if ! packages=$(fetch_available_packages); then
+    return 1
+  fi
 
-    for package in $packages; do
-        case "$package" in
-            mysql-community-*)
-                if [[ -z "$mysql_community" ]]; then
-                    mysql_community="$package"
-                else
-                    mysql_community="$mysql_community $package"
-                fi
-                ;;
-            mysql-router-community-*)
-                if [[ -z "$mysql_router" ]]; then
-                    mysql_router="$package"
-                else
-                    mysql_router="$mysql_router $package"
-                fi
-                ;;
-            postgresql-*)
-                if [[ -z "$postgresql" ]]; then
-                    postgresql="$package"
-                else
-                    postgresql="$postgresql $package"
-                fi
-                ;;
-            proxysql-*)
-                if [[ -z "$proxysql" ]]; then
-                    proxysql="$package"
-                else
-                    proxysql="$proxysql $package"
-                fi
-                ;;
-            pgbouncer-*)
-                if [[ -z "$pgbouncer" ]]; then
-                    pgbouncer="$package"
-                else
-                    pgbouncer="$pgbouncer $package"
-                fi
-                ;;
-            elasticsearch-*)
-                if [[ -z "$elasticsearch" ]]; then
-                    elasticsearch="$package"
-                else
-                    elasticsearch="$elasticsearch $package"
-                fi
-                ;;
-            kibana-*)
-                if [[ -z "$kibana" ]]; then
-                    kibana="$package"
-                else
-                    kibana="$kibana $package"
-                fi
-                ;;
-            kafka-*)
-                if [[ -z "$kafka" ]]; then
-                    kafka="$package"
-                else
-                    kafka="$kafka $package"
-                fi
-                ;;
-            *)
-                if [[ -z "$other" ]]; then
-                    other="$package"
-                else
-                    other="$other $package"
-                fi
-                ;;
-        esac
-    done
+  local components=""
+  local mysql_community=""
+  local mysql_router=""
+  local postgresql=""
+  local proxysql=""
+  local pgbouncer=""
+  local elasticsearch=""
+  local kibana=""
+  local kafka=""
+  local other=""
 
-    # Build components result
-    if [[ -n "$mysql_community" ]]; then
-        components="mysql_community:$mysql_community"
-    fi
-    if [[ -n "$mysql_router" ]]; then
-        if [[ -n "$components" ]]; then
-            components="$components|mysql_router:$mysql_router"
-        else
-            components="mysql_router:$mysql_router"
-        fi
-    fi
-    if [[ -n "$postgresql" ]]; then
-        if [[ -n "$components" ]]; then
-            components="$components|postgresql:$postgresql"
-        else
-            components="postgresql:$postgresql"
-        fi
-    fi
-    if [[ -n "$proxysql" ]]; then
-        if [[ -n "$components" ]]; then
-            components="$components|proxysql:$proxysql"
-        else
-            components="proxysql:$proxysql"
-        fi
-    fi
-    if [[ -n "$pgbouncer" ]]; then
-        if [[ -n "$components" ]]; then
-            components="$components|pgbouncer:$pgbouncer"
-        else
-            components="pgbouncer:$pgbouncer"
-        fi
-    fi
-    if [[ -n "$elasticsearch" ]]; then
-        if [[ -n "$components" ]]; then
-            components="$components|elasticsearch:$elasticsearch"
-        else
-            components="elasticsearch:$elasticsearch"
-        fi
-    fi
-    if [[ -n "$kibana" ]]; then
-        if [[ -n "$components" ]]; then
-            components="$components|kibana:$kibana"
-        else
-            components="kibana:$kibana"
-        fi
-    fi
-    if [[ -n "$kafka" ]]; then
-        if [[ -n "$components" ]]; then
-            components="$components|kafka:$kafka"
-        else
-            components="kafka:$kafka"
-        fi
-    fi
-    if [[ -n "$other" ]]; then
-        if [[ -n "$components" ]]; then
-            components="$components|other:$other"
-        else
-            components="other:$other"
-        fi
-    fi
+  for package in $packages; do
+    case "$package" in
+    mysql-community-*)
+      if [[ -z "$mysql_community" ]]; then
+        mysql_community="$package"
+      else
+        mysql_community="$mysql_community $package"
+      fi
+      ;;
+    mysql-router-community-*)
+      if [[ -z "$mysql_router" ]]; then
+        mysql_router="$package"
+      else
+        mysql_router="$mysql_router $package"
+      fi
+      ;;
+    postgresql-*)
+      if [[ -z "$postgresql" ]]; then
+        postgresql="$package"
+      else
+        postgresql="$postgresql $package"
+      fi
+      ;;
+    proxysql-*)
+      if [[ -z "$proxysql" ]]; then
+        proxysql="$package"
+      else
+        proxysql="$proxysql $package"
+      fi
+      ;;
+    pgbouncer-*)
+      if [[ -z "$pgbouncer" ]]; then
+        pgbouncer="$package"
+      else
+        pgbouncer="$pgbouncer $package"
+      fi
+      ;;
+    elasticsearch-*)
+      if [[ -z "$elasticsearch" ]]; then
+        elasticsearch="$package"
+      else
+        elasticsearch="$elasticsearch $package"
+      fi
+      ;;
+    kibana-*)
+      if [[ -z "$kibana" ]]; then
+        kibana="$package"
+      else
+        kibana="$kibana $package"
+      fi
+      ;;
+    kafka-*)
+      if [[ -z "$kafka" ]]; then
+        kafka="$package"
+      else
+        kafka="$kafka $package"
+      fi
+      ;;
+    *)
+      if [[ -z "$other" ]]; then
+        other="$package"
+      else
+        other="$other $package"
+      fi
+      ;;
+    esac
+  done
 
-    # Update cache
-    COMPONENT_CACHE="$components"
-    
-    echo "$components"
+  # Build components result
+  if [[ -n "$mysql_community" ]]; then
+    components="mysql_community:$mysql_community"
+  fi
+  if [[ -n "$mysql_router" ]]; then
+    if [[ -n "$components" ]]; then
+      components="$components|mysql_router:$mysql_router"
+    else
+      components="mysql_router:$mysql_router"
+    fi
+  fi
+  if [[ -n "$postgresql" ]]; then
+    if [[ -n "$components" ]]; then
+      components="$components|postgresql:$postgresql"
+    else
+      components="postgresql:$postgresql"
+    fi
+  fi
+  if [[ -n "$proxysql" ]]; then
+    if [[ -n "$components" ]]; then
+      components="$components|proxysql:$proxysql"
+    else
+      components="proxysql:$proxysql"
+    fi
+  fi
+  if [[ -n "$pgbouncer" ]]; then
+    if [[ -n "$components" ]]; then
+      components="$components|pgbouncer:$pgbouncer"
+    else
+      components="pgbouncer:$pgbouncer"
+    fi
+  fi
+  if [[ -n "$elasticsearch" ]]; then
+    if [[ -n "$components" ]]; then
+      components="$components|elasticsearch:$elasticsearch"
+    else
+      components="elasticsearch:$elasticsearch"
+    fi
+  fi
+  if [[ -n "$kibana" ]]; then
+    if [[ -n "$components" ]]; then
+      components="$components|kibana:$kibana"
+    else
+      components="kibana:$kibana"
+    fi
+  fi
+  if [[ -n "$kafka" ]]; then
+    if [[ -n "$components" ]]; then
+      components="$components|kafka:$kafka"
+    else
+      components="kafka:$kafka"
+    fi
+  fi
+  if [[ -n "$other" ]]; then
+    if [[ -n "$components" ]]; then
+      components="$components|other:$other"
+    else
+      components="other:$other"
+    fi
+  fi
+
+  # Update cache
+  COMPONENT_CACHE="$components"
+
+  echo "$components"
 }
 
 # Function to get packages for a specific component
 get_component_packages() {
-    local component="$1"
-    local components
-    components=$(get_component_categories)
-    
-    # Parse components to find the requested component
-    local old_ifs="$IFS"
-    IFS='|'
-    for component_entry in $components; do
-        local comp_name="${component_entry%%:*}"
-        local comp_packages="${component_entry#*:}"
-        
-        if [[ "$comp_name" == "$component" ]]; then
-            IFS="$old_ifs"
-            echo "$comp_packages"
-            return
-        fi
-    done
-    IFS="$old_ifs"
-    
-    # If component not found, check if it's a valid package name
-    local packages
-    packages=$(fetch_available_packages)
-    for package in $packages; do
-        if [[ "$package" == "$component" ]]; then
-            echo "$component"
-            return
-        fi
-    done
-    
-    echo ""
+  local component="$1"
+  local components
+  components=$(get_component_categories)
+
+  # Parse components to find the requested component
+  local old_ifs="$IFS"
+  IFS='|'
+  for component_entry in $components; do
+    local comp_name="${component_entry%%:*}"
+    local comp_packages="${component_entry#*:}"
+
+    if [[ "$comp_name" == "$component" ]]; then
+      IFS="$old_ifs"
+      echo "$comp_packages"
+      return
+    fi
+  done
+  IFS="$old_ifs"
+
+  # If component not found, check if it's a valid package name
+  local packages
+  packages=$(fetch_available_packages)
+  for package in $packages; do
+    if [[ "$package" == "$component" ]]; then
+      echo "$component"
+      return
+    fi
+  done
+
+  echo ""
 }
 
 # Function to get all available packages
 get_all_packages() {
-    fetch_available_packages
+  fetch_available_packages
 }
 
 # Function to get packages from targets
 get_packages_from_targets() {
-    local result=""
+  local result=""
 
-    # Ensure SELECTED_TARGETS is set
-    if [[ ${#SELECTED_TARGETS[@]} -eq 0 ]]; then
-        echo ""
-        return
-    fi
+  # Ensure SELECTED_TARGETS is set
+  if [[ ${#SELECTED_TARGETS[@]} -eq 0 ]]; then
+    echo ""
+    return
+  fi
 
-    for target in "${SELECTED_TARGETS[@]}"; do
-        case "$target" in
-            all)
-                local all_packages
-                if ! all_packages=$(get_all_packages); then
-                    return 1
-                fi
-                for package in $all_packages; do
-                    if [[ -z "$result" ]]; then
-                        result="$package"
-                    else
-                        result="$result $package"
-                    fi
-                done
-                ;;
-            *)
-                # Check if it's a component group or specific package
-                local component_packages
-                component_packages=$(get_component_packages "$target")
-                
-                if [[ -n "$component_packages" ]]; then
-                    for package in $component_packages; do
-                        if [[ -z "$result" ]]; then
-                            result="$package"
-                        else
-                            result="$result $package"
-                        fi
-                    done
-                else
-                    print_error "Invalid package or component name: $target"
-                    print_info "Available components and packages:"
-                    show_available_components
-                    return 1
-                fi
-                ;;
-        esac
-    done
+  for target in "${SELECTED_TARGETS[@]}"; do
+    case "$target" in
+    all)
+      local all_packages
+      if ! all_packages=$(get_all_packages); then
+        return 1
+      fi
+      for package in $all_packages; do
+        if [[ -z "$result" ]]; then
+          result="$package"
+        else
+          result="$result $package"
+        fi
+      done
+      ;;
+    *)
+      # Check if it's a component group or specific package
+      local component_packages
+      component_packages=$(get_component_packages "$target")
 
-    # Remove duplicates while preserving order
-    local unique_result=""
-    if [[ -n "$result" ]]; then
-        for package in $result; do
-            local duplicate=false
-            for upackage in $unique_result; do
-                if [[ "$upackage" == "$package" ]]; then
-                    duplicate=true
-                    break
-                fi
-            done
-            if [[ "$duplicate" == false ]]; then
-                if [[ -z "$unique_result" ]]; then
-                    unique_result="$package"
-                else
-                    unique_result="$unique_result $package"
-                fi
-            fi
+      if [[ -n "$component_packages" ]]; then
+        for package in $component_packages; do
+          if [[ -z "$result" ]]; then
+            result="$package"
+          else
+            result="$result $package"
+          fi
         done
-    fi
+      else
+        print_error "Invalid package or component name: $target"
+        print_info "Available components and packages:"
+        show_available_components
+        return 1
+      fi
+      ;;
+    esac
+  done
 
-    echo "$unique_result"
+  # Remove duplicates while preserving order
+  local unique_result=""
+  if [[ -n "$result" ]]; then
+    for package in $result; do
+      local duplicate=false
+      for upackage in $unique_result; do
+        if [[ "$upackage" == "$package" ]]; then
+          duplicate=true
+          break
+        fi
+      done
+      if [[ "$duplicate" == false ]]; then
+        if [[ -z "$unique_result" ]]; then
+          unique_result="$package"
+        else
+          unique_result="$unique_result $package"
+        fi
+      fi
+    done
+  fi
+
+  echo "$unique_result"
 }
 
 # Function to show available components
 show_available_components() {
-    local components
-    components=$(get_component_categories)
-    
-    local old_ifs="$IFS"
-    IFS='|'
-    for component_entry in $components; do
-        local comp_name="${component_entry%%:*}"
-        local comp_packages="${component_entry#*:}"
-        
-        case "$comp_name" in
-            mysql_community)
-                echo "  mysql_community: MySQL Community Server (all versions)"
-                ;;
-            mysql_router)
-                echo "  mysql_router: MySQL Router Community (all versions)"
-                ;;
-            postgresql)
-                echo "  postgresql: PostgreSQL Server (all versions)"
-                ;;
-            proxysql)
-                echo "  proxysql: ProxySQL (all versions)"
-                ;;
-            pgbouncer)
-                echo "  pgbouncer: PgBouncer (all versions)"
-                ;;
-            elasticsearch)
-                echo "  elasticsearch: Elasticsearch"
-                ;;
-            kibana)
-                echo "  kibana: Kibana"
-                ;;
-            kafka)
-                echo "  kafka: Kafka"
-                ;;
-            other)
-                echo "  other: Other packages"
-                ;;
-        esac
-        
-        # Show individual packages
-        for package in $comp_packages; do
-            echo "    - $package"
-        done
-        echo
+  local components
+  components=$(get_component_categories)
+
+  local old_ifs="$IFS"
+  IFS='|'
+  for component_entry in $components; do
+    local comp_name="${component_entry%%:*}"
+    local comp_packages="${component_entry#*:}"
+
+    case "$comp_name" in
+    mysql_community)
+      echo "  mysql_community: MySQL Community Server (all versions)"
+      ;;
+    mysql_router)
+      echo "  mysql_router: MySQL Router Community (all versions)"
+      ;;
+    postgresql)
+      echo "  postgresql: PostgreSQL Server (all versions)"
+      ;;
+    proxysql)
+      echo "  proxysql: ProxySQL (all versions)"
+      ;;
+    pgbouncer)
+      echo "  pgbouncer: PgBouncer (all versions)"
+      ;;
+    elasticsearch)
+      echo "  elasticsearch: Elasticsearch"
+      ;;
+    kibana)
+      echo "  kibana: Kibana"
+      ;;
+    kafka)
+      echo "  kafka: Kafka"
+      ;;
+    other)
+      echo "  other: Other packages"
+      ;;
+    esac
+
+    # Show individual packages
+    for package in $comp_packages; do
+      echo "    - $package"
     done
-    IFS="$old_ifs"
+    echo
+  done
+  IFS="$old_ifs"
 }
 
 # Function to install package
 install_package() {
-    local package_name="$1"
-    local release_name="${RELEASE_PREFIX}-${package_name}"
+  local package_name="$1"
+  local release_name="${RELEASE_PREFIX}-${package_name}"
 
-    print_info "Installing UPM package: $package_name"
+  print_info "Installing UPM package: $package_name"
 
-    local helm_cmd="helm install"
-    local helm_opts=()
+  local helm_cmd="helm install"
+  local helm_opts=()
 
-    # Add namespace option
-    helm_opts+=("--namespace=$NAMESPACE")
+  # Add namespace option
+  helm_opts+=("--namespace=$NAMESPACE")
 
-    # Add dry-run option if specified
-    if [[ "$DRY_RUN" == true ]]; then
-        helm_opts+=("--dry-run" "--debug")
+  # Add dry-run option if specified
+  if [[ "$DRY_RUN" == true ]]; then
+    helm_opts+=("--dry-run" "--debug")
+  fi
+
+  # Add timeout option
+  helm_opts+=("--timeout=$TIMEOUT")
+
+  # Add release name and package
+  helm_opts+=("$release_name" "$HELM_REPO_NAME/$package_name")
+
+  # Show the command being executed
+  print_info "Running: $helm_cmd ${helm_opts[*]}"
+
+  # Execute helm command
+  if $helm_cmd "${helm_opts[@]}"; then
+    print_success "UPM package $package_name installed successfully as $release_name"
+
+    # Verify installation if not dry run
+    if [[ "$DRY_RUN" != true ]]; then
+      sleep 2
+      verify_package_installation "$release_name" "$package_name"
     fi
-
-    # Add timeout option
-    helm_opts+=("--timeout=$TIMEOUT")
-
-    # Add release name and package
-    helm_opts+=("$release_name" "$HELM_REPO_NAME/$package_name")
-
-    # Show the command being executed
-    print_info "Running: $helm_cmd ${helm_opts[*]}"
-
-    # Execute helm command
-    if $helm_cmd "${helm_opts[@]}"; then
-        print_success "UPM package $package_name installed successfully as $release_name"
-
-        # Verify installation if not dry run
-        if [[ "$DRY_RUN" != true ]]; then
-            sleep 2
-            verify_package_installation "$release_name" "$package_name"
-        fi
-    else
-        print_error "Failed to install UPM package $package_name"
-        return 1
-    fi
+  else
+    print_error "Failed to install UPM package $package_name"
+    return 1
+  fi
 }
 
 # Function to uninstall package
 uninstall_package() {
-    local package_name="$1"
-    local release_name="${RELEASE_PREFIX}-${package_name}"
+  local package_name="$1"
+  local release_name="${RELEASE_PREFIX}-${package_name}"
 
-    print_info "Uninstalling UPM package: $package_name"
+  print_info "Uninstalling UPM package: $package_name"
 
-    # Check if release exists
-    if ! helm status "$release_name" --namespace="$NAMESPACE" &> /dev/null; then
-        print_warning "Release $release_name not found, skipping..."
-        return 0
-    fi
+  # Check if release exists
+  if ! helm status "$release_name" --namespace="$NAMESPACE" &>/dev/null; then
+    print_warning "Release $release_name not found, skipping..."
+    return 0
+  fi
 
-    local helm_cmd="helm uninstall"
-    local helm_opts=()
+  local helm_cmd="helm uninstall"
+  local helm_opts=()
 
-    # Add namespace option
-    helm_opts+=("--namespace=$NAMESPACE")
+  # Add namespace option
+  helm_opts+=("--namespace=$NAMESPACE")
 
-    # Add dry-run option if specified
-    if [[ "$DRY_RUN" == true ]]; then
-        helm_opts+=("--dry-run")
-    fi
+  # Add dry-run option if specified
+  if [[ "$DRY_RUN" == true ]]; then
+    helm_opts+=("--dry-run")
+  fi
 
-    # Add release name
-    helm_opts+=("$release_name")
+  # Add release name
+  helm_opts+=("$release_name")
 
-    # Show the command being executed
-    print_info "Running: $helm_cmd ${helm_opts[*]}"
+  # Show the command being executed
+  print_info "Running: $helm_cmd ${helm_opts[*]}"
 
-    # Execute helm command
-    if $helm_cmd "${helm_opts[@]}"; then
-        print_success "UPM package $package_name uninstalled successfully"
-    else
-        print_error "Failed to uninstall UPM package $package_name"
-        return 1
-    fi
+  # Execute helm command
+  if $helm_cmd "${helm_opts[@]}"; then
+    print_success "UPM package $package_name uninstalled successfully"
+  else
+    print_error "Failed to uninstall UPM package $package_name"
+    return 1
+  fi
 }
 
 # Function to upgrade package
 upgrade_package() {
-    local package_name="$1"
-    local release_name="${RELEASE_PREFIX}-${package_name}"
+  local package_name="$1"
+  local release_name="${RELEASE_PREFIX}-${package_name}"
 
-    print_info "Upgrading UPM package: $package_name"
+  print_info "Upgrading UPM package: $package_name"
 
-    # Check if release exists
-    if ! helm status "$release_name" --namespace="$NAMESPACE" &> /dev/null; then
-        print_warning "Release $release_name not found, skipping..."
-        return 0
+  # Check if release exists
+  if ! helm status "$release_name" --namespace="$NAMESPACE" &>/dev/null; then
+    print_warning "Release $release_name not found, skipping..."
+    return 0
+  fi
+
+  # Ensure helm repository is updated to get latest versions
+  print_info "Updating helm repository to ensure latest versions..."
+  if ! helm repo update "$HELM_REPO_NAME" >/dev/null 2>&1; then
+    print_warning "Failed to update helm repository, continuing with upgrade..."
+  fi
+
+  local helm_cmd="helm upgrade"
+  local helm_opts=()
+
+  # Add namespace option
+  helm_opts+=("--namespace=$NAMESPACE")
+
+  # Add dry-run option if specified
+  if [[ "$DRY_RUN" == true ]]; then
+    helm_opts+=("--dry-run" "--debug")
+  fi
+
+  # Add timeout option
+  helm_opts+=("--timeout=$TIMEOUT")
+
+  # Add release name and package
+  helm_opts+=("$release_name" "$HELM_REPO_NAME/$package_name")
+
+  # Show the command being executed
+  print_info "Running: $helm_cmd ${helm_opts[*]}"
+
+  # Execute helm command
+  if $helm_cmd "${helm_opts[@]}"; then
+    print_success "UPM package $package_name upgraded successfully"
+
+    # Verify installation if not dry run
+    if [[ "$DRY_RUN" != true ]]; then
+      sleep 2
+      verify_package_installation "$release_name" "$package_name"
     fi
-
-    # Ensure helm repository is updated to get latest versions
-    print_info "Updating helm repository to ensure latest versions..."
-    if ! helm repo update "$HELM_REPO_NAME" > /dev/null 2>&1; then
-        print_warning "Failed to update helm repository, continuing with upgrade..."
-    fi
-
-    local helm_cmd="helm upgrade"
-    local helm_opts=()
-
-    # Add namespace option
-    helm_opts+=("--namespace=$NAMESPACE")
-
-    # Add dry-run option if specified
-    if [[ "$DRY_RUN" == true ]]; then
-        helm_opts+=("--dry-run" "--debug")
-    fi
-
-    # Add timeout option
-    helm_opts+=("--timeout=$TIMEOUT")
-
-    # Add release name and package
-    helm_opts+=("$release_name" "$HELM_REPO_NAME/$package_name")
-
-    # Show the command being executed
-    print_info "Running: $helm_cmd ${helm_opts[*]}"
-
-    # Execute helm command
-    if $helm_cmd "${helm_opts[@]}"; then
-        print_success "UPM package $package_name upgraded successfully"
-
-        # Verify installation if not dry run
-        if [[ "$DRY_RUN" != true ]]; then
-            sleep 2
-            verify_package_installation "$release_name" "$package_name"
-        fi
-    else
-        print_error "Failed to upgrade UPM package $package_name"
-        return 1
-    fi
+  else
+    print_error "Failed to upgrade UPM package $package_name"
+    return 1
+  fi
 }
 
 # Function to filter UPM-managed releases
 filter_upm_releases() {
-    local releases="$1"
-    
-    if command -v jq &> /dev/null && [[ "$releases" == *"["* ]]; then
-        # JSON mode - validate JSON first
-        if echo "$releases" | jq . > /dev/null 2>&1; then
-            echo "$releases" | jq --arg prefix "$RELEASE_PREFIX" '.[] | select(.name | startswith($prefix))'
-        else
-            # Invalid JSON, return empty array
-            echo "[]"
-        fi
+  local releases="$1"
+
+  if command -v jq &>/dev/null && [[ "$releases" == *"["* ]]; then
+    # JSON mode - validate JSON first
+    if echo "$releases" | jq . >/dev/null 2>&1; then
+      echo "$releases" | jq --arg prefix "$RELEASE_PREFIX" '.[] | select(.name | startswith($prefix))'
     else
-        # Table mode - filter lines that start with the prefix
-        echo "$releases" | grep -E "^${RELEASE_PREFIX}-" || echo ""
+      # Invalid JSON, return empty array
+      echo "[]"
     fi
+  else
+    # Table mode - filter lines that start with the prefix
+    echo "$releases" | grep -E "^${RELEASE_PREFIX}-" || echo ""
+  fi
 }
 
 # Function to get UPM-managed releases only
 get_upm_releases() {
-    local output_format="$1"  # "json" or "table"
-    
-    if [[ "$output_format" == "json" ]]; then
-        local all_releases
-        all_releases=$(helm list --namespace "$NAMESPACE" --output json 2>/dev/null || echo "[]")
-        filter_upm_releases "$all_releases"
-    else
-        local all_releases
-        all_releases=$(helm list --namespace "$NAMESPACE" --output table 2>/dev/null | tail -n +2 || echo "")
-        if [[ -n "$all_releases" ]]; then
-            # Add header back
-            echo "NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION"
-            filter_upm_releases "$all_releases"
-        fi
+  local output_format="$1" # "json" or "table"
+
+  if [[ "$output_format" == "json" ]]; then
+    local all_releases
+    all_releases=$(helm list --namespace "$NAMESPACE" --output json 2>/dev/null || echo "[]")
+    filter_upm_releases "$all_releases"
+  else
+    local all_releases
+    all_releases=$(helm list --namespace "$NAMESPACE" --output table 2>/dev/null | tail -n +2 || echo "")
+    if [[ -n "$all_releases" ]]; then
+      # Add header back
+      echo "NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION"
+      filter_upm_releases "$all_releases"
     fi
+  fi
 }
 
 # Function to count UPM-managed releases
 count_upm_releases() {
-    local releases
-    local count=0
-    
-    if command -v jq &> /dev/null; then
-        releases=$(get_upm_releases "json")
-        if echo "$releases" | jq . > /dev/null 2>&1; then
-            count=$(echo "$releases" | jq '. | length' 2>/dev/null || echo "0")
-        else
-            count=0
-        fi
+  local releases
+  local count=0
+
+  if command -v jq &>/dev/null; then
+    releases=$(get_upm_releases "json")
+    if echo "$releases" | jq . >/dev/null 2>&1; then
+      count=$(echo "$releases" | jq '. | length' 2>/dev/null || echo "0")
     else
-        releases=$(get_upm_releases "table")
-        if [[ -n "$releases" ]]; then
-            count=$(echo "$releases" | grep -c "^${RELEASE_PREFIX}-" || echo "0")
-        fi
+      count=0
     fi
-    
-    echo "$count"
+  else
+    releases=$(get_upm_releases "table")
+    if [[ -n "$releases" ]]; then
+      count=$(echo "$releases" | grep -c "^${RELEASE_PREFIX}-" || echo "0")
+    fi
+  fi
+
+  echo "$count"
 }
 
 # Function to verify package installation
 verify_package_installation() {
-    local release_name="$1"
-    local package_name="$2"
+  local release_name="$1"
+  local package_name="$2"
 
-    print_info "Verifying UPM package installation: $release_name"
+  print_info "Verifying UPM package installation: $release_name"
 
-    # Check package status
-    if helm status "$release_name" --namespace="$NAMESPACE" > /dev/null 2>&1; then
-        print_success "UPM package $release_name verification passed"
+  # Check package status
+  if helm status "$release_name" --namespace="$NAMESPACE" >/dev/null 2>&1; then
+    print_success "UPM package $release_name verification passed"
 
-        # Show package status
-        echo "Package Status:"
-        helm status "$release_name" --namespace="$NAMESPACE" | head -10
-        echo
-    else
-        print_warning "UPM package $release_name verification failed"
-    fi
+    # Show package status
+    echo "Package Status:"
+    helm status "$release_name" --namespace="$NAMESPACE" | head -10
+    echo
+  else
+    print_warning "UPM package $release_name verification failed"
+  fi
 }
 
 # Function to list available packages
 list_packages() {
-    print_header "Available UPM Packages"
-    echo
-    
-    show_available_components
+  print_header "Available UPM Packages"
+  echo
 
-    print_header "Installed UPM Releases"
-    echo
-    local releases
-    releases=$(get_upm_releases "table")
-    if [[ -n "$releases" && "$releases" != "[]" ]]; then
-        echo "$releases"
-    else
-        echo "No UPM releases found in namespace $NAMESPACE"
-    fi
+  show_available_components
+
+  print_header "Installed UPM Releases"
+  echo
+  local releases
+  releases=$(get_upm_releases "table")
+  if [[ -n "$releases" && "$releases" != "[]" ]]; then
+    echo "$releases"
+  else
+    echo "No UPM releases found in namespace $NAMESPACE"
+  fi
 }
 
 # Function to show status of installed packages
 show_status() {
-    print_header "UPM Packages Status"
+  print_header "UPM Packages Status"
+  echo
+
+  local installed_count
+  installed_count=$(count_upm_releases)
+
+  print_info "Found $installed_count UPM package releases in namespace $NAMESPACE"
+
+  if [[ "$installed_count" -gt 0 ]]; then
     echo
-
-    local installed_count
-    installed_count=$(count_upm_releases)
-
-    print_info "Found $installed_count UPM package releases in namespace $NAMESPACE"
-
-    if [[ "$installed_count" -gt 0 ]]; then
-        echo
-        get_upm_releases "table"
-    else
-        print_warning "No UPM package releases found in namespace $NAMESPACE"
-    fi
+    get_upm_releases "table"
+  else
+    print_warning "No UPM package releases found in namespace $NAMESPACE"
+  fi
 }
 
 # Function to execute action on packages
 execute_action() {
-    local package_list
-    if ! package_list=$(get_packages_from_targets); then
-        return 1
+  local package_list
+  if ! package_list=$(get_packages_from_targets); then
+    return 1
+  fi
+
+  if [[ -z "$package_list" ]]; then
+    print_warning "No packages to process"
+    return 0
+  fi
+
+  local packages
+  read -ra packages <<<"$package_list"
+
+  print_info "Processing ${#packages[@]} packages for $ACTION action"
+  echo
+
+  local failed_packages=()
+
+  for package in "${packages[@]}"; do
+    case "$ACTION" in
+    install)
+      if ! install_package "$package"; then
+        failed_packages+=("$package")
+      fi
+      ;;
+    uninstall)
+      if ! uninstall_package "$package"; then
+        failed_packages+=("$package")
+      fi
+      ;;
+    upgrade)
+      if ! upgrade_package "$package"; then
+        failed_packages+=("$package")
+      fi
+      ;;
+    esac
+
+    # Add delay between operations if not dry run
+    if [[ "$DRY_RUN" != true ]]; then
+      sleep 3
     fi
+  done
 
-    if [[ -z "$package_list" ]]; then
-        print_warning "No packages to process"
-        return 0
-    fi
-
-    local packages
-    read -ra packages <<< "$package_list"
-
-    print_info "Processing ${#packages[@]} packages for $ACTION action"
-    echo
-
-    local failed_packages=()
-
-    for package in "${packages[@]}"; do
-        case "$ACTION" in
-            install)
-                if ! install_package "$package"; then
-                    failed_packages+=("$package")
-                fi
-                ;;
-            uninstall)
-                if ! uninstall_package "$package"; then
-                    failed_packages+=("$package")
-                fi
-                ;;
-            upgrade)
-                if ! upgrade_package "$package"; then
-                    failed_packages+=("$package")
-                fi
-                ;;
-        esac
-
-        # Add delay between operations if not dry run
-        if [[ "$DRY_RUN" != true ]]; then
-            sleep 3
-        fi
+  # Print summary
+  if [[ ${#failed_packages[@]} -eq 0 ]]; then
+    print_success "All packages processed successfully!"
+  else
+    print_error "Failed to process the following packages:"
+    for package in "${failed_packages[@]}"; do
+      echo "  - $package"
     done
-
-    # Print summary
-    if [[ ${#failed_packages[@]} -eq 0 ]]; then
-        print_success "All packages processed successfully!"
-    else
-        print_error "Failed to process the following packages:"
-        for package in "${failed_packages[@]}"; do
-            echo "  - $package"
-        done
-        return 1
-    fi
+    return 1
+  fi
 }
 
 # Main function
 main() {
-    print_header "UPM Package Management"
-    echo
+  print_header "UPM Package Management"
+  echo
 
-    parse_args "$@"
+  parse_args "$@"
 
-    case "$ACTION" in
-        list)
-            check_prerequisites
-            list_packages
-            ;;
-        status)
-            check_prerequisites
-            show_status
-            ;;
-        install|uninstall|upgrade)
-            check_prerequisites
-            create_namespace
-            add_helm_repo
+  case "$ACTION" in
+  list)
+    check_prerequisites
+    list_packages
+    ;;
+  status)
+    check_prerequisites
+    show_status
+    ;;
+  install | uninstall | upgrade)
+    check_prerequisites
+    create_namespace
+    add_helm_repo
 
-            if execute_action; then
-                print_success "$ACTION action completed successfully!"
-            else
-                print_error "$ACTION action completed with errors"
-                exit 1
-            fi
-            ;;
-    esac
+    if execute_action; then
+      print_success "$ACTION action completed successfully!"
+    else
+      print_error "$ACTION action completed with errors"
+      exit 1
+    fi
+    ;;
+  esac
 }
 
 # Run main function

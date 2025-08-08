@@ -19,352 +19,352 @@ FAILED_TESTS=0
 
 # Logging functions
 log_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
+  echo -e "${BLUE}[INFO]${NC} $1"
 }
 
 log_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
+  echo -e "${GREEN}[SUCCESS]${NC} $1"
 }
 
 log_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
+  echo -e "${YELLOW}[WARNING]${NC} $1"
 }
 
 log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+  echo -e "${RED}[ERROR]${NC} $1"
 }
 
 # Test result functions
 test_passed() {
-    ((PASSED_TESTS++))
-    log_success "✓ $1"
+  ((PASSED_TESTS++))
+  log_success "✓ $1"
 }
 
 test_failed() {
-    ((FAILED_TESTS++))
-    log_error "✗ $1"
-    if [ -n "${2:-}" ]; then
-        echo "  $2"
-    fi
+  ((FAILED_TESTS++))
+  log_error "✗ $1"
+  if [ -n "${2:-}" ]; then
+    echo "  $2"
+  fi
 }
 
 run_test() {
-    local test_name="$1"
-    local test_command="$2"
-    
-    ((TOTAL_TESTS++))
-    log_info "Running: $test_name"
-    
-    if eval "$test_command" >/dev/null 2>&1; then
-        test_passed "$test_name"
-        return 0
-    else
-        test_failed "$test_name" "Command failed: $test_command"
-        return 1
-    fi
+  local test_name="$1"
+  local test_command="$2"
+
+  ((TOTAL_TESTS++))
+  log_info "Running: $test_name"
+
+  if eval "$test_command" >/dev/null 2>&1; then
+    test_passed "$test_name"
+    return 0
+  else
+    test_failed "$test_name" "Command failed: $test_command"
+    return 1
+  fi
 }
 
 # Test functions
 test_shell_scripts() {
-    log_info "Testing shell scripts..."
-    
-    # Find all shell scripts
-    local shell_scripts
-    shell_scripts=$(find . -name "*.sh" -type f | grep -v ".git")
-    
-    if [ -z "$shell_scripts" ]; then
-        log_warning "No shell scripts found"
-        return 0
+  log_info "Testing shell scripts..."
+
+  # Find all shell scripts
+  local shell_scripts
+  shell_scripts=$(find . -name "*.sh" -type f | grep -v ".git")
+
+  if [ -z "$shell_scripts" ]; then
+    log_warning "No shell scripts found"
+    return 0
+  fi
+
+  # Check if shellcheck is installed
+  if ! command -v shellcheck >/dev/null 2>&1; then
+    log_error "shellcheck is not installed. Please install it with: sudo apt-get install shellcheck"
+    return 1
+  fi
+
+  local script_failed=0
+  for script in $shell_scripts; do
+    if run_test "Shell script lint: $script" "shellcheck \"$script\""; then
+      continue
+    else
+      script_failed=1
     fi
-    
-    # Check if shellcheck is installed
-    if ! command -v shellcheck >/dev/null 2>&1; then
-        log_error "shellcheck is not installed. Please install it with: sudo apt-get install shellcheck"
-        return 1
-    fi
-    
-    local script_failed=0
-    for script in $shell_scripts; do
-        if run_test "Shell script lint: $script" "shellcheck \"$script\""; then
-            continue
-        else
-            script_failed=1
-        fi
-    done
-    
-    return $script_failed
+  done
+
+  return $script_failed
 }
 
 test_yaml_files() {
-    log_info "Testing YAML files..."
-    
-    # Find all YAML files
-    local yaml_files
-    yaml_files=$(find . -name "*.yaml" -o -name "*.yml" -type f | grep -v ".git")
-    
-    if [ -z "$yaml_files" ]; then
-        log_warning "No YAML files found"
-        return 0
+  log_info "Testing YAML files..."
+
+  # Find all YAML files
+  local yaml_files
+  yaml_files=$(find . -name "*.yaml" -o -name "*.yml" -type f | grep -v ".git")
+
+  if [ -z "$yaml_files" ]; then
+    log_warning "No YAML files found"
+    return 0
+  fi
+
+  # Check if yamllint is installed
+  if ! command -v yamllint >/dev/null 2>&1; then
+    log_error "yamllint is not installed. Please install it with: pip install yamllint"
+    return 1
+  fi
+
+  local yaml_failed=0
+  for yaml_file in $yaml_files; do
+    if run_test "YAML lint: $yaml_file" "yamllint \"$yaml_file\""; then
+      continue
+    else
+      yaml_failed=1
     fi
-    
-    # Check if yamllint is installed
-    if ! command -v yamllint >/dev/null 2>&1; then
-        log_error "yamllint is not installed. Please install it with: pip install yamllint"
-        return 1
-    fi
-    
-    local yaml_failed=0
-    for yaml_file in $yaml_files; do
-        if run_test "YAML lint: $yaml_file" "yamllint \"$yaml_file\""; then
-            continue
-        else
-            yaml_failed=1
-        fi
-    done
-    
-    return $yaml_failed
+  done
+
+  return $yaml_failed
 }
 
 test_dockerfiles() {
-    log_info "Testing Dockerfiles..."
-    
-    # Find all Dockerfiles
-    local dockerfiles
-    dockerfiles=$(find . -name "Dockerfile" -type f | grep -v ".git")
-    
-    if [ -z "$dockerfiles" ]; then
-        log_warning "No Dockerfiles found"
-        return 0
+  log_info "Testing Dockerfiles..."
+
+  # Find all Dockerfiles
+  local dockerfiles
+  dockerfiles=$(find . -name "Dockerfile" -type f | grep -v ".git")
+
+  if [ -z "$dockerfiles" ]; then
+    log_warning "No Dockerfiles found"
+    return 0
+  fi
+
+  local dockerfile_failed=0
+  for dockerfile in $dockerfiles; do
+    # Test Dockerfile syntax
+    if run_test "Dockerfile syntax: $dockerfile" "docker run --rm -i hadolint/hadolint < \"$dockerfile\""; then
+      continue
+    else
+      # Fallback to basic syntax check if hadolint is not available
+      if run_test "Dockerfile basic syntax: $dockerfile" "docker build --no-cache --dry-run -f \"$dockerfile\" ."; then
+        continue
+      else
+        dockerfile_failed=1
+      fi
     fi
-    
-    local dockerfile_failed=0
-    for dockerfile in $dockerfiles; do
-        # Test Dockerfile syntax
-        if run_test "Dockerfile syntax: $dockerfile" "docker run --rm -i hadolint/hadolint < \"$dockerfile\""; then
-            continue
-        else
-            # Fallback to basic syntax check if hadolint is not available
-            if run_test "Dockerfile basic syntax: $dockerfile" "docker build --no-cache --dry-run -f \"$dockerfile\" ."; then
-                continue
-            else
-                dockerfile_failed=1
-            fi
-        fi
-    done
-    
-    return $dockerfile_failed
+  done
+
+  return $dockerfile_failed
 }
 
 test_helm_charts() {
-    log_info "Testing Helm charts..."
-    
-    # Find all chart directories
-    local chart_dirs
-    chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; | grep -v ".git")
-    
-    if [ -z "$chart_dirs" ]; then
-        log_warning "No Helm charts found"
-        return 0
+  log_info "Testing Helm charts..."
+
+  # Find all chart directories
+  local chart_dirs
+  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; | grep -v ".git")
+
+  if [ -z "$chart_dirs" ]; then
+    log_warning "No Helm charts found"
+    return 0
+  fi
+
+  # Check if helm is installed
+  if ! command -v helm >/dev/null 2>&1; then
+    log_error "helm is not installed. Please install it following the official documentation"
+    return 1
+  fi
+
+  local chart_failed=0
+  for chart_dir in $chart_dirs; do
+    if run_test "Helm chart lint: $chart_dir" "helm lint \"$chart_dir\""; then
+      continue
+    else
+      chart_failed=1
     fi
-    
-    # Check if helm is installed
-    if ! command -v helm >/dev/null 2>&1; then
-        log_error "helm is not installed. Please install it following the official documentation"
-        return 1
-    fi
-    
-    local chart_failed=0
-    for chart_dir in $chart_dirs; do
-        if run_test "Helm chart lint: $chart_dir" "helm lint \"$chart_dir\""; then
-            continue
-        else
-            chart_failed=1
-        fi
-    done
-    
-    return $chart_failed
+  done
+
+  return $chart_failed
 }
 
 test_template_functions() {
-    log_info "Testing template functions..."
-    
-    # Test template function scripts if they exist
-    local template_tests="./scripts/tests/test-template-functions.sh"
-    
-    if [ -f "$template_tests" ]; then
-        if run_test "Template functions test" "bash \"$template_tests\""; then
-            return 0
-        else
-            return 1
-        fi
+  log_info "Testing template functions..."
+
+  # Test template function scripts if they exist
+  local template_tests="./scripts/tests/test-template-functions.sh"
+
+  if [ -f "$template_tests" ]; then
+    if run_test "Template functions test" "bash \"$template_tests\""; then
+      return 0
     else
-        log_warning "Template function tests not found at $template_tests"
-        return 0
+      return 1
     fi
+  else
+    log_warning "Template function tests not found at $template_tests"
+    return 0
+  fi
 }
 
 test_parameter_files() {
-    log_info "Testing parameter files..."
-    
-    # Find all parameter detail JSON files
-    local param_files
-    param_files=$(find . -name "*ParametersDetail.json" -type f | grep -v ".git")
-    
-    if [ -z "$param_files" ]; then
-        log_warning "No parameter files found"
-        return 0
+  log_info "Testing parameter files..."
+
+  # Find all parameter detail JSON files
+  local param_files
+  param_files=$(find . -name "*ParametersDetail.json" -type f | grep -v ".git")
+
+  if [ -z "$param_files" ]; then
+    log_warning "No parameter files found"
+    return 0
+  fi
+
+  # Check if jq is installed
+  if ! command -v jq >/dev/null 2>&1; then
+    log_error "jq is not installed. Please install it with: sudo apt-get install jq"
+    return 1
+  fi
+
+  local param_failed=0
+  for param_file in $param_files; do
+    if run_test "Parameter file JSON validation: $param_file" "jq . \"$param_file\" >/dev/null"; then
+      continue
+    else
+      param_failed=1
     fi
-    
-    # Check if jq is installed
-    if ! command -v jq >/dev/null 2>&1; then
-        log_error "jq is not installed. Please install it with: sudo apt-get install jq"
-        return 1
-    fi
-    
-    local param_failed=0
-    for param_file in $param_files; do
-        if run_test "Parameter file JSON validation: $param_file" "jq . \"$param_file\" >/dev/null"; then
-            continue
-        else
-            param_failed=1
-        fi
-    done
-    
-    return $param_failed
+  done
+
+  return $param_failed
 }
 
 test_file_permissions() {
-    log_info "Testing file permissions..."
-    
-    # Check for executable scripts
-    local executable_files
-    executable_files=$(find . -name "*.sh" -type f | grep -v ".git")
-    local perm_failed=0
-    
-    for file in $executable_files; do
-        if [ -x "$file" ]; then
-            test_passed "Executable permission: $file"
-        else
-            test_failed "Executable permission: $file" "File is not executable"
-            perm_failed=1
-        fi
-    done
-    
-    return $perm_failed
+  log_info "Testing file permissions..."
+
+  # Check for executable scripts
+  local executable_files
+  executable_files=$(find . -name "*.sh" -type f | grep -v ".git")
+  local perm_failed=0
+
+  for file in $executable_files; do
+    if [ -x "$file" ]; then
+      test_passed "Executable permission: $file"
+    else
+      test_failed "Executable permission: $file" "File is not executable"
+      perm_failed=1
+    fi
+  done
+
+  return $perm_failed
 }
 
 test_chart_structure() {
-    log_info "Testing chart structure..."
-    
-    # Find all chart directories
-    local chart_dirs
-    chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; | grep -v ".git")
-    
-    if [ -z "$chart_dirs" ]; then
-        log_warning "No Helm charts found"
-        return 0
-    fi
-    
-    local structure_failed=0
-    
-    for chart_dir in $chart_dirs; do
-        # Check required files
-        local required_files=("Chart.yaml" "values.yaml")
-        for req_file in "${required_files[@]}"; do
-            if [ -f "$chart_dir/$req_file" ]; then
-                test_passed "Required file exists: $chart_dir/$req_file"
-            else
-                test_failed "Required file missing: $chart_dir/$req_file"
-                structure_failed=1
-            fi
-        done
-        
-        # Check templates directory
-        if [ -d "$chart_dir/templates" ]; then
-            test_passed "Templates directory exists: $chart_dir"
-        else
-            test_failed "Templates directory missing: $chart_dir"
-            structure_failed=1
-        fi
+  log_info "Testing chart structure..."
+
+  # Find all chart directories
+  local chart_dirs
+  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; | grep -v ".git")
+
+  if [ -z "$chart_dirs" ]; then
+    log_warning "No Helm charts found"
+    return 0
+  fi
+
+  local structure_failed=0
+
+  for chart_dir in $chart_dirs; do
+    # Check required files
+    local required_files=("Chart.yaml" "values.yaml")
+    for req_file in "${required_files[@]}"; do
+      if [ -f "$chart_dir/$req_file" ]; then
+        test_passed "Required file exists: $chart_dir/$req_file"
+      else
+        test_failed "Required file missing: $chart_dir/$req_file"
+        structure_failed=1
+      fi
     done
-    
-    return $structure_failed
+
+    # Check templates directory
+    if [ -d "$chart_dir/templates" ]; then
+      test_passed "Templates directory exists: $chart_dir"
+    else
+      test_failed "Templates directory missing: $chart_dir"
+      structure_failed=1
+    fi
+  done
+
+  return $structure_failed
 }
 
 # Main test functions
 run_unit_tests() {
-    log_info "Running unit tests..."
-    
-    test_shell_scripts
-    test_yaml_files
-    test_parameter_files
-    test_template_functions
-    test_file_permissions
+  log_info "Running unit tests..."
+
+  test_shell_scripts
+  test_yaml_files
+  test_parameter_files
+  test_template_functions
+  test_file_permissions
 }
 
 run_integration_tests() {
-    log_info "Running integration tests..."
-    
-    test_dockerfiles
-    test_helm_charts
-    test_chart_structure
+  log_info "Running integration tests..."
+
+  test_dockerfiles
+  test_helm_charts
+  test_chart_structure
 }
 
 run_all_tests() {
-    log_info "Running all tests..."
-    
-    run_unit_tests
-    run_integration_tests
+  log_info "Running all tests..."
+
+  run_unit_tests
+  run_integration_tests
 }
 
 # Print test summary
 print_summary() {
-    echo ""
-    echo "=========================================="
-    echo "           Test Summary"
-    echo "=========================================="
-    echo "Total tests:  $TOTAL_TESTS"
-    echo "Passed:       $PASSED_TESTS"
-    echo "Failed:       $FAILED_TESTS"
-    echo "=========================================="
-    
-    if [ $FAILED_TESTS -eq 0 ]; then
-        echo -e "${GREEN}All tests passed!${NC}"
-        return 0
-    else
-        echo -e "${RED}$FAILED_TESTS test(s) failed!${NC}"
-        return 1
-    fi
+  echo ""
+  echo "=========================================="
+  echo "           Test Summary"
+  echo "=========================================="
+  echo "Total tests:  $TOTAL_TESTS"
+  echo "Passed:       $PASSED_TESTS"
+  echo "Failed:       $FAILED_TESTS"
+  echo "=========================================="
+
+  if [ $FAILED_TESTS -eq 0 ]; then
+    echo -e "${GREEN}All tests passed!${NC}"
+    return 0
+  else
+    echo -e "${RED}$FAILED_TESTS test(s) failed!${NC}"
+    return 1
+  fi
 }
 
 # Main script logic
 main() {
-    local test_type="${1:-all}"
-    
-    echo "UPM Packages Test Suite"
-    echo "======================="
-    
-    case "$test_type" in
-        "unit")
-            run_unit_tests
-            ;;
-        "integration")
-            run_integration_tests
-            ;;
-        "all")
-            run_all_tests
-            ;;
-        *)
-            echo "Usage: $0 [unit|integration|all]"
-            echo "  unit      - Run unit tests only"
-            echo "  integration - Run integration tests only"
-            echo "  all       - Run all tests (default)"
-            exit 1
-            ;;
-    esac
-    
-    print_summary
-    exit $?
+  local test_type="${1:-all}"
+
+  echo "UPM Packages Test Suite"
+  echo "======================="
+
+  case "$test_type" in
+  "unit")
+    run_unit_tests
+    ;;
+  "integration")
+    run_integration_tests
+    ;;
+  "all")
+    run_all_tests
+    ;;
+  *)
+    echo "Usage: $0 [unit|integration|all]"
+    echo "  unit      - Run unit tests only"
+    echo "  integration - Run integration tests only"
+    echo "  all       - Run all tests (default)"
+    exit 1
+    ;;
+  esac
+
+  print_summary
+  exit $?
 }
 
 # Run main function

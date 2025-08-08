@@ -145,17 +145,17 @@ admin_user_login() {
 
 health() {
   local func_name="health"
-  
+
   # Check if PgBouncer process is running
-  if pgrep -f "pgbouncer" > /dev/null; then
+  if pgrep -f "pgbouncer" >/dev/null; then
     info "${func_name}" "PgBouncer process is running"
-    
+
     # Test connectivity to PgBouncer
     if [[ -n "${ADM_USER:-}" ]]; then
       local adm_pwd
       adm_pwd=$(decrypt_pwd "${ADM_USER}")
       if [[ -n "${adm_pwd}" ]]; then
-        if PGPASSWORD="${adm_pwd}" psql -U "${ADM_USER}" "-p${PGBOUNCER_PORT}" '-h127.0.0.1' pgbouncer -c "SHOW VERSION;" > /dev/null 2>&1; then
+        if PGPASSWORD="${adm_pwd}" psql -U "${ADM_USER}" "-p${PGBOUNCER_PORT}" '-h127.0.0.1' pgbouncer -c "SHOW VERSION;" >/dev/null 2>&1; then
           info "${func_name}" "PgBouncer connectivity test successful"
           return 0
         else
@@ -180,12 +180,12 @@ initialize() {
   local func_name="initialize"
   local random_id="$RANDOM"
   local func_instance="${func_name}(${random_id})"
-  
+
   info "${func_instance}" "Starting run ${func_instance} ..."
 
   # Validate required environment variables
   [[ -n "${ADM_USER:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "ADM_USER environment variable not set!"
-  
+
   local adm_pwd
   adm_pwd=$(decrypt_pwd "${ADM_USER}")
   [[ -n "${adm_pwd}" ]] || die "${EXIT_GENERAL_FAILURE}" "${func_name}" "get ${ADM_USER} password failed!"
@@ -198,7 +198,7 @@ initialize() {
         die "${EXIT_DIR_REMOVAL_FAILED}" "${func_name}" "Force remove ${DATA_DIR} ${CONF_DIR} failed!"
       }
     fi
-    
+
     # Create necessary directories
     mkdir -p "${DATA_DIR}" "${CONF_DIR}" || die "${EXIT_DIR_CREATION_FAILED}" "${func_name}" "mkdir dir failed!"
 
@@ -212,7 +212,7 @@ initialize() {
   local pg_port="${POSTGRESQL_PORT}"
 
   info "${func_name}" "Testing connectivity to PostgreSQL service at ${pg_host}:${pg_port}..."
-  if ! PGPASSWORD="${adm_pwd}" psql -U "${ADM_USER}" "-p${pg_port}" "-h${pg_host}" postgres -c "SELECT 1;" > /dev/null 2>&1; then
+  if ! PGPASSWORD="${adm_pwd}" psql -U "${ADM_USER}" "-p${pg_port}" "-h${pg_host}" postgres -c "SELECT 1;" >/dev/null 2>&1; then
     error "${func_name}" "connect to postgres service failed!"
     return "${EXIT_PGBouncer_INIT_FAILED}"
   fi

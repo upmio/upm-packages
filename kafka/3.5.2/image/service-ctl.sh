@@ -70,16 +70,16 @@ health() {
   local func_name="health"
 
   # Check if Kafka process is running
-  if pgrep -f "kafka.Kafka" > /dev/null; then
+  if pgrep -f "kafka.Kafka" >/dev/null; then
     info "${func_name}" "Kafka process is running"
-    
+
     # Check Kafka port availability
     if timeout 5 bash -c "</dev/tcp/localhost/${KAFKA_PORT}" 2>/dev/null; then
       info "${func_name}" "Kafka port ${KAFKA_PORT} is accessible"
     else
       die "${EXIT_GENERAL_FAILURE}" "${func_name}" "Kafka port ${KAFKA_PORT} is not accessible"
     fi
-    
+
     # Check Kafka broker health using kafka-broker-api-versions if available
     if command -v kafka-broker-api-versions >/dev/null 2>&1; then
       if kafka-broker-api-versions --bootstrap-server localhost:"${KAFKA_PORT}" >/dev/null 2>&1; then
@@ -88,7 +88,7 @@ health() {
         die "${EXIT_GENERAL_FAILURE}" "${func_name}" "Kafka broker API is not responding"
       fi
     fi
-    
+
     info "${func_name}" "Kafka health check passed"
   else
     die "${EXIT_GENERAL_FAILURE}" "${func_name}" "Kafka process is not running"
