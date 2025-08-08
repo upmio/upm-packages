@@ -10,7 +10,7 @@
 
 **Universal Platform Manager (UPM) Packages - Enterprise-Grade Database & Middleware Deployment System**
 
-[📖 Documentation](#documentation) • [🚀 Quick Start](#quick-start) • [🏗️ Architecture](#architecture) • [📦 Available Packages](#available-packages)
+[📖 Documentation](#community--support) • [🚀 Quick Start](#quick-start) • [🏗️ Architecture](#architecture) • [📦 Available Packages](#available-packages)
 
 </div>
 
@@ -91,7 +91,7 @@ helm install --namespace=upm-system upm-packages-mysql-community-8.4.5 \
 helm status upm-packages-mysql-community-8.4.5 --namespace=upm-system
 ```
 
-> **📖 Documentation**: For detailed configuration options and advanced usage, see the [Configuration Management](#configuration-management), [Available Packages](#available-packages), and [UPM Package Management Documentation](upm-pkg-mgm.md) sections.
+> **📖 Documentation**: For detailed configuration options and advanced usage, see the [Architecture](#architecture), [Available Packages](#available-packages), and [UPM Package Management Documentation](upm-pkg-mgm.md) sections.
 
 ## Architecture
 
@@ -359,7 +359,7 @@ podtemplate.yaml:
 ### 📚 Documentation
 
 - **[UPM Package Management Documentation](upm-pkg-mgm.md)**: Complete guide to the unified package management script
-- **[Project Documentation](#documentation)**: Comprehensive guides and references
+- **[Project Documentation](#overview)**: Comprehensive guides and references
 - **[Component Documentation](#available-packages)**: Component-specific setup and configuration
 - **[Development Guide](#development)**: Contributing and development workflows
 - **[Architecture Guide](#architecture)**: Deep technical documentation
@@ -393,6 +393,6 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 Built with ❤️ by the UPM team for production workloads
 
-[🔗 Repository](https://github.com/upmio/upm-packages) • [📖 Documentation](#documentation) • [🚀 Get Started](#quick-start)
+[🔗 Repository](https://github.com/upmio/upm-packages) • [📖 Documentation](#community--support) • [🚀 Get Started](#quick-start)
 
 </div>
