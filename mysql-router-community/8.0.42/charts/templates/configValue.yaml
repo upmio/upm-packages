@@ -10,4 +10,4 @@ metadata:
     version: {{ .Chart.AppVersion | quote }}
 data:
   mysql-router: |
-{{ .Files.Get "files/routerValue.yaml" | indent 4 }}
+{{ .Files.Get "files/mysqlrouterValue.yaml" | indent 4 }}

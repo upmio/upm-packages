@@ -26,9 +26,9 @@ charts/
 ├── Chart.yaml                  # Package metadata
 ├── values.yaml                 # Default configuration values
 ├── files/                      # Configuration files directory
-│   ├── routerParametersDetail.json  # Parameter definitions and validation
-│   ├── routerTemplate.tpl           # Router configuration template
-│   └── routerValue.yaml             # Router parameter values
+│   ├── mysqlrouterParametersDetail.json  # Parameter definitions and validation
+│   ├── mysqlrouterTemplate.tpl           # Router configuration template
+│   └── mysqlrouterValue.yaml             # Router parameter values
 └── templates/                  # Kubernetes template files
     ├── _helpers.tpl              # Template helper functions
     ├── configTemplate.yaml       # Configuration template ConfigMap
@@ -75,9 +75,9 @@ The `podtemplate.yaml` defines the complete MySQL Router pod structure including
 
 Four-layer configuration architecture:
 
-1. **Parameter Definitions** (`routerParametersDetail.json`): Metadata and validation rules
-2. **Parameter Values** (`routerValue.yaml`): Production-optimized settings
-3. **Configuration Template** (`routerTemplate.tpl`): Dynamic configuration generation
+1. **Parameter Definitions** (`mysqlrouterParametersDetail.json`): Metadata and validation rules
+2. **Parameter Values** (`mysqlrouterValue.yaml`): Production-optimized settings
+3. **Configuration Template** (`mysqlrouterTemplate.tpl`): Dynamic configuration generation
 4. **Generated Config**: Runtime MySQL Router configuration files
 
 ## Package Metadata
@@ -121,13 +121,13 @@ After installing this package:
 
 ## Configuration Files
 
-### routerParametersDetail.json
+### mysqlrouterParametersDetail.json
 Comprehensive parameter metadata with validation rules and bilingual documentation for all MySQL Router 8.0.41 configuration parameters.
 
-### routerTemplate.tpl
+### mysqlrouterTemplate.tpl
 Go template-based MySQL Router configuration generator with dynamic parameter substitution and environment variable integration.
 
-### routerValue.yaml
+### mysqlrouterValue.yaml
 Production-optimized parameter values for MySQL Router deployment, including performance, security, and high availability settings.
 
 ## Template Integration
