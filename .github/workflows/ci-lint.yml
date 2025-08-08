@@ -24,7 +24,10 @@ jobs:
       - name: Install shfmt v3.12.0 (pinned)
         run: |
           SHFMT_VERSION=v3.12.0
-          curl -fsSL -o /tmp/shfmt "https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/shfmt_${SHFMT_VERSION#v}_linux_amd64"
+          ASSET="shfmt_${SHFMT_VERSION}_linux_amd64"
+          URL="https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/${ASSET}"
+          echo "Downloading: ${URL}"
+          curl -fsSL -o /tmp/shfmt "${URL}"
           sudo mv /tmp/shfmt /usr/local/bin/shfmt
           sudo chmod +x /usr/local/bin/shfmt
           shfmt -version
