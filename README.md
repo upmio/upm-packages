@@ -8,7 +8,7 @@
 [![Architecture](https://img.shields.io/badge/Platform-linux/amd64%20%7C%20linux/arm64-orange.svg)]()
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-Automated-brightgreen.svg)]()
 
-**Universal Platform Manager (UPM) Packages - Enterprise-Grade Database & Middleware Deployment System**
+**Unified Platform Management (UPM) Packages - Enterprise-Grade Database & Middleware Deployment System**
 
 [📖 Documentation](#community--support) • [🚀 Quick Start](#quick-start) • [🏗️ Architecture](#architecture) • [📦 Available Packages](#available-packages)
 

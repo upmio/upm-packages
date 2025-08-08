@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `upm-pkg-mgm.sh` script is a unified management tool for UPM (Universal Platform Manager) packages. It provides a comprehensive interface for installing, uninstalling, upgrading, and managing UPM software components in Kubernetes environments.
+The `upm-pkg-mgm.sh` script is a unified management tool for UPM (Unified Platform Management) packages. It provides a comprehensive interface for installing, uninstalling, upgrading, and managing UPM software components in Kubernetes environments.
 
 ## Features
 
