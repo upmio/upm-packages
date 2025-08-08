@@ -33,7 +33,6 @@ readonly EXIT_DIR_NOT_FOUND=11
 readonly EXIT_UNSUPPORTED_ACTION=21
 readonly EXIT_DIR_REMOVAL_FAILED=41
 readonly EXIT_DIR_CREATION_FAILED=42
-readonly EXIT_CHOWN_FAILED=46
 readonly EXIT_FLAG_FILE_CREATION_FAILED=47
 readonly EXIT_MEMORY_LIMIT_INVALID=49
 
@@ -115,11 +114,6 @@ initialize() {
     # Create required directories
     mkdir -p "${DATA_DIR}" "${CONF_DIR}" || {
       die "${EXIT_DIR_CREATION_FAILED}" "${func_name}" "mkdir dir failed!"
-    }
-
-    # Set proper ownership
-    chown -R "1001.1001" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
-      die "${EXIT_CHOWN_FAILED}" "${func_name}" "chown dir failed!"
     }
 
     info "${func_name}" "Initialize kafka done !"
