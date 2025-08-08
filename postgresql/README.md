@@ -340,6 +340,10 @@ helm template test-release 15.13/charts/
 
 ```
 postgresql/
+├── agent/              # PostgreSQL Agent - Sidecar container for PostgreSQL operations
+│   └── 15/            # PostgreSQL 15 series agent
+│       └── image/
+│           └── Dockerfile
 ├── 15.12/
 │   ├── image/          # Docker build context
 │   │   ├── Dockerfile
@@ -352,6 +356,22 @@ postgresql/
 │       └── files/
 └── 15.13/            # Latest version
 ```
+
+### PostgreSQL Agent
+
+The PostgreSQL Community component includes a specialized agent that runs as a sidecar container to provide PostgreSQL-specific operations and monitoring capabilities. The agent is based on `unit-agent` and includes PostgreSQL client tools for database management tasks.
+
+**Agent Features:**
+- **Backup and Recovery**: pg_dump and pg_restore integration for logical backups
+- **Monitoring**: PostgreSQL performance metrics and health monitoring
+- **Maintenance**: Database optimization and maintenance tasks
+- **Replication Management**: Replication monitoring and failover support
+- **Security**: Security auditing and compliance checking
+
+**Agent Version Compatibility:**
+- `agent/15/` - Compatible with PostgreSQL 15.x series
+
+See [agent/README.md](agent/README.md) for detailed agent documentation.
 
 ## Integration
 

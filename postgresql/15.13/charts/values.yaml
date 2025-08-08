@@ -12,5 +12,5 @@ agent:
   image:
     registry: quay.io
     repository: upmio/postgresql-agent
-    tag: "15.13"
+    tag: "15"
     pullPolicy: IfNotPresent
