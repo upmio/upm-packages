@@ -14,7 +14,6 @@ This component provides containerized PostgreSQL Community Edition as part of th
 - **Health monitoring**: Built-in health checks and monitoring
 - **Security hardening**: Non-root user operation, secure configuration
 - **Data persistence**: Persistent volume support
-- **High availability**: Support for replication and clustering
 
 ## Version Support
 
