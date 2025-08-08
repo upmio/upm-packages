@@ -437,4 +437,31 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/proxysql-2.7.3-1.0.0/proxysql-2.7.3-1.0.0.tgz
     version: 1.0.0
-generated: "2025-08-06T10:37:11.643963461Z"
+  zookeeper-3.8.4:
+  - apiVersion: v2
+    appVersion: 3.8.4
+    created: "2025-08-08T08:01:18.882793269Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: ZooKeeper software packages, including configuration templates and
+      pod templates.
+    digest: 85181fb472a66b6556b03f85c2b00e783a41603098a1a94d55116fb8af40e2cb
+    keywords:
+    - zookeeper
+    - coordination
+    - distributed
+    - consensus
+    - configuration
+    - synchronization
+    - cluster
+    - distributed system
+    name: zookeeper-3.8.4
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/zookeeper-3.8.4-1.0.0/zookeeper-3.8.4-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-08-08T08:01:18.882804911Z"
