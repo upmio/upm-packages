@@ -4,7 +4,7 @@
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Helm Version](https://img.shields.io/badge/Helm-v3-blue.svg)](https://helm.sh/)
-[![Kubernetes](https://img.shields.io/badge/Kubernetes-1.20%2B-green.svg)](https://kubernetes.io/)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-1.29%2B-green.svg)](https://kubernetes.io/)
 [![Architecture](https://img.shields.io/badge/Platform-linux/amd64%20%7C%20linux/arm64-orange.svg)]()
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-Automated-brightgreen.svg)]()
 
