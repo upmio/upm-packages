@@ -37,7 +37,7 @@ template:
         command:
           - "bash"
           - "-c"
-          - "serverMGR.sh initialize"
+          - "service-ctl.sh initialize"
         env:
           - name: POD_NAME
             valueFrom:
@@ -99,7 +99,7 @@ template:
               - "3"
               - "bash"
               - "-c"
-              - "serverMGR.sh status"
+              - "service-ctl.sh health"
           failureThreshold: 3
           initialDelaySeconds: 12
           periodSeconds: 12

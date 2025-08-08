@@ -59,8 +59,8 @@ LABEL summary="${SUMMARY}" \
   version="${UNIT_APP_VERSION}" \
   maintainer="upm"
 
-COPY serverMGR.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/serverMGR.sh
+COPY service-ctl.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/service-ctl.sh
 
 COPY supervisord.conf /etc/supervisord.conf
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]

@@ -70,8 +70,8 @@ RUN set -ex \
   && chown -R "1001:1001" "${KAFKA_BASE_DIR}" \
   && rm -rf "/tmp/kafka.tar.gz"
 
-COPY serverMGR.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/serverMGR.sh
+COPY service-ctl.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/service-ctl.sh
 
 COPY supervisord.conf /etc/supervisord.conf
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
