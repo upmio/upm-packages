@@ -82,7 +82,7 @@ health() {
     
     # Check Kafka broker health using kafka-broker-api-versions if available
     if command -v kafka-broker-api-versions >/dev/null 2>&1; then
-      if kafka-broker-api-versions --bootstrap-server localhost:${KAFKA_PORT} >/dev/null 2>&1; then
+      if kafka-broker-api-versions --bootstrap-server localhost:"${KAFKA_PORT}" >/dev/null 2>&1; then
         info "${func_name}" "Kafka broker API is responding"
       else
         die "${EXIT_GENERAL_FAILURE}" "${func_name}" "Kafka broker API is not responding"
