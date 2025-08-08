@@ -111,6 +111,20 @@ install_dependencies() {
     fi
   fi
 
+  # Install shfmt
+  if ! command -v shfmt >/dev/null 2>&1; then
+    log_info "Installing shfmt..."
+    if command -v apt-get >/dev/null 2>&1; then
+      sudo apt-get update && sudo apt-get install -y shfmt || true
+    elif command -v yum >/dev/null 2>&1; then
+      sudo yum install -y shfmt || true
+    elif command -v brew >/dev/null 2>&1; then
+      brew install shfmt || true
+    else
+      log_warning "Cannot auto-install shfmt. Please install it manually: https://github.com/mvdan/sh"
+    fi
+  fi
+
   # Install yq
   if ! command -v yq >/dev/null 2>&1; then
     log_info "Installing yq..."
@@ -119,6 +133,26 @@ install_dependencies() {
   fi
 
   log_success "Dependencies installed successfully"
+}
+
+# Shell format (shfmt)
+lint_shfmt() {
+  log_info "Checking shell formatting with shfmt (-i 2 -d) ..."
+
+  if ! command -v shfmt >/dev/null 2>&1; then
+    log_error "shfmt is not installed. Run with --install-deps or install manually."
+    ((FAILED_LINTS++))
+    return 1
+  fi
+
+  # shfmt returns non-zero if diff exists
+  if shfmt -i 2 -d . >/dev/null 2>&1; then
+    lint_passed "shfmt style check"
+    return 0
+  else
+    lint_failed "shfmt style check" "Run: shfmt -i 2 -w ."
+    return 1
+  fi
 }
 
 # Shell script linting
@@ -341,7 +375,7 @@ lint_code_style() {
   local shell_scripts
   shell_scripts=$(find . -name "*.sh" -type f | grep -v ".git")
   for script in $shell_scripts; do
-    if head -n1 "$script" | grep -q "^#!/bin/bash"; then
+    if head -n1 "$script" | grep -Eq '^#!(/bin/bash|/usr/bin/env bash)$'; then
       lint_passed "Shell script shebang: $script"
     else
       lint_failed "Shell script shebang: $script"
@@ -351,7 +385,8 @@ lint_code_style() {
 
   # Check for proper error handling in shell scripts
   for script in $shell_scripts; do
-    if grep -q "set -euo pipefail" "$script"; then
+    if grep -q "set -euo pipefail" "$script" || \
+      (grep -q "set -o errexit" "$script" && grep -q "set -o nounset" "$script" && grep -q "set -o pipefail" "$script"); then
       lint_passed "Shell script error handling: $script"
     else
       lint_failed "Shell script error handling: $script"
@@ -386,6 +421,7 @@ lint_documentation() {
 run_all_lints() {
   log_info "Running all lints..."
 
+  lint_shfmt
   lint_file_permissions
   lint_file_naming
   lint_code_style
