@@ -1,4 +1,4 @@
-# MySQL Community 8.4.5 - UPM Package Definition
+# MySQL Community 8.4.4 - UPM Package Definition
 
 <div align="center">
 
@@ -7,7 +7,7 @@
 [![Package Type](https://img.shields.io/badge/Type-UPM%20Template-yellow.svg)]()
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 
-**MySQL Community 8.4.5 UPM Software Package & Import Template**
+**MySQL Community 8.4.4 UPM Software Package & Import Template**
 
 [🇬🇧 English](README.md)
 
@@ -15,7 +15,7 @@
 
 ## Overview
 
-This package defines the MySQL Community 8.4.5 software image and import template for the UPM (Unit Package Manager) system. It provides the foundational templates and configurations required to deploy MySQL instances within the UPM ecosystem.
+This package defines the MySQL Community 8.4.4 software image and import template for the UPM (Unit Package Manager) system. It provides the foundational templates and configurations required to deploy MySQL instances within the UPM ecosystem.
 
 **Important**: This package requires UPM CRDs (Unit and UnitSets) to function and is not a standalone Helm chart for direct MySQL deployment.
 
@@ -41,7 +41,7 @@ charts/
 
 ### Core Components
 
-**Software Image Definition**: Provides the MySQL Community 8.4.5 container image specification and configuration templates.
+**Software Image Definition**: Provides the MySQL Community 8.4.4 container image specification and configuration templates.
 
 **Import Template**: Defines the structure for importing MySQL instances into the UPM ecosystem using Unit and UnitSets CRDs.
 
@@ -85,8 +85,8 @@ Four-layer configuration architecture:
 
 ```yaml
 apiVersion: v2
-appVersion: 8.4.5
-name: mysql-community-8.4.5
+appVersion: 8.4.4
+name: mysql-community-8.4.4
 version: 2.0.0
 description: MySQL community edition software packages, including configuration templates and pod templates.
 type: application
@@ -105,10 +105,10 @@ helm repo add upm-packages https://upmio.github.io/upm-packages
 helm repo update
 
 # Install the UPM package
-helm install --namespace=upm-system upm-packages-mysql-community-8.4.5 upm-packages/mysql-community-8.4.5
+helm install --namespace=upm-system upm-packages-mysql-community-8.4.4 upm-packages/mysql-community-8.4.4
 
 # Verify package installation
-helm status upm-packages-mysql-community-8.4.5 --namespace=upm-system
+helm status upm-packages-mysql-community-8.4.4 --namespace=upm-system
 ```
 
 ## Next Steps
@@ -123,7 +123,7 @@ After installing this package:
 ## Configuration Files
 
 ### mysqlParametersDetail.json
-Comprehensive parameter metadata with validation rules and bilingual documentation for all MySQL 8.4.5 configuration parameters.
+Comprehensive parameter metadata with validation rules and bilingual documentation for all MySQL 8.4.4 configuration parameters.
 
 ### mysqlTemplate.tpl
 Go template-based MySQL configuration generator with dynamic parameter substitution and environment variable integration.
