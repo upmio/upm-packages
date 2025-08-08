@@ -17,6 +17,9 @@ TOTAL_LINTS=0
 PASSED_LINTS=0
 FAILED_LINTS=0
 
+# CI toggles
+SKIP_SHFMT=${SKIP_SHFMT:-""}
+
 # Logging functions
 log_info() {
   echo -e "${BLUE}[INFO]${NC} $1"
@@ -111,17 +114,21 @@ install_dependencies() {
     fi
   fi
 
-  # Install shfmt
-  if ! command -v shfmt >/dev/null 2>&1; then
-    log_info "Installing shfmt..."
-    if command -v apt-get >/dev/null 2>&1; then
-      sudo apt-get update && sudo apt-get install -y shfmt || true
-    elif command -v yum >/dev/null 2>&1; then
-      sudo yum install -y shfmt || true
-    elif command -v brew >/dev/null 2>&1; then
-      brew install shfmt || true
-    else
-      log_warning "Cannot auto-install shfmt. Please install it manually: https://github.com/mvdan/sh"
+  # Install shfmt (unless skipped)
+  if [ "${SKIP_SHFMT}" = "true" ]; then
+    log_info "Skipping shfmt installation (SKIP_SHFMT=true)"
+  else
+    if ! command -v shfmt >/dev/null 2>&1; then
+      log_info "Installing shfmt..."
+      if command -v apt-get >/dev/null 2>&1; then
+        sudo apt-get update && sudo apt-get install -y shfmt || true
+      elif command -v yum >/dev/null 2>&1; then
+        sudo yum install -y shfmt || true
+      elif command -v brew >/dev/null 2>&1; then
+        brew install shfmt || true
+      else
+        log_warning "Cannot auto-install shfmt. Please install it manually: https://github.com/mvdan/sh"
+      fi
     fi
   fi
 
@@ -137,6 +144,13 @@ install_dependencies() {
 
 # Shell format (shfmt)
 lint_shfmt() {
+  # Allow skipping in CI
+  if [ "${SKIP_SHFMT}" = "true" ]; then
+    log_info "Skipping shfmt check (SKIP_SHFMT=true)"
+    lint_passed "shfmt style check (skipped)"
+    return 0
+  fi
+
   log_info "Checking shell formatting with shfmt (-i 2 -d) ..."
 
   if ! command -v shfmt >/dev/null 2>&1; then

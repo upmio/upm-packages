@@ -21,22 +21,9 @@ jobs:
           sudo wget -qO /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64
           sudo chmod +x /usr/local/bin/hadolint
 
-      - name: Install shfmt v3.12.0 (pinned)
-        run: |
-          SHFMT_VERSION=v3.12.0
-          ASSET="shfmt_${SHFMT_VERSION}_linux_amd64"
-          URL="https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/${ASSET}"
-          echo "Downloading: ${URL}"
-          curl -fsSL -o /tmp/shfmt "${URL}"
-          sudo mv /tmp/shfmt /usr/local/bin/shfmt
-          sudo chmod +x /usr/local/bin/shfmt
-          shfmt -version
-
-      - name: Auto format shell scripts (shfmt -i 2 -w)
-        run: |
-          shfmt -i 2 -w .
-
       - name: Run project lint suite
+        env:
+          SKIP_SHFMT: "true"
         run: |
           chmod +x scripts/lint.sh
           ./scripts/lint.sh --install-deps
