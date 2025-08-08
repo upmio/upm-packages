@@ -22,7 +22,7 @@ jobs:
         id: detect-changes
         run: |
           # 获取所有变更的文件
-          changed_files=$(git diff --name-only HEAD^ HEAD | grep -E '\.(Dockerfile|sh|conf|tpl|yaml|yml|json|toml)$' || true)
+          changed_files=$(git diff --name-only HEAD^ HEAD | grep -E '(\.Dockerfile|Dockerfile|\.sh|\.conf|\.tpl|\.yaml|\.yml|\.json|\.toml)$' || true)
           
           # 定义所有可能的镜像路径
           all_images=(
