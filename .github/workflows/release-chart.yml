@@ -19,7 +19,7 @@ jobs:
       - name: Find charts directories
         id: set-output
         run: |        
-          # 提取 chart 的目录, 将结果格式化为 JSON 数组，确保没有多余空格或字符
+          # Extract chart directories and format results as JSON array, ensuring no extra spaces or characters
           #!/bin/bash
 
           chart_dirs_json="$(find . -type d -path "*/*/charts" | sed 's|^\./||' | sort | uniq | jq -R . | jq -sc .)"
@@ -50,11 +50,11 @@ jobs:
       - name: Check if Chart version exists
         id: check-version
         run: |
-          # 读取Chart.yaml中的版本号
+          # Read version from Chart.yaml
           CHART_VERSION=$(yq eval '.version' ${{ matrix.chart_dir }}/Chart.yaml)
           CHART_NAME=$(yq eval '.name' ${{ matrix.chart_dir }}/Chart.yaml)
           
-          # 检查是否已存在相同版本的release
+          # Check if release with same version already exists
           if gh release view "$CHART_NAME-$CHART_VERSION" &> /dev/null; then
             echo "Chart version $CHART_NAME-$CHART_VERSION already exists, skipping release"
             echo "skip=true" >> $GITHUB_OUTPUT

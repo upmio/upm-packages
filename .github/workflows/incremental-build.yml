@@ -29,7 +29,7 @@ jobs:
         run: |
           echo "=== Analyzing repository changes ==="
           
-          # 获取变更的文件列表
+          # Get list of changed files
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             changed_files=$(git diff --name-only origin/${{ github.base_ref }} HEAD)
           else
@@ -39,10 +39,10 @@ jobs:
           echo "Changed files:"
           echo "$changed_files"
           
-          # 分析变更的组件
+          # Analyze changed components
           changed_components_json="$(echo "$changed_files" | while read -r file; do
             if [ -n "$file" ]; then
-              # 提取组件名
+              # Extract component name
               component=$(echo "$file" | awk -F'/' '{print $1}')
               if [[ -n "$component" && "$component" != "." && "$component" != ".github" ]]; then
                 echo "$component"
@@ -50,10 +50,10 @@ jobs:
             fi
           done | sort | uniq | jq -R . | jq -sc .)"
           
-          # 分析变更的 image 目录
+          # Analyze changed image directories
           changed_image_dirs_json="$(echo "$changed_files" | grep "image/" | while read -r file; do
             if [ -n "$file" ]; then
-              # 提取 image 目录路径
+              # Extract image directory path
               dir=$(dirname "$file" | sed 's|^\./||')
               while [[ "$dir" != "." && "$dir" != *"image" ]]; do
                 dir=$(dirname "$dir")
@@ -69,10 +69,10 @@ jobs:
             fi
           done | sort | uniq | jq -sc .)"
           
-          # 分析变更的 chart 目录
+          # Analyze changed chart directories
           changed_chart_dirs_json="$(echo "$changed_files" | grep "charts/" | while read -r file; do
             if [ -n "$file" ]; then
-              # 提取 chart 目录路径
+              # Extract chart directory path
               dir=$(dirname "$file" | sed 's|^\./||')
               while [[ "$dir" != "." && "$dir" != *"charts" ]]; do
                 dir=$(dirname "$dir")
@@ -84,7 +84,7 @@ jobs:
             fi
           done | sort | uniq | jq -R . | jq -sc .)"
           
-          # 检查是否有变更
+          # Check if there are any changes
           has_image_changes=$(echo "$changed_files" | grep -q "image/" && echo "true" || echo "false")
           has_chart_changes=$(echo "$changed_files" | grep -q "charts/" && echo "true" || echo "false")
           
@@ -189,11 +189,11 @@ jobs:
       - name: Check if Chart version exists
         id: check-version
         run: |
-          # 读取Chart.yaml中的版本号
+          # Read version from Chart.yaml
           CHART_VERSION=$(yq eval '.version' ${{ matrix.chart_dir }}/Chart.yaml)
           CHART_NAME=$(yq eval '.name' ${{ matrix.chart_dir }}/Chart.yaml)
           
-          # 检查是否已存在相同版本的release
+          # Check if release with same version already exists
           if gh release view "$CHART_NAME-$CHART_VERSION" &> /dev/null; then
             echo "Chart version $CHART_NAME-$CHART_VERSION already exists, skipping release"
             echo "skip=true" >> $GITHUB_OUTPUT

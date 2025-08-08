@@ -27,17 +27,17 @@ jobs:
       - name: Detect chart changes
         id: detect-changes
         run: |
-          # 检查是否有 charts 相关的文件变更
+          # Check for charts related file changes
           changed_files=$(git diff --name-only origin/${{ github.base_ref }} HEAD | grep "charts/" || true)
           
           if [ -n "$changed_files" ]; then
             echo "Chart changes detected:"
             echo "$changed_files"
             
-            # 提取需要验证的 chart 目录
+            # Extract chart directories that need validation
             chart_dirs_json="$(echo "$changed_files" | while read -r file; do
               if [ -n "$file" ]; then
-                # 提取 charts 目录
+                # Extract charts directory
                 dir=$(dirname "$file" | sed 's|^\./||')
                 while [[ "$dir" != "." && "$dir" != *"charts" ]]; do
                   dir=$(dirname "$dir")
@@ -64,16 +64,16 @@ jobs:
         run: |
           echo "=== Validating changed charts ==="
           
-          # 解析 chart 目录列表并逐个验证
+          # Parse chart directory list and validate each one
           echo '${{ steps.detect-changes.outputs.chart_dirs }}' | jq -r '.[]' | while read -r chart_dir; do
             echo "Validating chart: $chart_dir"
             
-            # 运行 chart 验证
+            # Run chart validation
             if [ -f "./scripts/validate-charts.sh" ]; then
-              # 如果脚本支持指定目录，则使用脚本
+              # If script supports directory specification, use script
               ./scripts/validate-charts.sh "$chart_dir"
             else
-              # 否则手动验证
+              # Otherwise validate manually
               helm lint "$chart_dir" || {
                 echo "Chart validation failed for: $chart_dir"
                 exit 1
@@ -85,7 +85,7 @@ jobs:
         if: steps.detect-changes.outputs.has_changes == 'false'
         run: |
           echo "=== No chart changes detected, running minimal validation ==="
-          # 随机选择一个 chart 进行验证，确保验证流程正常
+          # Randomly select one chart for validation to ensure validation process works
           find . -name "Chart.yaml" -exec dirname {} \; | head -1 | while read chart_dir; do
             echo "Validating sample chart: $chart_dir"
             helm lint "$chart_dir" || {

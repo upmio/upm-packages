@@ -323,7 +323,7 @@ mysql-community/
 
 ### MySQL Agent
 
-The MySQL Community component includes a specialized agent that runs as a sidecar container to provide MySQL-specific operations and monitoring capabilities. The agent is based on `unit-agent` and includes MySQL运维工具 for database management tasks.
+The MySQL Community component includes a specialized agent that runs as a sidecar container to provide MySQL-specific operations and monitoring capabilities. The agent is based on `unit-agent` and includes MySQL operation and maintenance tools for database management tasks.
 
 **Agent Features:**
 - **Backup and Recovery**: Percona XtraBackup integration for hot backups

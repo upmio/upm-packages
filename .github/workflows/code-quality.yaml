@@ -138,17 +138,17 @@ jobs:
       - name: Determine changed components
         id: find-changes
         run: |
-          # 获取变更的文件，确定需要测试的组件
+          # Get changed files to determine components to test
           changed_files=$(git diff --name-only HEAD^ HEAD | grep "image/" || true)
           
           if [ -n "$changed_files" ]; then
             echo "Changed files in image directories:"
             echo "$changed_files"
             
-            # 提取需要测试的组件
+            # Extract components to test
             components_json="$(echo "$changed_files" | while read -r file; do
               if [ -n "$file" ]; then
-                # 提取组件名
+                # Extract component name
                 component=$(echo "$file" | awk -F'/' '{print $1}')
                 if [[ -n "$component" && "$component" != "." ]]; then
                   echo "$component"
@@ -169,7 +169,7 @@ jobs:
         run: |
           echo "=== Testing Docker builds for changed components ==="
           
-          # 解析组件列表并测试
+          # Parse component list and test
           echo '${{ steps.find-changes.outputs.components }}' | jq -r '.[]' | while read -r component; do
             echo "Testing component: $component"
             
@@ -193,7 +193,7 @@ jobs:
         if: steps.find-changes.outputs.components == '[]'
         run: |
           echo "=== Testing random component to validate build process ==="
-          # 随机选择一个组件进行测试，确保构建流程正常
+          # Randomly select a component for testing to ensure build process works
           components=('mysql-community' 'postgresql' 'proxysql' 'pgbouncer' 'kafka' 'elasticsearch' 'kibana')
           random_component=${components[$RANDOM % ${#components[@]}]}
           
