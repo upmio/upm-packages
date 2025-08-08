@@ -8,7 +8,7 @@ dependencies:
     version: 2.x.x
 name: postgresql-15.12
 version: 1.0.0
-description:  PostgreSQL software packages, including configuration templates and pod templates.
+description: PostgreSQL software packages, including configuration templates and pod templates.
 type: application
 keywords:
   - postgresql

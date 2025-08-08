@@ -8,7 +8,7 @@ dependencies:
     version: 2.x.x
 name: kafka-3.5.2
 version: 1.0.0
-description:  Kafka software packages, including configuration templates and pod templates.
+description: Kafka software packages, including configuration templates and pod templates.
 type: application
 keywords:
   - kafka
