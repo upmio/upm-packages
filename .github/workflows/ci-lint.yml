@@ -21,12 +21,13 @@ jobs:
           sudo wget -qO /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64
           sudo chmod +x /usr/local/bin/hadolint
 
-      - name: Ensure shfmt is available
+      - name: Install shfmt v3.12.0 (pinned)
         run: |
-          if ! command -v shfmt >/dev/null 2>&1; then
-            sudo apt-get update -y
-            sudo apt-get install -y shfmt || true
-          fi
+          SHFMT_VERSION=v3.12.0
+          curl -fsSL -o /tmp/shfmt "https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/shfmt_${SHFMT_VERSION#v}_linux_amd64"
+          sudo mv /tmp/shfmt /usr/local/bin/shfmt
+          sudo chmod +x /usr/local/bin/shfmt
+          shfmt -version
 
       - name: Run project lint suite
         run: |
