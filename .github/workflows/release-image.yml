@@ -4,80 +4,132 @@ on:
   push:
     branches:
       - 'main'
+  workflow_dispatch:
 
 jobs:
-  determine-images:
+  detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      image_dirs: ${{ steps.set-output.outputs.image_dirs }}
-      has_changes: ${{ steps.check-changes.outputs.has_changes }}
+      images_to_build: ${{ steps.detect-changes.outputs.images_to_build }}
+      has_changes: ${{ steps.detect-changes.outputs.has_changes }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Check for image changes
-        id: check-changes
+      - name: Detect changed images
+        id: detect-changes
         run: |
-          # 检查是否有 image 相关的文件变更
-          if git diff --name-only HEAD^ HEAD | grep -q "image/"; then
-            echo "has_changes=true" >> $GITHUB_OUTPUT
-            echo "Image changes detected"
-          else
-            echo "has_changes=false" >> $GITHUB_OUTPUT
-            echo "No image changes detected, skipping build"
-          fi
-
-      - name: Find changed image directories
-        id: set-output
-        if: steps.check-changes.outputs.has_changes == 'true'
-        run: |
-          # 获取变更的文件列表，找出对应的需要构建的 image 目录
-          changed_files=$(git diff --name-only HEAD^ HEAD | grep "image/" || true)
+          # 获取所有变更的文件
+          changed_files=$(git diff --name-only HEAD^ HEAD | grep -E '\.(Dockerfile|sh|conf|tpl|yaml|yml|json|toml)$' || true)
+          
+          # 定义所有可能的镜像路径
+          all_images=(
+            "elasticsearch/7.17.14/image"
+            "kafka/3.5.2/image"
+            "kibana/7.17.14/image"
+            "mysql-community/8.0.40/image"
+            "mysql-community/8.0.41/image"
+            "mysql-community/8.0.42/image"
+            "mysql-community/8.4.4/image"
+            "mysql-community/8.4.5/image"
+            "mysql-community/agent/8.0/image"
+            "mysql-community/agent/8.4/image"
+            "mysql-router-community/8.0.40/image"
+            "mysql-router-community/8.0.41/image"
+            "mysql-router-community/8.0.42/image"
+            "mysql-router-community/8.4.4/image"
+            "mysql-router-community/8.4.5/image"
+            "pgbouncer/1.23.1/image"
+            "pgbouncer/1.24.1/image"
+            "postgresql/15.12/image"
+            "postgresql/15.13/image"
+            "postgresql/agent/15/image"
+            "proxysql/2.7.2/image"
+            "proxysql/2.7.3/image"
+          )
+          
+          # 检查每个镜像是否有变更
+          images_to_build="[]"
           
           if [ -n "$changed_files" ]; then
-            echo "Changed files:"
+            echo "Changed files detected:"
             echo "$changed_files"
+            echo ""
             
-            # 提取需要构建的 image 目录
-            image_dirs_json="$(echo "$changed_files" | while read -r file; do
-              if [ -n "$file" ]; then
-                # 提取组件和版本信息
-                dir=$(dirname "$file" | sed 's|^\./||')
-                while [[ "$dir" != "." && "$dir" != *"image" ]]; do
-                  dir=$(dirname "$dir")
-                done
+            # 构建需要构建的镜像列表
+            build_list=()
+            
+            for image_path in "${all_images[@]}"; do
+              # 检查该镜像目录下的文件是否有变更
+              if echo "$changed_files" | grep -q "^$image_path/"; then
+                echo "✅ Changes detected in: $image_path"
                 
-                if [[ "$dir" == *"image" ]]; then
-                  # 获取组件和版本
-                  component=$(echo "$dir" | awk -F'/' '{print $1}')
-                  version=$(echo "$dir" | awk -F'/' '{print $2}')
-                  
-                  if [[ -n "$component" && -n "$version" ]]; then
-                    echo "{\"image\": \"$component\", \"version\": \"${version}\", \"context\": \"$dir\"}"
-                  fi
+                # 解析镜像信息
+                if [[ "$image_path" == *"agent"* ]]; then
+                  # 处理 agent 镜像
+                  component=$(echo "$image_path" | awk -F'/' '{print $1}')
+                  agent_version=$(echo "$image_path" | awk -F'/' '{print $3}')
+                  image_name="${component}-agent"
+                  version="$agent_version"
+                else
+                  # 处理主镜像
+                  component=$(echo "$image_path" | awk -F'/' '{print $1}')
+                  version=$(echo "$image_path" | awk -F'/' '{print $2}')
+                  image_name="$component"
                 fi
+                
+                # 添加到构建列表
+                build_list+=("$image_path|$image_name|$version")
               fi
-            done | sort | uniq | jq -sc .)"
+            done
             
-            echo "Image directories to build:"
-            echo "$image_dirs_json"
-            echo "image_dirs=$image_dirs_json" >> $GITHUB_OUTPUT
+            # 转换为 JSON 格式
+            if [ ${#build_list[@]} -gt 0 ]; then
+              echo "Images to build:"
+              for item in "${build_list[@]}"; do
+                echo "  - $item"
+              done
+              
+              # 生成 JSON
+              json_array="["
+              for i in "${!build_list[@]}"; do
+                if [ $i -gt 0 ]; then
+                  json_array+=","
+                fi
+                item="${build_list[$i]}"
+                context=$(echo "$item" | cut -d'|' -f1)
+                name=$(echo "$item" | cut -d'|' -f2)
+                version=$(echo "$item" | cut -d'|' -f3)
+                json_array+="{\"context\":\"$context\",\"name\":\"$name\",\"version\":\"$version\"}"
+              done
+              json_array+="]"
+              
+              images_to_build="$json_array"
+              echo "has_changes=true" >> $GITHUB_OUTPUT
+            else
+              echo "No image directories affected by changes"
+              echo "has_changes=false" >> $GITHUB_OUTPUT
+            fi
           else
-            echo "image_dirs=[]" >> $GITHUB_OUTPUT
+            echo "No relevant files changed"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
           fi
+          
+          echo "images_to_build=$images_to_build" >> $GITHUB_OUTPUT
+          echo "Final images to build: $images_to_build"
 
-  release-images:
-    needs: determine-images
-    if: needs.determine-images.outputs.has_changes == 'true'
+  build-images:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_changes == 'true'
     permissions:
       contents: write
     runs-on: ubuntu-latest
     strategy:
-        max-parallel: 3
-        matrix:
-          chart_dir: ${{ fromJson(needs.determine-images.outputs.image_dirs) }}
+      max-parallel: 3
+      matrix:
+        image: ${{ fromJson(needs.detect-changes.outputs.images_to_build) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -95,11 +147,46 @@ jobs:
           username: ${{ secrets.QUAYIO_USERNAME }}
           password: ${{ secrets.QUAYIO_TOKEN }}
 
-      - name: Build and push
+      - name: Extract metadata
+        id: meta
+        run: |
+          # 提取镜像元数据
+          echo "component=${{ matrix.image.name }}" >> $GITHUB_OUTPUT
+          echo "version=${{ matrix.image.version }}" >> $GITHUB_OUTPUT
+          echo "context=${{ matrix.image.context }}" >> $GITHUB_OUTPUT
+
+      - name: Build and push image
+        id: build
         uses: docker/build-push-action@v5
         with:
-          context: ${{ matrix.chart_dir.context }}
-          platforms: linux/amd64
+          context: ${{ matrix.image.context }}
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            quay.io/upmio/${{ matrix.chart_dir.image }}:${{ matrix.chart_dir.version }}
+            quay.io/upmio/${{ matrix.image.name }}:${{ matrix.image.version }}
+          labels: |
+            org.opencontainers.image.title=${{ matrix.image.name }}
+            org.opencontainers.image.version=${{ matrix.image.version }}
+            org.opencontainers.image.created=${{ github.event.created_at }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+
+      - name: Image digest
+        run: |
+          echo "Image built successfully!"
+          echo "Component: ${{ steps.meta.outputs.component }}"
+          echo "Version: ${{ steps.meta.outputs.version }}"
+          echo "Context: ${{ steps.meta.outputs.context }}"
+          echo "Digest: ${{ steps.build.outputs.digest }}"
+
+  # 可选：构建失败时的通知
+  notify-failure:
+    needs: [detect-changes, build-images]
+    if: failure() && needs.detect-changes.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify failure
+        run: |
+          echo "❌ Image build failed!"
+          echo "Please check the build logs for details."
+          echo "Failed images: ${{ needs.detect-changes.outputs.images_to_build }}"
