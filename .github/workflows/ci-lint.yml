@@ -32,6 +32,10 @@ jobs:
           sudo chmod +x /usr/local/bin/shfmt
           shfmt -version
 
+      - name: Auto format shell scripts (shfmt -i 2 -w)
+        run: |
+          shfmt -i 2 -w .
+
       - name: Run project lint suite
         run: |
           chmod +x scripts/lint.sh
