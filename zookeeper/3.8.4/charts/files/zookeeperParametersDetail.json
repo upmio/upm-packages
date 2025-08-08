@@ -1,0 +1,79 @@
+[
+  {
+    "key": "tick_time",
+    "scope": "Global",
+    "section": "zookeeper",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1 - ",
+    "default": "2000",
+    "desc_en": "The length of a tick in milliseconds, which is the basic time unit used by ZooKeeper. It is used to regulate heartbeats, and timeouts.",
+    "desc_zh": "心跳的持续时间（毫秒），是ZooKeeper使用的基本时间单位。用于调节心跳和超时。"
+  },
+  {
+    "key": "init_limit",
+    "scope": "Global",
+    "section": "zookeeper",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1 - ",
+    "default": "10",
+    "desc_en": "The maximum time, in ticks, that the leader allows the followers to connect and sync. If followers do not connect within this time, they are dropped.",
+    "desc_zh": "领导者允许跟随者连接和同步的最大时间（以tick为单位）。如果跟随者在此时间内未连接，它们将被丢弃。"
+  },
+  {
+    "key": "sync_limit",
+    "scope": "Global",
+    "section": "zookeeper",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1 - ",
+    "default": "5",
+    "desc_en": "The maximum time, in ticks, that a follower is allowed to be out of sync with the leader. If a follower falls behind by more than this, it will be dropped.",
+    "desc_zh": "跟随者允许与领导者不同步的最大时间（以tick为单位）。如果跟随者落后超过此值，它将被丢弃。"
+  },
+  {
+    "key": "autopurge_snap_retain_count",
+    "scope": "Global",
+    "section": "zookeeper",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1 - ",
+    "default": "30",
+    "desc_en": "The number of recent snapshots of the database to retain. When enabled, ZooKeeper will automatically purge the snapshots and corresponding transaction logs.",
+    "desc_zh": "要保留的数据库最近快照的数量。启用后，ZooKeeper将自动清除快照和相应的事务日志。"
+  },
+  {
+    "key": "autopurge_purge_interval",
+    "scope": "Global",
+    "section": "zookeeper",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1 - ",
+    "default": "24",
+    "desc_en": "The time interval in hours for which the purge task has to be triggered. Set to a positive integer (1 and above) to enable the auto purging.",
+    "desc_zh": "触发清除任务的时间间隔（小时）。设置为正整数（1及以上）以启用自动清除。"
+  },
+  {
+    "key": "max_client_cnxns",
+    "scope": "Global",
+    "section": "zookeeper",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "0 - ",
+    "default": "300",
+    "desc_en": "The maximum number of client connections. Set to 0 to disable this limit.",
+    "desc_zh": "最大客户端连接数。设置为0以禁用此限制。"
+  },
+  {
+    "key": "max_session_timeout",
+    "scope": "Global",
+    "section": "zookeeper",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "0 - ",
+    "default": "180000",
+    "desc_en": "The maximum session timeout in milliseconds that the server will allow the client to negotiate. Defaults to 20 times the tickTime.",
+    "desc_zh": "服务器允许客户端协商的最大会话超时时间（毫秒）。默认为tickTime的20倍。"
+  }
+]

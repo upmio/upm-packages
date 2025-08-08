@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-pod-template
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    upm.io/owner: upm
+    type: zookeeper
+    version: {{ .Chart.AppVersion | quote }}
+data:
+  pod-template.yaml: |
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+        version: {{ .Chart.AppVersion }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: {{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: SERVICE_NAME
+          value: {{ .Chart.Name }}
+        - name: UNIT_SN
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['unit-sn']
+        - name: DATA_MOUNT
+          value: /data
+        - name: LOG_MOUNT
+          value: /log
+        - name: ZOO_DATA_DIR
+          value: /data/zookeeper
+        - name: ZOO_DATA_LOG_DIR
+          value: /data/zookeeper-log
+        - name: ZOO_LOG_DIR
+          value: /log/zookeeper
+        ports:
+        - containerPort: 2181
+          name: client
+        - containerPort: 2888
+          name: transport
+        - containerPort: 3888
+          name: leadership
+        - containerPort: 7000
+          name: metrics
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        - name: log
+          mountPath: /log
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ .Chart.Name }}-data
+      - name: log
+        persistentVolumeClaim:
+          claimName: {{ .Chart.Name }}-log

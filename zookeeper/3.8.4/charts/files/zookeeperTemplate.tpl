@@ -1,0 +1,21 @@
+dataLogDir={{ getenv "ZOO_DATA_LOG_DIR" }}
+dataDir={{ getenv "ZOO_DATA_DIR" }}
+tickTime={{ getv "/defaults/tick_time" }}
+initLimit={{ getv "/defaults/init_limit" }}
+syncLimit={{ getv "/defaults/sync_limit" }}
+autopurge.snapRetainCount={{ getv "/defaults/autopurge_snap_retain_count" }}
+autopurge.purgeInterval={{ getv "/defaults/autopurge_purge_interval" }}
+maxClientCnxns={{ getv "/defaults/max_client_cnxns" }}
+maxSessionTimeout={{ getv "/defaults/max_session_timeout" }}
+clientPort={{getv "/zookeeper_zookeeper_port"}}
+{{- $service_name := index (jsonArray (getv "/service_zookeeper_array")) 0  }}
+{{- $zookeeper_clone_member_list := printf "/%s_zookeeper_clone_member_list" $service_name }}
+{{ $data := jsonArray (getv $zookeeper_clone_member_list) }}
+{{ range $key, $val := $data -}}
+server.{{add $key 1}}={{$val}}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}:{{getv "/zookeeper_transport_port"}}:{{getv "/zookeeper_leadership_port"}}
+{{end}}
+admin.enableServer=false
+metricsProvider.className=org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider
+metricsProvider.exportJvmInfo=true
+metricsProvider.httpPort={{ getv "/zookeeper_exporter_port" }}
+4lw.commands.whitelist=stat, ruok, conf, isro, dump, mntr
