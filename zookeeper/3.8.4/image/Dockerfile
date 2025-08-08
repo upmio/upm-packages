@@ -1,23 +1,32 @@
 FROM rockylinux/rockylinux:9.5.20241118
 
-# set timezone
-ENV TZ=Asia/Shanghai
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
-  && echo "$TZ" > /etc/timezone
-
 # install common tools
 RUN set -eux; \
   dnf install -y \
     procps-ng \
-    nmap-ncat \
     bzip2 \
     openssl \
     xz \
     zstd \
     net-tools \
+    hostname \
     telnet \
     wget \
+    glibc-common \
     epel-release
+# generate en_US.UTF-8
+RUN dnf install -y glibc-langpack-en glibc-locale-source \
+  && localedef -i en_US -f UTF-8 en_US.UTF-8
+
+# set timezone
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+  && echo "$TZ" > /etc/timezone
+
+# set default locale
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 
 RUN set -eux; \
   dnf install -y supervisor; \
@@ -29,12 +38,12 @@ All of these kinds of services are used in some form or another by distributed a
   UNIT_APP_VERSION="3.8.4"
 
 LABEL summary="${SUMMARY}" \
-      description="${DESCRIPTION}" \
-      io.k8s.description="${DESCRIPTION}" \
-      io.k8s.display-name="zookeeper ${UNIT_APP_VERSION}" \
-      name="UPM/zookeeper" \
-      version="${UNIT_APP_VERSION}" \
-      maintainer="upmio"
+  description="${DESCRIPTION}" \
+  io.k8s.description="${DESCRIPTION}" \
+  io.k8s.display-name="zookeeper ${UNIT_APP_VERSION}" \
+  type="zookeeper" \
+  version="${UNIT_APP_VERSION}" \
+  maintainer="upm"
 
 RUN set -eux; \
   groupadd --system --gid 1001 "zookeeper"; \
@@ -53,7 +62,7 @@ ARG GPG_KEY=AF3D175EC05DB249738D01AC8D8C3C3ED0B02E66
 ARG SHORT_DISTRO_NAME=zookeeper-${UNIT_APP_VERSION}
 ARG DISTRO_NAME=apache-zookeeper-${UNIT_APP_VERSION}-bin
 RUN set -eux; \
-    ddist() { \
+    dist() { \
         local f="$1"; shift; \
         local distFile="$1"; shift; \
         local success=; \
@@ -71,8 +80,8 @@ RUN set -eux; \
         done; \
         [ -n "$success" ]; \
     }; \
-    ddist "$DISTRO_NAME.tar.gz" "zookeeper/$SHORT_DISTRO_NAME/$DISTRO_NAME.tar.gz"; \
-    ddist "$DISTRO_NAME.tar.gz.asc" "zookeeper/$SHORT_DISTRO_NAME/$DISTRO_NAME.tar.gz.asc"; \
+    dist "$DISTRO_NAME.tar.gz" "zookeeper/$SHORT_DISTRO_NAME/$DISTRO_NAME.tar.gz"; \
+    dist "$DISTRO_NAME.tar.gz.asc" "zookeeper/$SHORT_DISTRO_NAME/$DISTRO_NAME.tar.gz.asc"; \
     export GNUPGHOME="$(mktemp -d)"; \
     gpg --keyserver hkps://keyserver.pgp.com --recv-key "$GPG_KEY" || \
     gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys "$GPG_KEY" || \
@@ -80,7 +89,7 @@ RUN set -eux; \
     gpg --batch --verify "$DISTRO_NAME.tar.gz.asc" "$DISTRO_NAME.tar.gz"; \
     tar -zxf "$DISTRO_NAME.tar.gz"; \
     rm -rf "$GNUPGHOME" "$DISTRO_NAME.tar.gz" "$DISTRO_NAME.tar.gz.asc"; \
-    chown -R zookeeper:zookeeper "/$DISTRO_NAME"
+    chown -R 1001:1001 "/$DISTRO_NAME"
 
 ENV PATH=$PATH:/$DISTRO_NAME/bin
 
