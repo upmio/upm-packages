@@ -298,6 +298,13 @@ helm template test-release 8.4.5/charts/
 
 ```
 mysql-community/
+├── agent/              # MySQL Agent - Sidecar container for MySQL operations
+│   ├── 8.0/           # MySQL 8.0 series agent
+│   │   └── image/
+│   │       └── Dockerfile
+│   └── 8.4/           # MySQL 8.4 series agent
+│       └── image/
+│           └── Dockerfile
 ├── 8.0.40/
 │   ├── image/          # Docker build context
 │   │   ├── Dockerfile
@@ -313,6 +320,23 @@ mysql-community/
 ├── 8.4.4/
 └── 8.4.5/            # Latest version
 ```
+
+### MySQL Agent
+
+The MySQL Community component includes a specialized agent that runs as a sidecar container to provide MySQL-specific operations and monitoring capabilities. The agent is based on `unit-agent` and includes MySQL运维工具 for database management tasks.
+
+**Agent Features:**
+- **Backup and Recovery**: Percona XtraBackup integration for hot backups
+- **Monitoring**: MySQL performance metrics and health monitoring
+- **Maintenance**: Database optimization and maintenance tasks
+- **Replication Management**: Replication monitoring and failover support
+- **Security**: Security auditing and compliance checking
+
+**Agent Version Compatibility:**
+- `agent/8.0/` - Compatible with MySQL 8.0.x series
+- `agent/8.4/` - Compatible with MySQL 8.4.x series
+
+See [agent/README.md](agent/README.md) for detailed agent documentation.
 
 ## Integration
 
