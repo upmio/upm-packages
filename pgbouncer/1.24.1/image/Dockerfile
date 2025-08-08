@@ -102,7 +102,7 @@ RUN chown -R "1001:1001" "${PGBOUNCER_BASE_DIR}"
 ENV PATH=$PATH:${PGBOUNCER_BASE_DIR}/bin
 
 COPY service-ctl.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/service-ctl.sh
+RUN chown 1001:1001 /usr/local/bin/service-ctl.sh && chmod +x /usr/local/bin/service-ctl.sh
 
 COPY supervisord.conf /etc/supervisord.conf
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
