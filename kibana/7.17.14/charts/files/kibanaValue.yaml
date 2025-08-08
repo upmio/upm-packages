@@ -1,3 +1,4 @@
+---
 defaults:
   i18n_locale: "en"
   encryption_key: "33f284458ea2078ffb14e985e789b3f2"

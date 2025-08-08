@@ -1,3 +1,4 @@
+---
 defaults:
   default_replication_factor: "3"
   min_insync_replicas: "2"

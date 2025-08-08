@@ -1,3 +1,4 @@
+---
 pgbouncer:
   pool_mode: "transaction"
   min_pool_size: "0"

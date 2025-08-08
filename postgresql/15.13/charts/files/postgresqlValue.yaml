@@ -1,3 +1,4 @@
+---
 postgresql:
   idle_in_transaction_session_timeout: "300000"
   statement_timeout: "60000"

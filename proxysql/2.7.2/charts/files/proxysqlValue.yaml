@@ -1,3 +1,4 @@
+---
 general:
   restart_on_missing_heartbeats: "0"
 admin:

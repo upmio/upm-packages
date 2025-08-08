@@ -1,3 +1,4 @@
+---
 apiVersion: v2
 appVersion: "15.13"
 dependencies:
@@ -8,7 +9,7 @@ dependencies:
     version: 2.x.x
 name: postgresql-15.13
 version: 1.0.0
-description:  PostgreSQL software packages, including configuration templates and pod templates.
+description: PostgreSQL software packages, including configuration templates and pod templates.
 type: application
 keywords:
   - postgresql
