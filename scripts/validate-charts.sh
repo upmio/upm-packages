@@ -128,7 +128,16 @@ validate_chart_naming() {
         local chart_name
         chart_name=$(grep "^name:" "$chart_file" | sed 's/name: //')
         local expected_name
-        expected_name=${component//-/_}
+        # Handle component naming with version (e.g., mysql-community-8.4.5)
+        if [[ "$component" == *-* ]]; then
+            expected_name=${component//-/_}
+        else
+            # For version-only directories, expect the component name
+            local parent_dir
+            parent_dir=$(dirname "$chart_dir")
+            parent_dir=$(basename "$parent_dir")
+            expected_name=${parent_dir//-/_}_${component}
+        fi
         
         if [ "$chart_name" = "$expected_name" ]; then
             validation_passed "Chart naming consistency: $chart_dir"
