@@ -3,6 +3,7 @@
 set -o nounset
 set -o errexit
 set -o pipefail
+umask 027
 
 # ##############################################################################
 # Global Constants and Configuration
@@ -256,25 +257,20 @@ main() {
   esac
 }
 
-# ##############################################################################
-# Environment Validation
-# ##############################################################################
-[[ -n "${DATA_MOUNT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env DATA_MOUNT failed !"
-[[ -d ${DATA_MOUNT} ]] || die "${EXIT_DIR_NOT_FOUND}" "Globals" "Not found DATA_MOUNT !"
-readonly INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"
+validate_environment() {
+  local func_name="validate_environment"
+  [[ -n "${DATA_MOUNT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env DATA_MOUNT failed !"
+  [[ -d ${DATA_MOUNT} ]] || die "${EXIT_DIR_NOT_FOUND}" "${func_name}" "Not found DATA_MOUNT !"
+  [[ -n "${DATA_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env DATA_DIR failed !"
+  [[ -n "${CONF_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env CONF_DIR failed !"
+  [[ -n "${LOG_MOUNT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env LOG_MOUNT failed !"
+  [[ -d ${LOG_MOUNT} ]] || die "${EXIT_DIR_NOT_FOUND}" "${func_name}" "Not found LOG_MOUNT !"
+  [[ -n "${PGBOUNCER_PORT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env PGBOUNCER_PORT failed !"
+  [[ -n "${POSTGRESQL_SERVICE_NAME:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env POSTGRESQL_SERVICE_NAME failed !"
+  [[ -n "${POSTGRESQL_PORT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env POSTGRESQL_PORT failed !"
+  readonly INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"
+  readonly FORCE_CLEAN="${FORCE_CLEAN:-false}"
+}
 
-[[ -n "${DATA_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env DATA_DIR failed !"
-[[ -n "${CONF_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env CONF_DIR failed !"
-[[ -n "${LOG_MOUNT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env LOG_MOUNT failed !"
-[[ -d ${LOG_MOUNT} ]] || die "${EXIT_DIR_NOT_FOUND}" "Globals" "Not found LOG_MOUNT !"
-
-[[ -n "${PGBOUNCER_PORT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env PGBOUNCER_PORT failed !"
-[[ -n "${POSTGRESQL_SERVICE_NAME:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env POSTGRESQL_SERVICE_NAME failed !"
-[[ -n "${POSTGRESQL_PORT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env POSTGRESQL_PORT failed !"
-
-readonly FORCE_CLEAN="${FORCE_CLEAN:-false}"
-
-# ##############################################################################
-# Main Execution
-# ##############################################################################
-main "${@:-""}"
+validate_environment
+main "$@"

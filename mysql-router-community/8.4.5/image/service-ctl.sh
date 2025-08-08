@@ -3,6 +3,7 @@
 set -o nounset
 set -o errexit
 set -o pipefail
+umask 027
 
 # ##############################################################################
 # Global Constants and Configuration
@@ -286,7 +287,6 @@ check_health() {
 main() {
   local func_name="main"
   local action="${1:-}"
-  shift 2>/dev/null || true
 
   case "${action}" in
   "initialize")
@@ -328,4 +328,4 @@ validate_environment() {
 # Main Entry Point
 # ##############################################################################
 validate_environment
-main "${@:-}"
+main "$@"
