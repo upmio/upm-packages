@@ -435,16 +435,19 @@ lint_documentation() {
 run_all_lints() {
   log_info "Running all lints..."
 
-  lint_shfmt
-  lint_file_permissions
-  lint_file_naming
-  lint_code_style
-  lint_documentation
-  lint_shell_scripts
-  lint_yaml_files
-  lint_json_files
-  lint_dockerfiles
-  lint_helm_charts
+  local rc=0
+  lint_shfmt || rc=1
+  lint_file_permissions || rc=1
+  lint_file_naming || rc=1
+  lint_code_style || rc=1
+  lint_documentation || rc=1
+  lint_shell_scripts || rc=1
+  lint_yaml_files || rc=1
+  lint_json_files || rc=1
+  lint_dockerfiles || rc=1
+  lint_helm_charts || rc=1
+
+  return $rc
 }
 
 # Print lint summary
@@ -494,7 +497,8 @@ main() {
     install_dependencies
   fi
 
-  run_all_lints
+  # Run all lints but don't let set -e exit early; summary will set final code
+  run_all_lints || true
   print_summary
   exit $?
 }
