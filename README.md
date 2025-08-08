@@ -20,7 +20,7 @@ UPM Packages is a comprehensive, production-ready containerization and Kubernete
 
 ### 🎯 Key Capabilities
 
-- **🔄 Unified Management**: Single command deployment across 10+ component types
+- **🔄 Unified Management**: Single command deployment across 11+ component types
 - **🏛️ Enterprise Architecture**: Consistent patterns, security-hardened containers, production-optimized configurations
 - **📊 Template System**: Sophisticated Go template engine with dynamic configuration generation
 - **🔒 Security First**: Non-root containers, encrypted credentials, process isolation
@@ -33,6 +33,7 @@ UPM Packages is a comprehensive, production-ready containerization and Kubernete
 - **Connection Pooling**: PgBouncer, ProxySQL, MySQL Router for high-performance access
 - **Search Platforms**: Elasticsearch, Kibana for log analytics
 - **Message Queues**: Kafka for event-driven architectures
+- **Coordination Services**: ZooKeeper for distributed system coordination
 - **Monitoring**: Database agents with comprehensive metrics collection
 
 ## Quick Start
@@ -190,12 +191,18 @@ Every component follows the same enterprise-grade structure:
 |-----------|----------|-------------|--------|
 | **Kafka** | 3.5.2 | Distributed event streaming platform | ✅ Stable |
 
+### 🔄 Coordination & Distributed Systems
+
+| Component | Versions | Description | Status |
+|-----------|----------|-------------|--------|
+| **ZooKeeper** | 3.8.4 | Distributed coordination service | ✅ Stable |
+
 ### 📊 Monitoring Agents
 
 | Component | Versions | Description | Status |
 |-----------|----------|-------------|--------|
 | **MySQL Community Agent** | 8.0, 8.4 | MySQL monitoring and metrics collection | ✅ Stable |
-| **PostgreSQL Agent** | 15.12 | PostgreSQL monitoring and performance metrics | ✅ Stable |
+| **PostgreSQL Agent** | 15 | PostgreSQL monitoring and performance metrics | ✅ Stable |
 
 ## Development
 
