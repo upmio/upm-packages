@@ -385,7 +385,7 @@ lint_code_style() {
 
   # Check for proper error handling in shell scripts
   for script in $shell_scripts; do
-    if grep -q "set -euo pipefail" "$script" || \
+    if grep -q "set -euo pipefail" "$script" ||
       (grep -q "set -o errexit" "$script" && grep -q "set -o nounset" "$script" && grep -q "set -o pipefail" "$script"); then
       lint_passed "Shell script error handling: $script"
     else
