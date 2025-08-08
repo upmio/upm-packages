@@ -366,17 +366,22 @@ lint_file_naming() {
   for chart_file in $chart_yaml_files; do
     local chart_dir
     chart_dir=$(dirname "$chart_file")
-    local component
-    component=$(echo "$chart_dir" | awk -F'/' '{print $(NF-1)}')
+    # Build expected name based on path segments before /charts
+    # Example: ./mysql-community/8.0.40/charts -> expected mysql-community-8.0.40
+    local rel_path
+    rel_path=$(echo "$chart_dir" | sed 's#^\./##' | sed 's#/charts$##')
+    local expected_name
+    expected_name=$(echo "$rel_path" | tr '/' '-')
+    local top_component
+    top_component=$(echo "$rel_path" | cut -d'/' -f1)
+
     local chart_name
     chart_name=$(grep "^name:" "$chart_file" | sed 's/name: //')
-    local expected_name
-    expected_name=${component//-/_}
 
-    if [ "$chart_name" = "$expected_name" ]; then
+    if [ "$chart_name" = "$expected_name" ] || [ "$chart_name" = "$top_component" ]; then
       lint_passed "Chart naming convention: $chart_file"
     else
-      lint_failed "Chart naming convention: $chart_file (expected: $expected_name, got: $chart_name)"
+      lint_failed "Chart naming convention: $chart_file (expected one of: $expected_name or $top_component, got: $chart_name)"
       naming_failed=1
     fi
   done
