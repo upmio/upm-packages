@@ -206,7 +206,10 @@ lint_yaml_files() {
 
   # Find all YAML files
   local yaml_files
-  yaml_files=$(find . -name "*.yaml" -o -name "*.yml" -type f | grep -v ".git")
+  # Exclude Helm chart templates: any YAML under charts/**/templates/**
+  yaml_files=$(find . -type f \( -name "*.yaml" -o -name "*.yml" \) \
+    | grep -v ".git" \
+    | grep -vE "/charts/.*/templates/")
 
   if [ -z "$yaml_files" ]; then
     log_warning "No YAML files found"
@@ -221,6 +224,8 @@ lint_yaml_files() {
 
   local yaml_failed=0
   for yaml_file in $yaml_files; do
+  # Safety check (skip empty entries)
+  [ -n "$yaml_file" ] || continue
     if run_lint "YAML file: $yaml_file" "yamllint \"$yaml_file\""; then
       continue
     else
