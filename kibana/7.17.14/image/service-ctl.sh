@@ -227,7 +227,7 @@ initialize() {
   fi
 
   # Validate and configure memory settings
-  [[ -v KBN_MEMORY_LIMIT ]] || {
+  [[ -n "${KBN_MEMORY_LIMIT:-}" ]] || {
     die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env KBN_MEMORY_LIMIT failed !"
   }
   [[ ${KBN_MEMORY_LIMIT} -gt 0 ]] || {

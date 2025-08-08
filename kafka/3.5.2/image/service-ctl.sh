@@ -122,7 +122,7 @@ initialize() {
   fi
 
   # Validate and configure memory settings
-  [[ -v KAFKA_MEMORY_LIMIT ]] || {
+  [[ -n "${KAFKA_MEMORY_LIMIT:-}" ]] || {
     die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env KAFKA_MEMORY_LIMIT failed !"
   }
   [[ ${KAFKA_MEMORY_LIMIT} -gt 0 ]] || {

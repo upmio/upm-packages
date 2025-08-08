@@ -259,18 +259,18 @@ main() {
 # ##############################################################################
 # Environment Validation
 # ##############################################################################
-[[ -v DATA_MOUNT ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env DATA_MOUNT failed !"
+[[ -n "${DATA_MOUNT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env DATA_MOUNT failed !"
 [[ -d ${DATA_MOUNT} ]] || die "${EXIT_DIR_NOT_FOUND}" "Globals" "Not found DATA_MOUNT !"
 readonly INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"
 
-[[ -v DATA_DIR ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env DATA_DIR failed !"
-[[ -v CONF_DIR ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env CONF_DIR failed !"
-[[ -v LOG_MOUNT ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env LOG_MOUNT failed !"
+[[ -n "${DATA_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env DATA_DIR failed !"
+[[ -n "${CONF_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env CONF_DIR failed !"
+[[ -n "${LOG_MOUNT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env LOG_MOUNT failed !"
 [[ -d ${LOG_MOUNT} ]] || die "${EXIT_DIR_NOT_FOUND}" "Globals" "Not found LOG_MOUNT !"
 
-[[ -v PGBOUNCER_PORT ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env PGBOUNCER_PORT failed !"
-[[ -v POSTGRESQL_SERVICE_NAME ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env POSTGRESQL_SERVICE_NAME failed !"
-[[ -v POSTGRESQL_PORT ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env POSTGRESQL_PORT failed !"
+[[ -n "${PGBOUNCER_PORT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env PGBOUNCER_PORT failed !"
+[[ -n "${POSTGRESQL_SERVICE_NAME:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env POSTGRESQL_SERVICE_NAME failed !"
+[[ -n "${POSTGRESQL_PORT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "Globals" "get env POSTGRESQL_PORT failed !"
 
 readonly FORCE_CLEAN="${FORCE_CLEAN:-false}"
 
