@@ -145,7 +145,7 @@ Every component follows the same enterprise-grade structure:
 <component>/<version>/
 ├── image/                    # Docker build context
 │   ├── Dockerfile           # Multi-architecture build
-│   ├── serverMGR.sh        # Container management & health monitoring
+│   ├── service-ctl.sh      # Container management & health monitoring
 │   └── supervisord.conf    # Process supervisor configuration
 └── charts/                  # Helm chart files
     ├── Chart.yaml          # Chart metadata (version: 1.0.0)
@@ -232,7 +232,7 @@ helm install --dry-run --debug test-release mysql-community/8.4.5/charts/
 # Validate specific component
 helm lint mysql-community/8.4.5/charts/
 yamllint mysql-community/8.4.5/charts/values.yaml
-shellcheck mysql-community/8.4.5/image/serverMGR.sh
+shellcheck mysql-community/8.4.5/image/service-ctl.sh
 ```
 
 ### 📝 Adding New Components

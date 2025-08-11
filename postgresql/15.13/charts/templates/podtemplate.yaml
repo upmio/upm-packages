@@ -37,7 +37,7 @@ template:
         command:
           - "bash"
           - "-c"
-          - "serverMGR.sh initialize"
+          - "service-ctl.sh initialize"
         env:
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"

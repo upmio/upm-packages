@@ -1,0 +1,27 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+        files: '\.(sh)$'
+  - repo: https://github.com/mvdan/sh
+    rev: v3.9.0
+    hooks:
+      - id: shfmt
+        args: ['-i', '2', '-s']
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+  - repo: https://github.com/norwoodj/helm-docs
+    rev: v1.13.1
+    hooks:
+      - id: helm-docs
+        files: 'charts/.+'

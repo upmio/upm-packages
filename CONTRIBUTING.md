@@ -50,7 +50,7 @@ Thank you for your interest in contributing to UPM Packages! This document provi
    <component>/<version>/
    ├── image/
    │   ├── Dockerfile
-   │   ├── serverMGR.sh
+   │   ├── service-ctl.sh
    │   └── supervisord.conf
    └── charts/
        ├── Chart.yaml
@@ -64,7 +64,7 @@ Thank you for your interest in contributing to UPM Packages! This document provi
    ```
 
 2. **Follow naming conventions**
-   - Chart names: Use underscores instead of hyphens (e.g., `mysql_community`)
+   - Chart names: Use hyphens and include version (e.g., `mysql-community-8.4.5`)
    - Version directories: Use semantic versioning (e.g., `8.4.5`)
    - Template files: Use camelCase for Go template functions
 
