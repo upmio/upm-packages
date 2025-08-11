@@ -217,7 +217,7 @@ install_pinned_shfmt() {
     return 0
   fi
 
-  url="https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/shfmt_${os}_${arch}"
+  url="https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/shfmt_${SHFMT_VERSION}_${os}_${arch}"
   target="/usr/local/bin/shfmt"
   if [ -w "$(dirname "$target")" ]; then
     curl -fsSL "$url" -o "$target" && chmod +x "$target" || true
