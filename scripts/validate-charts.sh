@@ -70,10 +70,12 @@ validate_chart_structure() {
 
   # Find all chart directories
   local chart_dirs
-  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; 2>&1 | grep -v ".git" || true)
+  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; 2>/dev/null | grep -v ".git" || true)
 
   if [ -z "$chart_dirs" ]; then
     log_error "No Helm charts found"
+    log_error "Searched in directory: $(pwd)"
+    log_error "Contents: $(ls -la 2>&1 | head -5 || echo 'Unable to list directory')"
     return 1
   fi
 
@@ -112,7 +114,7 @@ validate_chart_naming() {
 
   # Find all chart directories
   local chart_dirs
-  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; | grep -v ".git")
+  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; 2>/dev/null | grep -v ".git" || true)
 
   if [ -z "$chart_dirs" ]; then
     log_error "No Helm charts found"
@@ -147,7 +149,7 @@ validate_duplicate_versions() {
 
   # Find all chart directories
   local chart_dirs
-  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; | grep -v ".git")
+  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; 2>/dev/null | grep -v ".git" || true)
 
   if [ -z "$chart_dirs" ]; then
     log_error "No Helm charts found"
@@ -179,7 +181,7 @@ validate_chart_yaml_completeness() {
 
   # Find all chart directories
   local chart_dirs
-  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; | grep -v ".git")
+  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; 2>/dev/null | grep -v ".git" || true)
 
   if [ -z "$chart_dirs" ]; then
     log_error "No Helm charts found"
@@ -226,7 +228,7 @@ validate_chart_lint() {
 
   # Find all chart directories
   local chart_dirs
-  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; | grep -v ".git")
+  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; 2>/dev/null | grep -v ".git" || true)
 
   if [ -z "$chart_dirs" ]; then
     log_error "No Helm charts found"
@@ -252,7 +254,7 @@ validate_chart_dependencies() {
 
   # Find all chart directories
   local chart_dirs
-  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; | grep -v ".git")
+  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; 2>/dev/null | grep -v ".git" || true)
 
   if [ -z "$chart_dirs" ]; then
     log_error "No Helm charts found"
@@ -295,7 +297,7 @@ validate_chart_values() {
 
   # Find all chart directories
   local chart_dirs
-  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; | grep -v ".git")
+  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; 2>/dev/null | grep -v ".git" || true)
 
   if [ -z "$chart_dirs" ]; then
     log_error "No Helm charts found"
@@ -329,7 +331,7 @@ validate_chart_templates() {
 
   # Find all chart directories
   local chart_dirs
-  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; | grep -v ".git")
+  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; 2>/dev/null | grep -v ".git" || true)
 
   if [ -z "$chart_dirs" ]; then
     log_error "No Helm charts found"
@@ -370,7 +372,7 @@ validate_chart_files() {
 
   # Find all chart directories
   local chart_dirs
-  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; | grep -v ".git")
+  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; 2>/dev/null | grep -v ".git" || true)
 
   if [ -z "$chart_dirs" ]; then
     log_error "No Helm charts found"
