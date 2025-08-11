@@ -63,10 +63,10 @@ RUN set -eux; \
   dnf clean all
 
 # Download Apache Zookeeper, verify its PGP signature, untar and clean up
-ARG GPG_KEY=AF3D175EC05DB249738D01AC8D8C3C3ED0B02E66
 ARG SHORT_DISTRO_NAME=zookeeper-${UNIT_APP_VERSION}
 ARG DISTRO_NAME=apache-zookeeper-${UNIT_APP_VERSION}-bin
 RUN set -eux; \
+  GPG_KEY="AF3D175EC05DB249738D01AC8D8C3C3ED0B02E66"; \
   dist() { \
     f="$1"; shift; \
     distFile="$1"; shift; \
