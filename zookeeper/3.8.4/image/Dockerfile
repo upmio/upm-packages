@@ -67,11 +67,11 @@ ARG GPG_KEY=AF3D175EC05DB249738D01AC8D8C3C3ED0B02E66
 ARG SHORT_DISTRO_NAME=zookeeper-${UNIT_APP_VERSION}
 ARG DISTRO_NAME=apache-zookeeper-${UNIT_APP_VERSION}-bin
 RUN set -eux; \
-    dist() { \
-        local f="$1"; shift; \
-        local distFile="$1"; shift; \
-        local success=; \
-        local distUrl=; \
+  dist() { \
+    f="$1"; shift; \
+    distFile="$1"; shift; \
+    success=''; \
+    distUrl=''; \
         for distUrl in \
             'https://www.apache.org/dyn/closer.cgi?action=download&filename=' \
             https://www-us.apache.org/dist/ \
@@ -87,7 +87,7 @@ RUN set -eux; \
     }; \
     dist "$DISTRO_NAME.tar.gz" "zookeeper/$SHORT_DISTRO_NAME/$DISTRO_NAME.tar.gz"; \
     dist "$DISTRO_NAME.tar.gz.asc" "zookeeper/$SHORT_DISTRO_NAME/$DISTRO_NAME.tar.gz.asc"; \
-    export GNUPGHOME="$(mktemp -d)"; \
+    GNUPGHOME="$(mktemp -d)"; export GNUPGHOME; \
     gpg --keyserver hkps://keyserver.pgp.com --recv-key "$GPG_KEY" || \
     gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys "$GPG_KEY" || \
     gpg --keyserver hkps://pgp.mit.edu --recv-keys "$GPG_KEY"; \
