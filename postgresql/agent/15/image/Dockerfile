@@ -42,11 +42,11 @@ ENV PG_MAJOR="15"
 ARG TARGETPLATFORM
 # Download postgresql rpm postgresql-server
 RUN set -ex \
-  && case ${TARGETPLATFORM} in \
+  && case "${TARGETPLATFORM}" in \
        "linux/amd64")  TINI_ARCH=x86_64  ;; \
        "linux/arm64")  TINI_ARCH=aarch64  ;; \
      esac \
-  && dnf --disablerepo=* -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-${TINI_ARCH}/pgdg-redhat-repo-latest.noarch.rpm \
+  && dnf --disablerepo=* -y install "https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-${TINI_ARCH}/pgdg-redhat-repo-latest.noarch.rpm" \
   && dnf -qy module disable postgresql \
   && dnf install -y "postgresql${PG_MAJOR}-server-${PG_VERSION}" \
   && dnf clean all \
