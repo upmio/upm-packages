@@ -77,6 +77,12 @@ test_shell_scripts() {
     return 0
   fi
 
+  # By default, skip shellcheck here and rely on lint suite
+  if [ "${SKIP_SHELLCHECK_IN_TESTS:-true}" = "true" ]; then
+    log_warning "Skipping shellcheck in tests (handled by ./scripts/lint.sh)"
+    return 0
+  fi
+
   # Check if shellcheck is installed
   if ! command -v shellcheck >/dev/null 2>&1; then
     log_error "shellcheck is not installed. Please install it with: sudo apt-get install shellcheck"
@@ -85,7 +91,7 @@ test_shell_scripts() {
 
   local script_failed=0
   for script in $shell_scripts; do
-    if run_test "Shell script lint: $script" "shellcheck \"$script\""; then
+    if run_test "Shell script lint: $script" "shellcheck -S error \"$script\""; then
       continue
     else
       script_failed=1

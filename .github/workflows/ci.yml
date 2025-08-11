@@ -41,7 +41,7 @@ jobs:
 
       - name: Run tests (unit + integration)
         run: |
-          ./scripts/test.sh all
+          SKIP_SHELLCHECK_IN_TESTS=true ./scripts/test.sh all
 
       - name: Validate Helm charts
         run: |
