@@ -106,7 +106,14 @@ test_yaml_files() {
 
   # Find all YAML files
   local yaml_files
-  yaml_files=$(find . -name "*.yaml" -o -name "*.yml" -type f | grep -v ".git")
+  # Exclude Helm chart templates by default as they contain Go templating and are not valid YAML pre-render
+  if [ "${SKIP_TEMPLATES_YAMLLINT:-true}" = "true" ]; then
+    yaml_files=$(find . -type f \( -name "*.yaml" -o -name "*.yml" \) |
+      grep -v ".git" |
+      grep -vE "/charts/(.*/)?templates/")
+  else
+    yaml_files=$(find . -type f \( -name "*.yaml" -o -name "*.yml" \) | grep -v ".git")
+  fi
 
   if [ -z "$yaml_files" ]; then
     log_warning "No YAML files found"
@@ -121,7 +128,16 @@ test_yaml_files() {
 
   local yaml_failed=0
   for yaml_file in $yaml_files; do
-    if run_test "YAML lint: $yaml_file" "yamllint \"$yaml_file\""; then
+    # Relax noisy rules for Chart.yaml similar to lint suite
+    local base
+    base=$(basename "$yaml_file")
+    local cmd
+    if [ "$base" = "Chart.yaml" ]; then
+      cmd="yamllint -d '{extends: default, rules: {document-start: disable, line-length: disable, new-line-at-end-of-file: disable}}' \"$yaml_file\""
+    else
+      cmd="yamllint \"$yaml_file\""
+    fi
+    if run_test "YAML lint: $yaml_file" "$cmd"; then
       continue
     else
       yaml_failed=1
