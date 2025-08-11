@@ -8,25 +8,31 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
   && echo "$TZ" > /etc/timezone
 
 # install common tools
+# install build deps
+# hadolint ignore=DL3041
 RUN set -eux; \
   dnf install -y \
     openssl-devel \
     libevent-devel \
     make \
-    gcc
+    gcc \
+  && dnf clean all
 
-# Download pgbouncer package
+# Download and extract pgbouncer sources
 RUN mkdir -p "${PGBOUNCER_BASE_DIR}" \
-  && curl --retry 10 -S -L --output "/tmp/pgbouncer.tar.gz" https://www.pgbouncer.org/downloads/files/1.23.1/pgbouncer-1.23.1.tar.gz \
-  && tar -zxf /tmp/pgbouncer.tar.gz -C /tmp/ \
-  && cd /tmp/pgbouncer-1.23.1 \
-  && ./configure --prefix="${PGBOUNCER_BASE_DIR}" \
+  && curl --retry 10 -S -L --output "/tmp/pgbouncer.tar.gz" "https://www.pgbouncer.org/downloads/files/1.23.1/pgbouncer-1.23.1.tar.gz" \
+  && tar -zxf /tmp/pgbouncer.tar.gz -C /tmp/
+
+# Build and install pgbouncer
+WORKDIR /tmp/pgbouncer-1.23.1
+RUN ./configure --prefix="${PGBOUNCER_BASE_DIR}" \
   && make \
   && make install
 
 FROM rockylinux/rockylinux:9.5.20241118
 
 # install common tools
+# hadolint ignore=DL3041
 RUN set -eux; \
   dnf install -y \
     procps-ng \
@@ -39,9 +45,11 @@ RUN set -eux; \
     telnet \
     wget \
     glibc-common \
-    epel-release
+    epel-release \
+  && dnf clean all
 # generate en_US.UTF-8
 RUN dnf install -y glibc-langpack-en glibc-locale-source \
+  && dnf clean all \
   && localedef -i en_US -f UTF-8 en_US.UTF-8
 
 # set timezone
@@ -55,8 +63,10 @@ ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
 # install supervisor
+# hadolint ignore=DL3041
 RUN set -eux; \
-  dnf install -y supervisor
+  dnf install -y supervisor \
+  && dnf clean all
 
 # Download PostgreSQL
 ENV UNIT_APP_VERSION="1.23.1"
@@ -82,13 +92,14 @@ RUN set -eux; \
   useradd --system --uid 1001 --gid 1001 -m -c "Default Application User" "pgbouncer"
 
 ARG TARGETPLATFORM
-# Install postgresql client
+# install postgresql client
+# hadolint ignore=DL3041
 RUN set -ex \
-  && case ${TARGETPLATFORM} in \
+  && case "${TARGETPLATFORM}" in \
        "linux/amd64")  TINI_ARCH=x86_64  ;; \
        "linux/arm64")  TINI_ARCH=aarch64  ;; \
      esac \
-  && dnf --disablerepo=* -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-${TINI_ARCH}/pgdg-redhat-repo-latest.noarch.rpm \
+  && dnf --disablerepo=* -y install "https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-${TINI_ARCH}/pgdg-redhat-repo-latest.noarch.rpm" \
   && dnf -qy module disable postgresql \
   && dnf install -y "postgresql${PG_MAJOR}" \
   && dnf clean all \

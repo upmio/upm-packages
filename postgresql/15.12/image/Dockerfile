@@ -1,6 +1,8 @@
 FROM rockylinux/rockylinux:9.5.20241118
+# hadolint global ignore=DL3059
 
 # install common tools
+# hadolint ignore=DL3041
 RUN set -eux; \
   dnf install -y \
     procps-ng \
@@ -13,9 +15,11 @@ RUN set -eux; \
     telnet \
     wget \
     glibc-common \
-    epel-release
+    epel-release \
+  && dnf clean all
 # generate en_US.UTF-8
 RUN dnf install -y glibc-langpack-en glibc-locale-source \
+  && dnf clean all \
   && localedef -i en_US -f UTF-8 en_US.UTF-8
 
 # set timezone
@@ -29,8 +33,10 @@ ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
 # install supervisor
+# hadolint ignore=DL3041
 RUN set -eux; \
-  dnf install -y supervisor
+  dnf install -y supervisor \
+  && dnf clean all
 
 # Download PostgreSQL
 ENV UNIT_APP_VERSION="15.12"
@@ -57,11 +63,11 @@ RUN set -eux; \
 ARG TARGETPLATFORM
 # Download postgresql rpm postgresql-server
 RUN set -ex \
-  && case ${TARGETPLATFORM} in \
+  && case "${TARGETPLATFORM}" in \
        "linux/amd64")  TINI_ARCH=x86_64  ;; \
        "linux/arm64")  TINI_ARCH=aarch64  ;; \
      esac \
-  && dnf --disablerepo=* -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-${TINI_ARCH}/pgdg-redhat-repo-latest.noarch.rpm \
+  && dnf --disablerepo=* -y install "https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-${TINI_ARCH}/pgdg-redhat-repo-latest.noarch.rpm" \
   && dnf -qy module disable postgresql \
   && dnf install -y "postgresql${PG_MAJOR}-server-${UNIT_APP_VERSION}" \
   && dnf clean all \
@@ -70,8 +76,7 @@ RUN set -ex \
 ENV PATH=$PATH:/usr/pgsql-${PG_MAJOR}/bin
 
 COPY service-ctl.sh /usr/local/bin/
-RUN chown 1001:1001 /usr/local/bin/service-ctl.sh
-RUN chmod +x /usr/local/bin/service-ctl.sh
+RUN chown 1001:1001 /usr/local/bin/service-ctl.sh && chmod +x /usr/local/bin/service-ctl.sh
 
 COPY supervisord.conf /etc/supervisord.conf
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]

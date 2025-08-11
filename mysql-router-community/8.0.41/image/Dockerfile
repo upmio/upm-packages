@@ -1,6 +1,7 @@
 FROM rockylinux/rockylinux:9.5.20241118
 
 # install common tools
+# hadolint ignore=DL3041
 RUN set -eux; \
   dnf install -y \
     procps-ng \
@@ -13,9 +14,11 @@ RUN set -eux; \
     telnet \
     wget \
     glibc-common \
-    epel-release
+    epel-release \
+  && dnf clean all
 # generate en_US.UTF-8
 RUN dnf install -y glibc-langpack-en glibc-locale-source \
+  && dnf clean all \
   && localedef -i en_US -f UTF-8 en_US.UTF-8
 
 # set timezone
@@ -29,8 +32,10 @@ ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
 # install supervisor
+# hadolint ignore=DL3041
 RUN set -eux; \
-  dnf install -y supervisor
+  dnf install -y supervisor \
+  && dnf clean all
 
 # Download MySQL
 ENV UNIT_APP_VERSION="8.0.41"

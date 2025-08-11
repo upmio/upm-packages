@@ -6,6 +6,8 @@ RUN set -eux; \
   useradd --system --uid 1001 --gid 1001 -m -c "Default Application User" "postgres"
 
 # install common tools
+# install common tools
+# hadolint ignore=DL3041
 RUN set -eux; \
   dnf install -y \
     procps-ng \
@@ -18,9 +20,11 @@ RUN set -eux; \
     telnet \
     wget \
     glibc-common \
-    epel-release
+    epel-release \
+  && dnf clean all
 # generate en_US.UTF-8
 RUN dnf install -y glibc-langpack-en glibc-locale-source \
+  && dnf clean all \
   && localedef -i en_US -f UTF-8 en_US.UTF-8
 
 # set timezone
