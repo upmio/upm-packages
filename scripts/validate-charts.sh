@@ -327,12 +327,6 @@ validate_chart_values() {
 validate_chart_templates() {
   log_info "Validating chart templates..."
 
-  # Check if yq is installed
-  if ! command -v yq >/dev/null 2>&1; then
-    log_warning "yq is not installed. Skipping template YAML syntax validation."
-    return 0
-  fi
-
   # Find all chart directories
   local chart_dirs
   chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; | grep -v ".git")
@@ -354,16 +348,9 @@ validate_chart_templates() {
       if [ "$yaml_count" -gt 0 ]; then
         validation_passed "Templates exist: $chart_dir"
 
-        # Check template syntax
-        for template_file in "$templates_dir"/*.yaml "$templates_dir"/*.yml; do
-          if [ -f "$template_file" ]; then
-            if run_validation "Template syntax: $template_file" "yq . \"$template_file\" >/dev/null"; then
-              continue
-            else
-              templates_failed=1
-            fi
-          fi
-        done
+        # Note: We cannot validate Helm template syntax with yq because they contain Go template syntax
+        # Instead, we rely on helm lint to validate the templates
+        log_info "Template syntax validation is performed by helm lint"
       else
         validation_failed "No templates found: $chart_dir"
         templates_failed=1
