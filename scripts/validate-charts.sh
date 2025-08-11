@@ -414,15 +414,16 @@ validate_chart_files() {
 run_all_validations() {
   log_info "Running all chart validations..."
 
-  validate_chart_structure
-  validate_chart_naming
-  validate_duplicate_versions
-  validate_chart_yaml_completeness
-  validate_chart_lint
-  validate_chart_dependencies
-  validate_chart_values
-  validate_chart_templates
-  validate_chart_files
+  # Run each validation but don't exit on failure
+  validate_chart_structure || true
+  validate_chart_naming || true
+  validate_duplicate_versions || true
+  validate_chart_yaml_completeness || true
+  validate_chart_lint || true
+  validate_chart_dependencies || true
+  validate_chart_values || true
+  validate_chart_templates || true
+  validate_chart_files || true
 }
 
 # Print validation summary
@@ -449,6 +450,16 @@ print_summary() {
 main() {
   echo "UPM Packages Chart Validation Suite"
   echo "=================================="
+
+  # Early diagnostics for CI environment
+  if [ -n "${GITHUB_ACTIONS:-}" ]; then
+    echo "[DEBUG] Running in GitHub Actions"
+    echo "[DEBUG] Current directory: $(pwd)"
+    echo "[DEBUG] Directory listing:"
+    ls -la | head -10 || echo "Failed to list directory"
+    echo "[DEBUG] Looking for Chart.yaml files:"
+    find . -name "Chart.yaml" -type f | head -5 || echo "No Chart.yaml files found"
+  fi
 
   run_all_validations
   print_summary
