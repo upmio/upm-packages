@@ -74,6 +74,7 @@ RUN set -eu; \
   dnf -y install "https://repo.mysql.com/mysql-community-minimal-release-el9.rpm"; \
   dnf config-manager --set-enabled mysql-8.4-lts-community-minimal; \
   dnf install -y "mysql-community-server-minimal-${MYSQL_VERSION}"; \
+  dnf clean all; \
   mysqld --version
 
 COPY service-ctl.sh /usr/local/bin/
