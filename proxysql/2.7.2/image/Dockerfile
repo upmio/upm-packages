@@ -1,6 +1,7 @@
 FROM rockylinux/rockylinux:9.5.20241118
 
 # install common tools
+# hadolint ignore=DL3041
 RUN set -eux; \
   dnf install -y \
     procps-ng \
@@ -13,9 +14,11 @@ RUN set -eux; \
     telnet \
     wget \
     glibc-common \
-    epel-release
+    epel-release \
+  && dnf clean all
 # generate en_US.UTF-8
 RUN dnf install -y glibc-langpack-en glibc-locale-source \
+  && dnf clean all \
   && localedef -i en_US -f UTF-8 en_US.UTF-8
 
 # set timezone
@@ -29,8 +32,10 @@ ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
 # install supervisor
+# hadolint ignore=DL3041
 RUN set -eux; \
-  dnf install -y supervisor
+  dnf install -y supervisor \
+  && dnf clean all
 
 # Download proxysql, verify its PGP signature, untar and clean up
 ENV SUMMARY="High-performance MySQL proxy" \
@@ -61,14 +66,14 @@ RUN set -eux; \
 
 RUN set -eu; \
   . /etc/os-release; \
-  { \
-    echo '[proxysql-repository]'; \
-    echo 'name=ProxySQL repository'; \
-    echo "baseurl=https://repo.proxysql.com/ProxySQL/proxysql-2.7.x/centos/${VERSION_ID%%[.-]*}"; \
-    echo 'enabled=1'; \
-    echo 'gpgcheck=1'; \
-    echo 'gpgkey=https://repo.proxysql.com/ProxySQL/proxysql-2.7.x/repo_pub_key'; \
-  } | tee /etc/yum.repos.d/proxysql.repo
+  cat > /etc/yum.repos.d/proxysql.repo <<EOF
+[proxysql-repository]
+name=ProxySQL repository
+baseurl=https://repo.proxysql.com/ProxySQL/proxysql-2.7.x/centos/${VERSION_ID%%[.-]*}
+enabled=1
+gpgcheck=1
+gpgkey=https://repo.proxysql.com/ProxySQL/proxysql-2.7.x/repo_pub_key
+EOF
 
 RUN set -ex \
   && rpmkeys --import https://repo.proxysql.com/ProxySQL/repo_pub_key \
