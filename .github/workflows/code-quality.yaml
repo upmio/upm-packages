@@ -36,10 +36,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install helm
 
+          # Install pre-commit and prettier deps
+          pip3 install pre-commit
+
       - name: Run Lint Checks
         run: |
           echo "=== Running lint checks ==="
           ./scripts/lint.sh
+
+      - name: Run Pre-commit (format checks)
+        run: |
+          echo "=== Running pre-commit checks ==="
+          pre-commit run --all-files --show-diff-on-failure
 
       - name: Run Unit Tests
         run: |
