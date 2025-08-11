@@ -42,7 +42,7 @@ jobs:
       - name: Run Lint Checks
         run: |
           echo "=== Running lint checks ==="
-          ./scripts/lint.sh
+          ./scripts/lint.sh --install-deps
 
       - name: Run Pre-commit (format checks)
         run: |

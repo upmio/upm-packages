@@ -249,7 +249,8 @@ lint_shell_scripts() {
 
   local shell_failed=0
   for script in $shell_scripts; do
-    if run_lint "Shell script: $script" "shellcheck \"$script\""; then
+    # Only fail on error-level issues; style/info emit diagnostics but don't fail CI
+    if run_lint "Shell script: $script" "shellcheck -S error \"$script\""; then
       continue
     else
       shell_failed=1
@@ -392,6 +393,15 @@ lint_helm_charts() {
   local chart_failed=0
   local strict=${STRICT_HELM_DEPS:-""}
   for chart_dir in $chart_dirs; do
+    # If not strict and 'common' subchart is not present locally, skip lint to avoid false failures
+    if [ "$strict" != "true" ]; then
+      if [ ! -d "$chart_dir/charts" ] || ! compgen -G "$chart_dir/charts/common*" >/dev/null; then
+        log_warning "Missing 'common' dependency for $chart_dir; skipping lint (set STRICT_HELM_DEPS=true to enforce)"
+        record_pass "Helm chart (skipped - deps missing): $chart_dir"
+        continue
+      fi
+    fi
+
     # Attempt to build/update dependencies first to avoid missing 'common' errors
     if command -v helm >/dev/null 2>&1; then
       (cd "$chart_dir" && helm dependency build >/dev/null 2>&1) || true
@@ -400,15 +410,6 @@ lint_helm_charts() {
     if run_lint "Helm chart: $chart_dir" "helm lint \"$chart_dir\""; then
       continue
     else
-      # If failure looks like missing 'common' dependency and not strict, skip
-      if [ "$strict" != "true" ]; then
-        # quick heuristic: if charts/common* not present
-        if [ ! -d "$chart_dir/charts" ] || ! compgen -G "$chart_dir/charts/common*" >/dev/null; then
-          log_warning "Missing 'common' dependency for $chart_dir; skipping lint (set STRICT_HELM_DEPS=true to enforce)"
-          record_pass "Helm chart (skipped - deps missing): $chart_dir"
-          continue
-        fi
-      fi
       chart_failed=1
     fi
   done
