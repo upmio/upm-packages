@@ -6,8 +6,8 @@ repos:
       - id: trailing-whitespace
       - id: check-merge-conflict
       - id: mixed-line-ending
-  - repo: https://github.com/koalaman/shellcheck-precommit
-    rev: v0.10.0
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
     hooks:
       - id: shellcheck
         files: '\.(sh)$'
