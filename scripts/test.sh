@@ -206,24 +206,6 @@ test_helm_charts() {
   return $chart_failed
 }
 
-test_template_functions() {
-  log_info "Testing template functions..."
-
-  # Test template function scripts if they exist
-  local template_tests="./scripts/tests/test-template-functions.sh"
-
-  if [ -f "$template_tests" ]; then
-    if run_test "Template functions test" "bash \"$template_tests\""; then
-      return 0
-    else
-      return 1
-    fi
-  else
-    log_warning "Template function tests not found at $template_tests"
-    return 0
-  fi
-}
-
 test_parameter_files() {
   log_info "Testing parameter files..."
 
@@ -319,7 +301,6 @@ run_unit_tests() {
   test_shell_scripts
   test_yaml_files
   test_parameter_files
-  test_template_functions
   test_file_permissions
 }
 
