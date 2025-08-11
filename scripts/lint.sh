@@ -168,15 +168,15 @@ install_dependencies() {
     elif command -v yum >/dev/null 2>&1; then
       sudo yum install -y yq || true
     else
-  # Fallback: download from GitHub releases with OS/ARCH detection
-  local os arch url target
-  os=$(uname -s | tr '[:upper:]' '[:lower:]')
-  arch=$(uname -m)
-  case "$arch" in
-  x86_64 | amd64) arch=amd64 ;;
-  aarch64 | arm64) arch=arm64 ;;
-  armv7l) arch=arm ;;
-  esac
+      # Fallback: download from GitHub releases with OS/ARCH detection
+      local os arch url target
+      os=$(uname -s | tr '[:upper:]' '[:lower:]')
+      arch=$(uname -m)
+      case "$arch" in
+      x86_64 | amd64) arch=amd64 ;;
+      aarch64 | arm64) arch=arm64 ;;
+      armv7l) arch=arm ;;
+      esac
       # yq uses 'darwin' for macOS
       if [ "$os" = "darwin" ] || [ "$os" = "linux" ]; then
         url="https://github.com/mikefarah/yq/releases/latest/download/yq_${os}_${arch}"
