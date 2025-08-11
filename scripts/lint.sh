@@ -5,6 +5,10 @@
 
 set -euo pipefail
 
+# Pin tool versions for consistent CI/local runs
+SHFMT_VERSION="${SHFMT_VERSION:-v3.10.0}"
+SHFMT_BIN="" # internal: path to resolved shfmt
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -140,22 +144,11 @@ install_dependencies() {
     fi
   fi
 
-  # Install shfmt (unless skipped)
+  # Install shfmt (unless skipped) - use pinned version for determinism
   if [ "${SKIP_SHFMT}" = "true" ]; then
     log_info "Skipping shfmt installation (SKIP_SHFMT=true)"
   else
-    if ! command -v shfmt >/dev/null 2>&1; then
-      log_info "Installing shfmt..."
-      if command -v apt-get >/dev/null 2>&1; then
-        sudo apt-get update && sudo apt-get install -y shfmt || true
-      elif command -v yum >/dev/null 2>&1; then
-        sudo yum install -y shfmt || true
-      elif command -v brew >/dev/null 2>&1; then
-        brew install shfmt || true
-      else
-        log_warning "Cannot auto-install shfmt. Please install it manually: https://github.com/mvdan/sh"
-      fi
-    fi
+    install_pinned_shfmt || true
   fi
 
   # Install yq
@@ -201,6 +194,50 @@ install_dependencies() {
   log_success "Dependencies installed successfully"
 }
 
+# Download and use pinned shfmt version for determinism across environments
+install_pinned_shfmt() {
+  # If already present in PATH, prefer that but report version
+  if command -v shfmt >/dev/null 2>&1; then
+    SHFMT_BIN="$(command -v shfmt)"
+    log_info "Found system shfmt: $($SHFMT_BIN -version 2>/dev/null || true)"
+  fi
+
+  # Detect OS/ARCH
+  local os arch url target
+  os=$(uname -s | tr '[:upper:]' '[:lower:]')
+  arch=$(uname -m)
+  case "$arch" in
+  x86_64 | amd64) arch=amd64 ;;
+  aarch64 | arm64) arch=arm64 ;;
+  armv7l) arch=arm ;;
+  esac
+
+  if [ "$os" != "darwin" ] && [ "$os" != "linux" ]; then
+    log_warning "Unsupported OS for auto-installing shfmt ($os)."
+    return 0
+  fi
+
+  url="https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/shfmt_${os}_${arch}"
+  target="/usr/local/bin/shfmt"
+  if [ -w "$(dirname "$target")" ]; then
+    curl -fsSL "$url" -o "$target" && chmod +x "$target" || true
+    SHFMT_BIN="$target"
+  elif command -v sudo >/dev/null 2>&1; then
+    sudo curl -fsSL "$url" -o "$target" && sudo chmod +x "$target" || true
+    SHFMT_BIN="$target"
+  else
+    mkdir -p "$HOME/.local/bin"
+    curl -fsSL "$url" -o "$HOME/.local/bin/shfmt" && chmod +x "$HOME/.local/bin/shfmt" || true
+    export PATH="$HOME/.local/bin:$PATH"
+    SHFMT_BIN="$HOME/.local/bin/shfmt"
+    log_warning "Installed shfmt to $HOME/.local/bin; ensure it is in your PATH"
+  fi
+
+  if [ -x "$SHFMT_BIN" ]; then
+    log_info "Using pinned shfmt: $($SHFMT_BIN -version 2>/dev/null || true)"
+  fi
+}
+
 # Shell format (shfmt)
 lint_shfmt() {
   # Allow skipping in CI
@@ -212,14 +249,21 @@ lint_shfmt() {
 
   log_info "Checking shell formatting with shfmt (-i 2 -d) ..."
 
-  if ! command -v shfmt >/dev/null 2>&1; then
+  # Ensure shfmt is available (prefer pinned one)
+  if [ -z "${SHFMT_BIN:-}" ] || [ ! -x "$SHFMT_BIN" ]; then
+    if command -v shfmt >/dev/null 2>&1; then
+      SHFMT_BIN="$(command -v shfmt)"
+    fi
+  fi
+  if [ -z "${SHFMT_BIN:-}" ] || [ ! -x "$SHFMT_BIN" ]; then
     log_error "shfmt is not installed. Run with --install-deps or install manually."
     record_fail "shfmt style check" "shfmt is not installed"
     return 1
   fi
 
   # shfmt returns non-zero if diff exists
-  if shfmt -i 2 -d . >/dev/null 2>&1; then
+  log_info "shfmt version: $($SHFMT_BIN -version 2>/dev/null || echo unknown)"
+  if "$SHFMT_BIN" -i 2 -d . >/dev/null 2>&1; then
     record_pass "shfmt style check"
     return 0
   else

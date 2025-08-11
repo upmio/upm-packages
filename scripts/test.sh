@@ -207,9 +207,9 @@ test_helm_charts() {
     fi
 
     # If chart depends on bitnami/common and vendor not present, optionally skip
-    if grep -qE "^\s*-\s*name:\s*common\b" "$chart_dir/Chart.yaml" 2>/dev/null \
-      && [ ! -d "$chart_dir/charts/common" ] \
-      && [ "${STRICT_HELM_DEPS:-false}" != "true" ]; then
+    if grep -qE "^\s*-\s*name:\s*common\b" "$chart_dir/Chart.yaml" 2>/dev/null &&
+      [ ! -d "$chart_dir/charts/common" ] &&
+      [ "${STRICT_HELM_DEPS:-false}" != "true" ]; then
       # Mark as skipped-pass to align with lint suite behavior
       ((TOTAL_TESTS++))
       log_warning "Skipping Helm lint (missing 'common' dep): $chart_dir"
