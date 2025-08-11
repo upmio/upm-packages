@@ -253,6 +253,14 @@ lint_shfmt() {
   if [ -z "${SHFMT_BIN:-}" ] || [ ! -x "$SHFMT_BIN" ]; then
     if command -v shfmt >/dev/null 2>&1; then
       SHFMT_BIN="$(command -v shfmt)"
+    else
+      # Attempt to auto-install the pinned version on demand
+      install_pinned_shfmt || true
+      if [ -z "${SHFMT_BIN:-}" ] || [ ! -x "$SHFMT_BIN" ]; then
+        if command -v shfmt >/dev/null 2>&1; then
+          SHFMT_BIN="$(command -v shfmt)"
+        fi
+      fi
     fi
   fi
   if [ -z "${SHFMT_BIN:-}" ] || [ ! -x "$SHFMT_BIN" ]; then
