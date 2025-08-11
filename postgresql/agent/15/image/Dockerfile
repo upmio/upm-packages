@@ -1,6 +1,9 @@
 FROM quay.io/upmio/unit-agent:v1.0 AS agent
 
 FROM rockylinux/rockylinux:9.5.20241118
+RUN set -eux; \
+  groupadd --system --gid 1001 "postgres"; \
+  useradd --system --uid 1001 --gid 1001 -m -c "Default Application User" "postgres"
 
 # install common tools
 RUN set -eux; \
@@ -53,4 +56,5 @@ COPY --from=agent /usr/local/bin/unit-agent /usr/local/bin/unit-agent
 COPY --from=agent /etc/unit-agent/config.toml /etc/unit-agent/config.toml
 RUN unit-agent --version
 
+USER 1001
 CMD ["unit-agent","daemon","-f","/etc/unit-agent/config.toml"]
