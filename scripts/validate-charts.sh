@@ -74,8 +74,6 @@ validate_chart_structure() {
 
   if [ -z "$chart_dirs" ]; then
     log_error "No Helm charts found"
-    log_error "Searched in directory: $(pwd)"
-    log_error "Contents: $(ls -la 2>&1 | head -5 || echo 'Unable to list directory')"
     return 1
   fi
 
@@ -450,16 +448,6 @@ print_summary() {
 main() {
   echo "UPM Packages Chart Validation Suite"
   echo "=================================="
-
-  # Early diagnostics for CI environment
-  if [ -n "${GITHUB_ACTIONS:-}" ]; then
-    echo "[DEBUG] Running in GitHub Actions"
-    echo "[DEBUG] Current directory: $(pwd)"
-    echo "[DEBUG] Directory listing:"
-    ls -la | head -10 || echo "Failed to list directory"
-    echo "[DEBUG] Looking for Chart.yaml files:"
-    find . -name "Chart.yaml" -type f | head -5 || echo "No Chart.yaml files found"
-  fi
 
   run_all_validations
   print_summary
