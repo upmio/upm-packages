@@ -68,13 +68,29 @@ run_validation() {
 validate_chart_structure() {
   log_info "Validating chart structure..."
 
+  # Debug: Show current directory and contents
+  log_info "Current directory: $(pwd)"
+  log_info "Directory contents:"
+  ls -la | head -10 || true
+
   # Find all chart directories
   local chart_dirs
-  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; | grep -v ".git")
+  log_info "Searching for Chart.yaml files..."
+  chart_dirs=$(find . -name "Chart.yaml" -exec dirname {} \; 2>&1 | grep -v ".git" || true)
+  
+  # Debug: Show find command result
+  log_info "Find command output: $chart_dirs"
+  log_info "Number of charts found: $(echo "$chart_dirs" | wc -l)"
 
   if [ -z "$chart_dirs" ]; then
     log_error "No Helm charts found"
-    return 1
+    log_error "Find command may have failed. Trying alternative approach..."
+    # Try alternative find command
+    chart_dirs=$(find . -type f -name "Chart.yaml" 2>&1 | xargs -r dirname | grep -v ".git" || true)
+    log_info "Alternative find result: $chart_dirs"
+    if [ -z "$chart_dirs" ]; then
+      return 1
+    fi
   fi
 
   local structure_failed=0
