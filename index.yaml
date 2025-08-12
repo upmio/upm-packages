@@ -437,6 +437,33 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/proxysql-2.7.3-1.0.0/proxysql-2.7.3-1.0.0.tgz
     version: 1.0.0
+  redis-7.0.14:
+  - apiVersion: v2
+    appVersion: 7.0.14
+    created: "2025-08-12T02:56:56.83174099Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: Redis software packages, including configuration templates and pod
+      templates.
+    digest: e06664f4278d270d681189492cc8bae00e553d065bc515c83d0639d610a51804
+    keywords:
+    - redis
+    - database
+    - key-value
+    - cache
+    - in-memory
+    - persistence
+    - cluster
+    - replication
+    name: redis-7.0.14
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/redis-7.0.14-1.0.0/redis-7.0.14-1.0.0.tgz
+    version: 1.0.0
   zookeeper-3.8.4:
   - apiVersion: v2
     appVersion: 3.8.4
@@ -464,4 +491,4 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/zookeeper-3.8.4-1.0.0/zookeeper-3.8.4-1.0.0.tgz
     version: 1.0.0
-generated: "2025-08-08T08:01:18.882804911Z"
+generated: "2025-08-12T02:56:56.831754796Z"
