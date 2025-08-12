@@ -1,4 +1,4 @@
-FROM quay.io/upmio/unit-agent:v2.0-0b317c0 AS agent
+FROM quay.io/upmio/unit-agent:v1.0.0 AS agent
 
 FROM rockylinux/rockylinux:9.5.20241118
 
@@ -34,7 +34,7 @@ ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
 # install unit-agent
-ENV AGENT_VERSION="v1.3.0"
+ENV AGENT_VERSION="v1.0.0"
 COPY --from=agent /usr/local/bin/unit-agent /usr/local/bin/unit-agent
 COPY --from=agent /etc/unit-agent/config.toml /etc/unit-agent/config.toml
 RUN unit-agent --version
