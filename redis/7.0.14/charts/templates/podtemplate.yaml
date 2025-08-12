@@ -83,7 +83,7 @@ template:
               - "3"
               - "bash"
               - "-c"
-              - "service-ctl.sh status"
+              - "service-ctl.sh health"
           failureThreshold: 3
           initialDelaySeconds: 12
           periodSeconds: 12
