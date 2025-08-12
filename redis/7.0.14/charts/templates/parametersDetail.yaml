@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-parameters-detail
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    upm.io/owner: upm
+    type: redis
+    version: {{ .Chart.AppVersion | quote }}
+data:
+  redis: |
+{{ .Files.Get "files/redisParametersDetail.json" | indent 4 }}

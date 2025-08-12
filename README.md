@@ -185,6 +185,12 @@ Every component follows the same enterprise-grade structure:
 | **Elasticsearch** | 7.17.14 | Distributed search and analytics engine | ✅ Stable |
 | **Kibana** | 7.17.14 | Visualization dashboard for Elasticsearch | ✅ Stable |
 
+### ⚡ In-memory Data Stores
+
+| Component | Versions | Description | Status |
+|-----------|----------|-------------|--------|
+| **Redis** | 7.0.14 | High-performance in-memory key-value store | ✅ Stable |
+
 ### 📨 Message Queue
 
 | Component | Versions | Description | Status |
