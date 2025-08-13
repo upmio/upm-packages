@@ -304,7 +304,13 @@ fetch_available_packages() {
 
   # Search for all charts in the repository
   local packages
-  packages=$(helm search repo "$HELM_REPO_NAME/" --output json 2>/dev/null | jq -r '.[].name' | sed "s|^$HELM_REPO_NAME/||" | sort)
+  if command -v jq &>/dev/null; then
+    packages=$(helm search repo "$HELM_REPO_NAME/" --output json 2>/dev/null | jq -r '.[].name' | sed "s|^$HELM_REPO_NAME/||" | sort)
+  else
+    # Fallback: parse table output when jq is unavailable
+    # Skip header line, take first column (chart name), strip repo prefix
+    packages=$(helm search repo "$HELM_REPO_NAME/" --output table 2>/dev/null | tail -n +2 | awk '{print $1}' | sed "s|^$HELM_REPO_NAME/||" | sort)
+  fi
 
   if [[ -z "$packages" ]]; then
     print_error "Failed to fetch packages from helm repository"
@@ -326,8 +332,13 @@ get_component_categories() {
   fi
 
   local packages
-  if ! packages=$(fetch_available_packages); then
-    return 1
+  if is_cache_valid && [[ -n "$PACKAGE_CACHE" ]]; then
+    packages="$PACKAGE_CACHE"
+  else
+    if ! fetch_available_packages; then
+      return 1
+    fi
+    packages="$PACKAGE_CACHE"
   fi
 
   local components=""
@@ -339,6 +350,8 @@ get_component_categories() {
   local elasticsearch=""
   local kibana=""
   local kafka=""
+  local redis=""
+  local zookeeper=""
   local other=""
 
   for package in $packages; do
@@ -397,6 +410,20 @@ get_component_categories() {
         kafka="$package"
       else
         kafka="$kafka $package"
+      fi
+      ;;
+    redis-*)
+      if [[ -z "$redis" ]]; then
+        redis="$package"
+      else
+        redis="$redis $package"
+      fi
+      ;;
+    zookeeper-*)
+      if [[ -z "$zookeeper" ]]; then
+        zookeeper="$package"
+      else
+        zookeeper="$zookeeper $package"
       fi
       ;;
     *)
@@ -462,6 +489,20 @@ get_component_categories() {
       components="kafka:$kafka"
     fi
   fi
+  if [[ -n "$redis" ]]; then
+    if [[ -n "$components" ]]; then
+      components="$components|redis:$redis"
+    else
+      components="redis:$redis"
+    fi
+  fi
+  if [[ -n "$zookeeper" ]]; then
+    if [[ -n "$components" ]]; then
+      components="$components|zookeeper:$zookeeper"
+    else
+      components="zookeeper:$zookeeper"
+    fi
+  fi
   if [[ -n "$other" ]]; then
     if [[ -n "$components" ]]; then
       components="$components|other:$other"
@@ -499,7 +540,15 @@ get_component_packages() {
 
   # If component not found, check if it's a valid package name
   local packages
-  packages=$(fetch_available_packages)
+  if is_cache_valid && [[ -n "$PACKAGE_CACHE" ]]; then
+    packages="$PACKAGE_CACHE"
+  else
+    if ! fetch_available_packages; then
+      echo ""
+      return
+    fi
+    packages="$PACKAGE_CACHE"
+  fi
   for package in $packages; do
     if [[ "$package" == "$component" ]]; then
       echo "$component"
@@ -512,7 +561,11 @@ get_component_packages() {
 
 # Function to get all available packages
 get_all_packages() {
-  fetch_available_packages
+  if fetch_available_packages; then
+    echo "$PACKAGE_CACHE"
+  else
+    echo ""
+  fi
 }
 
 # Function to get packages from targets
@@ -556,7 +609,8 @@ get_packages_from_targets() {
       else
         print_error "Invalid package or component name: $target"
         print_info "Available components and packages:"
-        show_available_components
+        # Ensure the list is visible even when stdout is piped; write to stderr
+        show_available_components 1>&2
         return 1
       fi
       ;;
@@ -592,6 +646,11 @@ show_available_components() {
   local components
   components=$(get_component_categories)
 
+  if [[ -z "$components" ]]; then
+    echo "  No packages available from repo $HELM_REPO_NAME at $HELM_REPO_URL"
+    return
+  fi
+
   local old_ifs="$IFS"
   IFS='|'
   for component_entry in $components; do
@@ -622,6 +681,12 @@ show_available_components() {
       ;;
     kafka)
       echo "  kafka: Kafka"
+      ;;
+    redis)
+      echo "  redis: Redis"
+      ;;
+    zookeeper)
+      echo "  zookeeper: Zookeeper"
       ;;
     other)
       echo "  other: Other packages"
@@ -918,6 +983,9 @@ show_status() {
 # Function to execute action on packages
 execute_action() {
   local package_list
+  # Pre-fetch package list once in parent shell to populate cache for subshells
+  fetch_available_packages >/dev/null 2>&1 || true
+
   if ! package_list=$(get_packages_from_targets); then
     return 1
   fi
