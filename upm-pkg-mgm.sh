@@ -335,7 +335,7 @@ get_component_categories() {
   if is_cache_valid && [[ -n "$PACKAGE_CACHE" ]]; then
     packages="$PACKAGE_CACHE"
   else
-    if ! fetch_available_packages; then
+    if ! fetch_available_packages >/dev/null 2>&1; then
       return 1
     fi
     packages="$PACKAGE_CACHE"
@@ -668,7 +668,10 @@ show_available_components() {
     local comp_name="${component_entry%%:*}"
     local comp_packages="${component_entry#*:}"
 
-    case "$comp_name" in
+    # Normalize name: trim spaces and unify separators
+    local comp_key
+    comp_key=$(echo "$comp_name" | tr -d ' \t\r')
+    case "$comp_key" in
     mysql-community)
       echo "  mysql-community: MySQL Community Server (all versions)"
       ;;
@@ -701,6 +704,10 @@ show_available_components() {
       ;;
     other)
       echo "  other: Other packages"
+      ;;
+    *)
+      # Fallback to always show a section header to avoid missing titles
+      echo "  ${comp_key}: Other packages"
       ;;
     esac
 
