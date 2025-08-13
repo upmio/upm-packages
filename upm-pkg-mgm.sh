@@ -49,6 +49,38 @@ print_header() {
   echo -e "${CYAN}$1${NC}"
 }
 
+# Helpers for release status and idempotency
+# Return release status string (e.g., deployed, failed, pending-install) or non-zero if not found
+get_release_status() {
+  local release_name="$1"
+
+  # Try JSON output first if supported and jq is available
+  if helm status "$release_name" --namespace="$NAMESPACE" --output json >/dev/null 2>&1; then
+    if command -v jq &>/dev/null; then
+      helm status "$release_name" --namespace="$NAMESPACE" --output json 2>/dev/null | jq -r '.info.status' 2>/dev/null
+      return 0
+    fi
+  fi
+
+  # Fallback to parsing text output (works across helm versions)
+  if helm status "$release_name" --namespace="$NAMESPACE" >/dev/null 2>&1; then
+    helm status "$release_name" --namespace="$NAMESPACE" 2>/dev/null | awk -F': ' '/^STATUS:/ {print tolower($2); exit}'
+    return 0
+  fi
+
+  return 1
+}
+
+is_release_deployed() {
+  local release_name="$1"
+  local status
+  if status=$(get_release_status "$release_name"); then
+    [[ "$status" == "deployed" ]]
+    return $?
+  fi
+  return 1
+}
+
 # Function to display help
 show_help() {
   cat <<EOF
@@ -611,6 +643,34 @@ install_package() {
   local release_name="${RELEASE_PREFIX}-${package_name}"
 
   print_info "Installing UPM package: $package_name"
+
+  # Idempotency:
+  # - If release already deployed, skip
+  # - If release exists but not deployed, converge with upgrade --install
+  if is_release_deployed "$release_name"; then
+    print_warning "Release $release_name already deployed, skipping install"
+    return 0
+  elif get_release_status "$release_name" >/dev/null 2>&1; then
+    print_info "Release $release_name exists but status is not deployed, reconciling with upgrade --install"
+    local up_cmd="helm upgrade"
+    local up_opts=("--install" "--namespace=$NAMESPACE" "--timeout=$TIMEOUT")
+    if [[ "$DRY_RUN" == true ]]; then
+      up_opts+=("--dry-run" "--debug")
+    fi
+    up_opts+=("$release_name" "$HELM_REPO_NAME/$package_name")
+    print_info "Running: $up_cmd ${up_opts[*]}"
+    if $up_cmd "${up_opts[@]}"; then
+      print_success "UPM package $package_name reconciled successfully as $release_name"
+      if [[ "$DRY_RUN" != true ]]; then
+        sleep 2
+        verify_package_installation "$release_name" "$package_name"
+      fi
+      return 0
+    else
+      print_error "Failed to reconcile UPM package $package_name"
+      return 1
+    fi
+  fi
 
   local helm_cmd="helm install"
   local helm_opts=()
