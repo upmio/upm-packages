@@ -66,8 +66,8 @@ The `upm-pkg-mgm.sh` script is a unified management tool for UPM (Unified Platfo
 | Target | Description |
 |--------|-------------|
 | `all` | All available packages |
-| `mysql_community` | MySQL Community Server (all versions) |
-| `mysql_router` | MySQL Router Community (all versions) |
+| `mysql-community` | MySQL Community Server (all versions) |
+| `mysql-router-community` | MySQL Router Community (all versions) |
 | `postgresql` | PostgreSQL Server (all versions) |
 | `proxysql` | ProxySQL (all versions) |
 | `pgbouncer` | PgBouncer (all versions) |
@@ -116,7 +116,7 @@ The `upm-pkg-mgm.sh` script is a unified management tool for UPM (Unified Platfo
 
 **Install MySQL components only**:
 ```bash
-./upm-pkg-mgm.sh install mysql_community mysql_router
+./upm-pkg-mgm.sh install mysql-community mysql-router-community
 ```
 
 **Install specific package**:
@@ -136,7 +136,7 @@ The `upm-pkg-mgm.sh` script is a unified management tool for UPM (Unified Platfo
 
 **Dry run installation**:
 ```bash
-./upm-pkg-mgm.sh install --dry-run mysql_community
+./upm-pkg-mgm.sh install --dry-run mysql-community
 ```
 
 **Install with custom namespace**:
@@ -227,7 +227,7 @@ The script can be configured through environment variables:
 export NAMESPACE="custom-namespace"
 export RELEASE_PREFIX="my-prefix"
 export HELM_REPO_URL="https://custom-repo.example.com/charts"
-./upm-pkg-mgm.sh install mysql_community
+./upm-pkg-mgm.sh install mysql-community
 ```
 
 ## Release Naming
@@ -260,7 +260,7 @@ The script includes comprehensive error handling:
 
 ### Invalid Target Hints
 
-When an invalid target (e.g., `mysql`) is provided, the script reports the error and prints the available components and packages so you can choose a valid component like `mysql_community` or `mysql_router`, or a specific chart name.
+When an invalid target (e.g., `mysql`) is provided, the script reports the error and prints the available components and packages so you can choose a valid component like `mysql-community` or `mysql-router-community`, or a specific chart name.
 
 ## Security Considerations
 

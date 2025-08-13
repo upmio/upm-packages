@@ -100,7 +100,7 @@ ACTIONS:
 
 TARGETS:
     all                             All available packages
-    <component>                     Component type (e.g., mysql_community, postgresql)
+    <component>                     Component type (e.g., mysql-community, postgresql)
     <chart-name>                    Specific chart name (e.g., mysql-community-8.4.5)
 
 NOTE: Available components and packages are dynamically fetched from the helm repository.
@@ -118,7 +118,7 @@ EXAMPLES:
     $0 install all
 
     # Install MySQL components only
-    $0 install mysql_community mysql_router
+    $0 install mysql-community mysql-router-community
 
     # Uninstall specific package
     $0 uninstall mysql-community-8.4.5
@@ -133,7 +133,7 @@ EXAMPLES:
     $0 status
 
     # Dry run installation
-    $0 install --dry-run mysql_community
+    $0 install --dry-run mysql-community
 
 NOTE: These are UPM packages that require UPM CRDs to function.
 
@@ -343,7 +343,7 @@ get_component_categories() {
 
   local components=""
   local mysql_community=""
-  local mysql_router=""
+  local mysql_router_community=""
   local postgresql=""
   local proxysql=""
   local pgbouncer=""
@@ -364,10 +364,10 @@ get_component_categories() {
       fi
       ;;
     mysql-router-community-*)
-      if [[ -z "$mysql_router" ]]; then
-        mysql_router="$package"
+      if [[ -z "$mysql_router_community" ]]; then
+        mysql_router_community="$package"
       else
-        mysql_router="$mysql_router $package"
+        mysql_router_community="$mysql_router_community $package"
       fi
       ;;
     postgresql-*)
@@ -438,13 +438,13 @@ get_component_categories() {
 
   # Build components result
   if [[ -n "$mysql_community" ]]; then
-    components="mysql_community:$mysql_community"
+    components="mysql-community:$mysql_community"
   fi
-  if [[ -n "$mysql_router" ]]; then
+  if [[ -n "$mysql_router_community" ]]; then
     if [[ -n "$components" ]]; then
-      components="$components|mysql_router:$mysql_router"
+      components="$components|mysql-router-community:$mysql_router_community"
     else
-      components="mysql_router:$mysql_router"
+      components="mysql-router-community:$mysql_router_community"
     fi
   fi
   if [[ -n "$postgresql" ]]; then
@@ -596,7 +596,18 @@ get_packages_from_targets() {
     *)
       # Check if it's a component group or specific package
       local component_packages
-      component_packages=$(get_component_packages "$target")
+      # Backward compatibility: map legacy underscore names to hyphenated component names
+      local normalized_target="$target"
+      case "$target" in
+        mysql_community)
+          normalized_target="mysql-community"
+          ;;
+        mysql_router)
+          normalized_target="mysql-router-community"
+          ;;
+      esac
+
+      component_packages=$(get_component_packages "$normalized_target")
 
       if [[ -n "$component_packages" ]]; then
         for package in $component_packages; do
@@ -658,11 +669,11 @@ show_available_components() {
     local comp_packages="${component_entry#*:}"
 
     case "$comp_name" in
-    mysql_community)
-      echo "  mysql_community: MySQL Community Server (all versions)"
+    mysql-community)
+      echo "  mysql-community: MySQL Community Server (all versions)"
       ;;
-    mysql_router)
-      echo "  mysql_router: MySQL Router Community (all versions)"
+    mysql-router-community)
+      echo "  mysql-router-community: MySQL Router Community (all versions)"
       ;;
     postgresql)
       echo "  postgresql: PostgreSQL Server (all versions)"

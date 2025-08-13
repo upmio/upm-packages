@@ -32,7 +32,7 @@ This component provides containerized MySQL Router Community Edition as part of 
 # List available packages
 ./upm-pkg-mgm.sh list
 
-# Install MySQL Router
+# Install MySQL Router (component group)
 ./upm-pkg-mgm.sh install mysql-router-community
 
 # Install specific version

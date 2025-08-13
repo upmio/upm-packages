@@ -62,7 +62,7 @@ chmod +x upm-pkg-mgm.sh
 # Install all available packages
 ./upm-pkg-mgm.sh install all
 
-# Install MySQL Community (latest version)
+# Install MySQL Community (component group)
 ./upm-pkg-mgm.sh install mysql-community
 
 # Check deployment status

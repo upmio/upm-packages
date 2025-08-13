@@ -34,7 +34,7 @@ This component provides containerized MySQL Community Edition as part of the UPM
 # List available packages
 ./upm-pkg-mgm.sh list
 
-# Install MySQL Community
+# Install MySQL Community (component group)
 ./upm-pkg-mgm.sh install mysql-community
 
 # Install specific version
