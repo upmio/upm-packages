@@ -872,7 +872,8 @@ filter_upm_releases() {
   if command -v jq &>/dev/null && [[ "$releases" == *"["* ]]; then
     # JSON mode - validate JSON first
     if echo "$releases" | jq . >/dev/null 2>&1; then
-      echo "$releases" | jq --arg prefix "$RELEASE_PREFIX" '.[] | select(.name | startswith($prefix))'
+      # Return a JSON array for downstream processing/counting
+      echo "$releases" | jq --arg prefix "$RELEASE_PREFIX" '[.[] | select(.name | startswith($prefix))]'
     else
       # Invalid JSON, return empty array
       echo "[]"
@@ -893,11 +894,9 @@ get_upm_releases() {
     filter_upm_releases "$all_releases"
   else
     local all_releases
-    all_releases=$(helm list --namespace "$NAMESPACE" --output table 2>/dev/null | tail -n +2 || echo "")
+    all_releases=$(helm list --namespace "$NAMESPACE" --output table 2>/dev/null || echo "")
     if [[ -n "$all_releases" ]]; then
-      # Add header back
-      echo "NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION"
-      filter_upm_releases "$all_releases"
+      echo "$all_releases" | awk -v p="${RELEASE_PREFIX}-" 'NR==1 || $0 ~ "^" p'
     fi
   fi
 }
