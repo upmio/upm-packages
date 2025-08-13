@@ -7,7 +7,8 @@ The `upm-pkg-mgm.sh` script is a unified management tool for UPM (Unified Platfo
 ## Features
 
 - **Unified Management**: Single script for all UPM package operations
-- **Multiple Package Types**: Support for MySQL, PostgreSQL, ProxySQL, PgBouncer, Elasticsearch, Kibana, and Kafka
+- **Multiple Package Types**: Support for MySQL, MySQL Router, PostgreSQL, ProxySQL, PgBouncer, Elasticsearch, Kibana, Kafka, Redis, and Zookeeper
+- **Idempotent Operations**: Install/upgrade/uninstall are safe to run repeatedly; installs skip when already deployed and reconcile non-deployed states
 - **Flexible Targeting**: Install individual packages, component groups, or all packages
 - **Dry Run Mode**: Test operations without making actual changes
 - **Remote Charts**: Support for remote Helm repositories
@@ -73,6 +74,8 @@ The `upm-pkg-mgm.sh` script is a unified management tool for UPM (Unified Platfo
 | `elasticsearch` | Elasticsearch |
 | `kibana` | Kibana |
 | `kafka` | Kafka |
+| `redis` | Redis |
+| `zookeeper` | Zookeeper |
 | `<chart-name>` | Specific chart name (e.g., `mysql-community-8.4.5`) |
 
 ### Options
@@ -119,6 +122,16 @@ The `upm-pkg-mgm.sh` script is a unified management tool for UPM (Unified Platfo
 **Install specific package**:
 ```bash
 ./upm-pkg-mgm.sh install mysql-community-8.4.5
+```
+
+**Install Redis components only**:
+```bash
+./upm-pkg-mgm.sh install redis
+```
+
+**Install Zookeeper**:
+```bash
+./upm-pkg-mgm.sh install zookeeper
 ```
 
 **Dry run installation**:
@@ -193,6 +206,12 @@ The `upm-pkg-mgm.sh` script is a unified management tool for UPM (Unified Platfo
 ### Kafka
 - `kafka-3.5.2`
 
+### Redis
+- `redis-7.0.14`
+
+### Zookeeper
+- `zookeeper-3.8.4`
+
 ## Configuration
 
 ### Default Values
@@ -233,6 +252,16 @@ The script includes comprehensive error handling:
 - **Dependency Management**: Handles Helm chart dependencies via remote repository
 - **Graceful Degradation**: Falls back to basic functionality when optional tools are missing
 
+### Idempotency Behavior
+
+- Install: If the target Helm release already exists and is deployed, the script skips installation. If it exists but is not deployed, it reconciles using `helm upgrade --install` to converge to the desired state.
+- Uninstall: If the release does not exist, it is skipped safely.
+- Upgrade: Only proceeds when the release exists; otherwise it is skipped.
+
+### Invalid Target Hints
+
+When an invalid target (e.g., `mysql`) is provided, the script reports the error and prints the available components and packages so you can choose a valid component like `mysql_community` or `mysql_router`, or a specific chart name.
+
 ## Security Considerations
 
 - **Namespace Isolation**: Uses dedicated namespace for UPM packages
@@ -267,9 +296,9 @@ kubectl cluster-info
 
 ### Debug Mode
 
-Use dry run mode to debug operations:
+Use dry run mode to debug operations (the script will pass `--debug` to Helm when `--dry-run` is set):
 ```bash
-./upm-pkg-mgm.sh install --dry-run --debug mysql-community-8.4.5
+./upm-pkg-mgm.sh install --dry-run mysql-community-8.4.5
 ```
 
 ## Support
