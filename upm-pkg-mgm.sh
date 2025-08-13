@@ -596,18 +596,7 @@ get_packages_from_targets() {
     *)
       # Check if it's a component group or specific package
       local component_packages
-      # Backward compatibility: map legacy underscore names to hyphenated component names
-      local normalized_target="$target"
-      case "$target" in
-        mysql_community)
-          normalized_target="mysql-community"
-          ;;
-        mysql_router)
-          normalized_target="mysql-router-community"
-          ;;
-      esac
-
-      component_packages=$(get_component_packages "$normalized_target")
+      component_packages=$(get_component_packages "$target")
 
       if [[ -n "$component_packages" ]]; then
         for package in $component_packages; do
