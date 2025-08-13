@@ -161,6 +161,16 @@ Every component follows the same enterprise-grade structure:
         └── *.yaml         # Value mapping files
 ```
 
+## Project Status
+
+This project is actively maintained. We follow semantic versioning and aim to keep backward compatibility when feasible.
+
+Recent focus areas:
+
+- Packaging new component versions (e.g., MySQL 8.4.x, PostgreSQL 15.x, Redis 7.x)
+- Consistent chart structure and validation across components
+- Improved unified management experience via `upm-pkg-mgm.sh`
+
 ## Available Packages
 
 ### 🗄️ Database Systems
@@ -366,6 +376,18 @@ podtemplate.yaml:
 3. **Template Rendering**: Go templates generate runtime configuration
 4. **Service Start**: Supervisord starts managed processes
 5. **Health Monitoring**: Continuous health checks and metrics collection
+
+## Roadmap
+
+- Expand supported components and versions
+- Enhance observability defaults across charts
+- Deepen integration with UPM operators and controllers
+- Improve developer ergonomics for validation and local testing
+
+## Related Projects
+
+- Compose Operator (database replication/topology management that works with UPM components): [upmio/compose-operator](https://github.com/upmio/compose-operator)
+- Unit Operator (database and middleware operator with HA, scaling and lifecycle management): [upmio/unit-operator](https://github.com/upmio/unit-operator)
 
 ## Community & Support
 
