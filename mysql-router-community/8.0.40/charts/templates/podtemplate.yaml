@@ -50,6 +50,11 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.labels['upm.api/service-group.name']"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
       - name: sysctl
         image: {{ include "router.image" . }}
         command:
@@ -75,6 +80,11 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.labels['upm.api/service-group.name']"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
         livenessProbe:
           exec:
             command:
@@ -139,6 +149,11 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.labels['unit.sn']"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
         resources:
           requests:
             cpu: 200m
