@@ -8,7 +8,7 @@ umask 027
 # ##############################################################################
 # Global Constants and Configuration
 # ##############################################################################
-readonly SCRIPT_VERSION="v2.0.0"
+readonly SCRIPT_VERSION="v1.0.0"
 readonly POSIXLY_CORRECT=1
 export POSIXLY_CORRECT
 export LANG=C
@@ -144,10 +144,13 @@ initialize() {
 
   # Validate required environment variables
   [[ -n "${PROV_USER:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "PROV_USER environment variable not set!"
-
   local prov_pwd
   prov_pwd=$(decrypt_pwd "${PROV_USER}")
   [[ -n "${prov_pwd}" ]] || die "${EXIT_GENERAL_FAILURE}" "${func_name}" "get ${PROV_USER} password failed!"
+
+  [[ -n "${MYSQL_PORT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "MYSQL_PORT environment variable not set!"
+  [[ -n "${MYSQL_SERVICE_NAME:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "MYSQL_SERVICE_NAME environment variable not set!"
+  [[ -n "${SERVICE_GROUP_NAME:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "SERVICE_GROUP_NAME environment variable not set!"
 
   # Check if already initialized
   if [[ ! -f "${INIT_FLAG_FILE}" ]]; then
@@ -257,15 +260,16 @@ if (status.defaultReplicaSet.status === 'OK') {
   info "${func_instance}" "run ${func_instance} done."
 }
 
-check_health() {
-  local func_name="check_health"
+health() {
+  local func_name="health"
 
   # Validate required environment variables
   [[ -n "${PROV_USER:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "PROV_USER environment variable not set!"
-
   local prov_pwd
   prov_pwd=$(decrypt_pwd "${PROV_USER}")
   [[ -n "${prov_pwd}" ]] || die "${EXIT_GENERAL_FAILURE}" "${func_name}" "get ${PROV_USER} password failed!"
+
+  [[ -n "${HTTP_PORT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "HTTP_PORT environment variable not set!"
 
   # Health check via REST API
   local route_name="mysql_rw"
@@ -293,7 +297,7 @@ main() {
     initialize
     ;;
   "health")
-    check_health
+    health
     ;;
   *)
     die "${EXIT_UNSUPPORTED_ACTION}" "${func_name}" "service action(${action}) nonsupport"
@@ -314,10 +318,6 @@ validate_environment() {
   [[ -n "${CONF_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env CONF_DIR failed !"
   [[ -n "${LOG_MOUNT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env LOG_MOUNT failed !"
   [[ -d ${LOG_MOUNT} ]] || die "${EXIT_DIR_NOT_FOUND}" "${func_name}" "Not found LOG_MOUNT !"
-  [[ -n "${SERVICE_GROUP_NAME:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env SERVICE_GROUP_NAME failed !"
-  [[ -n "${HTTP_PORT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env HTTP_PORT failed !"
-  [[ -n "${MYSQL_SERVICE_NAME:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env MYSQL_SERVICE_NAME failed !"
-  [[ -n "${MYSQL_PORT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env MYSQL_PORT failed !"
 
   # Set global variables with defaults
   readonly INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"
