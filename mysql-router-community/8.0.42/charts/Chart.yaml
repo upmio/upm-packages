@@ -12,6 +12,6 @@ description: MySQL router community edition software packages, including configu
 type: application
 keywords:
   - mysql
+  - router
   - database
   - sql
-  - proxy
