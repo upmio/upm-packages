@@ -65,7 +65,7 @@ template:
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.annotations['upm.api/service.arch.mode']"
+                fieldPath: "metadata.labels['upm.api/service.arch.mode']"
       - name: sysctl
         image: {{ include "mysql.image" . }}
         command:
@@ -202,7 +202,7 @@ template:
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.annotations['upm.api/service.arch.mode']"
+                fieldPath: "metadata.labels['upm.api/service.arch.mode']"
         resources:
           requests:
             cpu: 200m
@@ -228,7 +228,7 @@ template:
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.annotations['upm.api/service.arch.mode']"
+                fieldPath: "metadata.labels['upm.api/service.arch.mode']"
         {{- if .Values.metrics.resources }}
         resources: {{ toYaml .Values.metrics.resources | nindent 10 }}
         {{- end }}
