@@ -8,7 +8,7 @@ umask 027
 # ##############################################################################
 # Global Constants and Configuration
 # ##############################################################################
-readonly SCRIPT_VERSION="v2.0.0"
+readonly SCRIPT_VERSION="v1.0.0"
 readonly POSIXLY_CORRECT=1
 export POSIXLY_CORRECT
 export LANG=C
@@ -194,6 +194,13 @@ initialize() {
   prov_pwd=$(decrypt_pwd "${PROV_USER}")
   [[ -n "${prov_pwd}" ]] || die "${EXIT_GENERAL_FAILURE}" "${func_name}" "get ${PROV_USER} password failed!"
 
+  [[ -n "${ARCH_MODE:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "ARCH_MODE environment variable not set!"
+  [[ "${ARCH_MODE}" == "group_replication" || "${ARCH_MODE}" == "rpl_semi_sync" || "${ARCH_MODE}" == "rpl_async" ]] || {
+    die "${EXIT_UNSUPPORTED_ACTION}" "${func_name}" "Unsupported ARCH_MODE: ${ARCH_MODE}"
+  }
+  [[ -n "${POD_NAME:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "POD_NAME environment variable not set!"
+  [[ -n "${MYSQL_PORT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "MYSQL_PORT environment variable not set!"
+
   # Check if already initialized
   if [[ ! -f "${INIT_FLAG_FILE}" ]]; then
     # Handle force clean option
@@ -322,9 +329,6 @@ validate_environment() {
   [[ -n "${RELAY_LOG_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env RELAY_LOG_DIR failed !"
   [[ -n "${LOG_MOUNT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env LOG_MOUNT failed !"
   [[ -d ${LOG_MOUNT} ]] || die "${EXIT_DIR_NOT_FOUND}" "${func_name}" "Not found LOG_MOUNT !"
-  [[ -n "${MYSQL_PORT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env MYSQL_PORT failed !"
-  [[ -n "${POD_NAME:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env POD_NAME failed !"
-  [[ -n "${ARCH_MODE:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env ARCH_MODE failed !"
 
   # Set global variables with defaults
   readonly INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"

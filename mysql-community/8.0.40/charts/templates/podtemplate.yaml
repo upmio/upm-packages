@@ -56,6 +56,16 @@ template:
             value: "$(DATA_MOUNT)/binlog"
           - name: RELAY_LOG_DIR
             value: "$(DATA_MOUNT)/relaylog"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
+          - name: ARCH_MODE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['upm.api/service.arch.mode']"
       - name: sysctl
         image: {{ include "mysql.image" . }}
         command:
@@ -87,6 +97,11 @@ template:
             value: "$(DATA_MOUNT)/binlog"
           - name: RELAY_LOG_DIR
             value: "$(DATA_MOUNT)/relaylog"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
         livenessProbe:
           exec:
             command:
@@ -178,6 +193,16 @@ template:
                 containerName: "mysql"
                 resource: "limits.memory"
                 divisor: "1Mi"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
+          - name: ARCH_MODE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['upm.api/service.arch.mode']"
         resources:
           requests:
             cpu: 200m
@@ -199,8 +224,13 @@ template:
             value: "9104"
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
+          - name: ARCH_MODE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['upm.api/service.arch.mode']"
         {{- if .Values.metrics.resources }}
-        resources: {{- toYaml .Values.metrics.resources | nindent 10 }}
+        resources: {{ toYaml .Values.metrics.resources | nindent 10 }}
         {{- end }}
         livenessProbe:
           httpGet:

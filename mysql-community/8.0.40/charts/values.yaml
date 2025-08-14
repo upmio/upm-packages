@@ -16,13 +16,13 @@ metrics:
     tag: "0.16.0"
     digest: ""
     pullPolicy: IfNotPresent
-    resources:
-      requests:
-        cpu: 200m
-        memory: 256Mi
-      limits:
-        cpu: 500m
-        memory: 512Mi
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
 
 agent:
   image:
