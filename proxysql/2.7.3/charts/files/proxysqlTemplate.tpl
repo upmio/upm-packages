@@ -5,8 +5,8 @@ pidfile="{{ getenv "DATA_DIR" }}/proxysql.pid"
 
 admin_variables=
 {
-  admin_credentials="admin:{{ AESCBCDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER")) }};{{ getenv "RADM_USER" }}:{{ AESCBCDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "RADM_USER")) }}"
-  stats_credentials="stats:{{ AESCBCDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "MON_USER")) }}"
+  admin_credentials="admin:{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER")) }};{{ getenv "RADM_USER" }}:{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "RADM_USER")) }}"
+  stats_credentials="stats:{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "MON_USER")) }}"
   mysql_ifaces="0.0.0.0:{{ getenv "ADMIN_PORT" }}"
   debug={{ getv "/admin/debug" }}
   restapi_enabled=true
@@ -29,7 +29,7 @@ mysql_variables=
   threshold_resultset_size={{ getv "/mysql/threshold_resultset_size" }}
   default_schema="{{ getv "/mysql/default_schema" }}"
   monitor_username="{{ getenv "MON_USER" }}"
-  monitor_password="{{ AESCBCDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "MON_USER")) }}"
+  monitor_password="{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "MON_USER")) }}"
   max_connections="{{ getv "/mysql/max_connections" }}"
   default_query_delay="{{ getv "/mysql/default_query_delay" }}"
   default_query_timeout="{{ getv "/mysql/default_query_timeout" }}"

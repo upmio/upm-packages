@@ -8,7 +8,7 @@ umask 027
 # ##############################################################################
 # Global Constants and Configuration
 # ##############################################################################
-readonly SCRIPT_VERSION="v2.0.0"
+readonly SCRIPT_VERSION="v1.0.0"
 readonly POSIXLY_CORRECT=1
 export POSIXLY_CORRECT
 export LANG=C
@@ -168,13 +168,15 @@ initialize() {
 
     info "${func_name}" "Starting initialize ProxySQL!"
 
+    local config_template="${CONF_DIR}/proxysql.cnf.template"
+
     # Generate ProxySQL configuration file from template
-    if [[ -f "${CONF_TEMPLATE}" ]]; then
+    if [[ -f "${config_template}" ]]; then
       # Render configuration template
       local config_file="${CONF_DIR}/proxysql.cnf"
 
       # Copy template to config location
-      cp "${CONF_TEMPLATE}" "${config_file}" || {
+      cp "${config_template}" "${config_file}" || {
         die "${EXIT_PROXYSQL_CONFIG_FAILED}" "${func_name}" "copy config template failed!"
       }
 
@@ -226,7 +228,7 @@ initialize() {
 
           # Add MySQL server to ProxySQL
           mysql --user="admin" --password="${admin_pwd}" --host="localhost" --port="${ADMIN_PORT:-6032}" --execute="
-            INSERT INTO mysql_servers (hostgroup_id, hostname, port) 
+            INSERT INTO mysql_servers (hostgroup_id, hostname, port)
             VALUES (10, '${host}', ${port});" || {
             error "${func_name}" "Failed to add MySQL server ${server} to ProxySQL"
           }
@@ -295,8 +297,8 @@ initialize() {
   info "${func_instance}" "run ${func_instance} done."
 }
 
-check_health() {
-  local func_name="check_health"
+health() {
+  local func_name="health"
 
   # Validate required environment variables
   [[ -n "${ADM_USER:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "ADM_USER environment variable not set!"
@@ -341,7 +343,7 @@ main() {
     initialize
     ;;
   "health")
-    check_health
+    health
     ;;
   *)
     die "${EXIT_UNSUPPORTED_ACTION}" "${func_name}" "service action(${action}) nonsupport"
@@ -363,12 +365,10 @@ validate_environment() {
   [[ -n "${LOG_MOUNT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env LOG_MOUNT failed !"
   [[ -d ${LOG_MOUNT} ]] || die "${EXIT_DIR_NOT_FOUND}" "${func_name}" "Not found LOG_MOUNT !"
   [[ -n "${ADMIN_PORT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env ADMIN_PORT failed !"
-  [[ -n "${PROXYSQL_PORT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env PROXYSQL_PORT failed !"
 
   # Set global variables with defaults
   readonly INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"
   readonly FORCE_CLEAN="${FORCE_CLEAN:-false}"
-  readonly CONF_TEMPLATE="${CONF_DIR}/proxysql.cnf.template"
 }
 
 # ##############################################################################

@@ -286,7 +286,7 @@ Uses UPM's standard template system:
 - `getenv "VAR_NAME"` - Environment variables
 - `getv "/path/to/param"` - Parameter values
 - `add/mul/atoi` - Mathematical operations
-- `AESCBCDecrypt` - Password decryption
+- `AESCTRDecrypt` - Password decryption
 
 ## Performance Optimization
 
