@@ -8,7 +8,7 @@ umask 027
 # ##############################################################################
 # Global Constants and Configuration
 # ##############################################################################
-readonly SCRIPT_VERSION="v2.0.0"
+readonly SCRIPT_VERSION="v1.0.0"
 readonly POSIXLY_CORRECT=1
 export POSIXLY_CORRECT
 export LANG=C
@@ -74,6 +74,8 @@ health() {
   if pgrep -f "QuorumPeerMain" >/dev/null; then
     info "${func_name}" "ZooKeeper process is running"
 
+    [[ -n "${CLIENT_PORT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "CLIENT_PORT environment variable not set!"
+
     # Check ZooKeeper port availability
     if timeout 5 bash -c "</dev/tcp/localhost/${CLIENT_PORT}" 2>/dev/null; then
       info "${func_name}" "ZooKeeper port ${CLIENT_PORT} is accessible"
@@ -98,6 +100,12 @@ initialize() {
   local func_instance="${func_name}(${random_id})"
 
   info "${func_instance}" "Starting run ${func_instance} ..."
+
+  # Validate required environment variables
+  [[ -n "${ZOO_LOG_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "ZOO_LOG_DIR environment variable not set!"
+  [[ -n "${ZOO_DATA_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "ZOO_DATA_DIR environment variable not set!"
+  [[ -n "${ZOO_DATA_LOG_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "ZOO_DATA_LOG_DIR environment variable not set!"
+  [[ -n "${ZOOCFGDIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "ZOOCFGDIR environment variable not set!"
 
   # Check if already initialized
   if [[ ! -f "${INIT_FLAG_FILE}" ]]; then
@@ -178,13 +186,8 @@ validate_environment() {
   # Validate required environment variables
   [[ -n "${DATA_MOUNT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env DATA_MOUNT failed !"
   [[ -d ${DATA_MOUNT} ]] || die "${EXIT_DIR_NOT_FOUND}" "${func_name}" "Not found DATA_MOUNT !"
-  [[ -n "${ZOO_DATA_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env ZOO_DATA_DIR failed !"
-  [[ -n "${ZOO_DATA_LOG_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env ZOO_DATA_LOG_DIR failed !"
-  [[ -n "${ZOOCFGDIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env ZOOCFGDIR failed !"
   [[ -n "${LOG_MOUNT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env LOG_MOUNT failed !"
   [[ -d ${LOG_MOUNT} ]] || die "${EXIT_DIR_NOT_FOUND}" "${func_name}" "Not found LOG_MOUNT !"
-  [[ -n "${ZOO_LOG_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env ZOO_LOG_DIR failed !"
-  [[ -n "${CLIENT_PORT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env CLIENT_PORT failed !"
 
   # Set global variables with defaults
   readonly INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"
