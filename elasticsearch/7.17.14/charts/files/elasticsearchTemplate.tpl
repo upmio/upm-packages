@@ -4,8 +4,8 @@ cluster.name: "{{ getenv "SERVICE_GROUP_NAME" }}"
 node.name: "{{ getenv "UNIT_NAME" }}"
 network.host: "{{ getv "/defaults/network_host" }}"
 node.roles: {{ getenv "NODE_ROLES" }}
-http.port: {{ getv "/elasticsearch_elasticsearch_port" }}
-transport.port: {{ getv "/elasticsearch_transport_port" }}
+http.port: {{ getenv "ELASTICSEARCH_PORT" }}
+transport.port: 9300
 discovery.seed_hosts: {{ getv "/elasticsearch_member_list" }}
 cluster.initial_master_nodes: {{ getv "/master_member_list" }}
 xpack.monitoring.collection.enabled: true

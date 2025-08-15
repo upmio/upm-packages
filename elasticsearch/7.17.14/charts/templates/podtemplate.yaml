@@ -48,6 +48,11 @@ template:
             value: "$(DATA_MOUNT)/data"
           - name: ES_PATH_CONF
             value: "$(DATA_MOUNT)/conf"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
       - name: sysctl
         image: {{ include "elasticsearch.image" . }}
         command:
@@ -73,6 +78,11 @@ template:
             value: "$(DATA_MOUNT)/data"
           - name: ES_PATH_CONF
             value: "$(DATA_MOUNT)/conf"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
         livenessProbe:
           exec:
             command:
@@ -135,7 +145,7 @@ template:
                 apiVersion: "v1"
                 fieldPath: "metadata.name"
         {{- if .Values.metrics.resources }}
-        resources: {{- toYaml .Values.metrics.resources | nindent 10 }}
+        resources: {{ toYaml .Values.metrics.resources | nindent 10 }}
         {{- end }}
         livenessProbe:
           httpGet:

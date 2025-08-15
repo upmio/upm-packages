@@ -9,7 +9,7 @@ elasticsearch.ssl.key: "{{ getenv "CONF_DIR" }}/tls.key"
 elasticsearch.ssl.certificateAuthorities: ["{{ getenv "CONF_DIR" }}/ca.crt"]
 elasticsearch.ssl.verificationMode: certificate
 elasticsearch.username: "{{ getenv "KBN_USER" }}_user"
-elasticsearch.password: "{{ AESCBCDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "KBN_USER")) }}"
+elasticsearch.password: "{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "KBN_USER")) }}"
 pid.file: {{getenv "DATA_MOUNT"}}/kibana.pid
 i18n.locale: "{{ getv "/defaults/i18n_locale" }}"
 xpack.encryptedSavedObjects.encryptionKey: {{ getv "/defaults/encryption_key" }}

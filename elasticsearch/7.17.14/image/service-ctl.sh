@@ -8,7 +8,7 @@ umask 027
 # ##############################################################################
 # Global Constants and Configuration
 # ##############################################################################
-readonly SCRIPT_VERSION="v2.0.0"
+readonly SCRIPT_VERSION="v1.0.0"
 readonly POSIXLY_CORRECT=1
 export POSIXLY_CORRECT
 export LANG=C
@@ -137,7 +137,6 @@ admin_user_login() {
 
   # Validate required environment variables
   [[ -n "${ADM_USER:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "ADM_USER environment variable not set!"
-
   local adm_pwd
   adm_pwd=$(decrypt_pwd "${ADM_USER}")
   [[ -n "${adm_pwd}" ]] || die "${EXIT_GENERAL_FAILURE}" "${func_name}" "get ${ADM_USER} password failed!"
@@ -152,7 +151,6 @@ health() {
 
   # Validate required environment variables
   [[ -n "${MON_USER:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "MON_USER environment variable not set!"
-
   local mon_pwd
   mon_pwd=$(decrypt_pwd "${MON_USER}")
   [[ -n "${mon_pwd}" ]] || die "${EXIT_GENERAL_FAILURE}" "${func_name}" "get ${MON_USER} password failed!"
