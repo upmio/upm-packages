@@ -8,7 +8,7 @@ umask 027
 # ##############################################################################
 # Global Constants and Configuration
 # ##############################################################################
-readonly SCRIPT_VERSION="v2.0.0"
+readonly SCRIPT_VERSION="v1.0.0"
 readonly POSIXLY_CORRECT=1
 export POSIXLY_CORRECT
 export LANG=C
@@ -73,6 +73,8 @@ health() {
   # Check if Kafka process is running
   if pgrep -f "kafka.Kafka" >/dev/null; then
     info "${func_name}" "Kafka process is running"
+
+    [[ -n "${KAFKA_PORT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "KAFKA_PORT environment variable not set!"
 
     # Check Kafka port availability
     if timeout 5 bash -c "</dev/tcp/localhost/${KAFKA_PORT}" 2>/dev/null; then
@@ -174,7 +176,6 @@ validate_environment() {
   [[ -n "${CONF_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env CONF_DIR failed !"
   [[ -n "${LOG_MOUNT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env LOG_MOUNT failed !"
   [[ -d ${LOG_MOUNT} ]] || die "${EXIT_DIR_NOT_FOUND}" "${func_name}" "Not found LOG_MOUNT !"
-  [[ -n "${KAFKA_PORT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env KAFKA_PORT failed !"
 
   # Set global variables with defaults
   readonly INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"

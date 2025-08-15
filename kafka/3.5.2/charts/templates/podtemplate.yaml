@@ -102,7 +102,7 @@ template:
             command:
               - "bash"
               - "-c"
-              - "unset JMX_PORT; kafka-broker-api-versions.sh --bootstrap-server=${POD_NAME}.${SERVICE_NAME}-headless-svc.${NAMESPACE}:${INTERNAL_PORT} > /dev/null"
+              - "service-ctl.sh health"
           failureThreshold: 3
           initialDelaySeconds: 12
           periodSeconds: 12
