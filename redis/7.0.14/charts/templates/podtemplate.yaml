@@ -43,6 +43,11 @@ template:
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
       - name: sysctl
         image: {{ include "redis.image" . }}
         command:
@@ -63,6 +68,11 @@ template:
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
         livenessProbe:
           exec:
             command:
@@ -143,6 +153,11 @@ template:
                 containerName: "redis"
                 resource: "limits.memory"
                 divisor: "1Mi"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
         resources:
           requests:
             cpu: 200m
@@ -165,7 +180,7 @@ template:
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
         {{- if .Values.metrics.resources }}
-        resources: {{- toYaml .Values.metrics.resources | nindent 10 }}
+        resources: {{ toYaml .Values.metrics.resources | nindent 10 }}
         {{- end }}
         livenessProbe:
           httpGet:

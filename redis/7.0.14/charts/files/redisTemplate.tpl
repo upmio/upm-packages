@@ -19,9 +19,9 @@ rdbcompression {{ getv "/defaults/rdbcompression" }}
 rdbchecksum {{ getv "/defaults/rdbchecksum" }}
 dbfilename dump.rdb
 dir "{{ getenv "DATA_MOUNT" }}/data"
-masterauth "{{ AESCBCDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER")) }}"
-requirepass "{{ AESCBCDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER")) }}"
-user default on sanitize-payload #{{ sha256sum (AESCBCDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER"))) }}  ~* &* +@all
+masterauth "{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER")) }}"
+requirepass "{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER")) }}"
+user default on sanitize-payload #{{ sha256sum (AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER"))) }}  ~* &* +@all
 maxclients {{ getv "/defaults/maxclients" }}
 maxmemory {{ mul (div (atoi (getenv "REDIS_MEMORY_LIMIT")) 4) 3 }}mb
 maxmemory-policy {{ getv "/defaults/maxmemory-policy" }}
