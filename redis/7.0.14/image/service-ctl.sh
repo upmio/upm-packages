@@ -8,7 +8,7 @@ umask 027
 # ##############################################################################
 # Global Constants and Configuration
 # ##############################################################################
-readonly SCRIPT_VERSION="v2.0.0"
+readonly SCRIPT_VERSION="v1.0.0"
 readonly POSIXLY_CORRECT=1
 export POSIXLY_CORRECT
 export LANG=C

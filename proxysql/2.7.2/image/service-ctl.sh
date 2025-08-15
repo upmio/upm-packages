@@ -78,27 +78,10 @@ decrypt_pwd() {
   # Clean up temporary file on exit
   trap 'rm -f "${enc_in}"' RETURN
 
-  # Validate input
-  [[ -n "${username}" ]] || {
-    error "${func_name}" "get username failed !"
-    return "${EXIT_GENERAL_FAILURE}"
-  }
-
-  # Validate environment variables
-  [[ -n "${SECRET_MOUNT:-}" ]] || {
-    error "${func_name}" "get env SECRET_MOUNT failed !"
-    return "${EXIT_MISSING_ENV_VAR}"
-  }
-
-  [[ -d "${SECRET_MOUNT}" ]] || {
-    error "${func_name}" "Not found ${SECRET_MOUNT} failed !"
-    return "${EXIT_DIR_NOT_FOUND}"
-  }
-
-  [[ -n "${AES_SECRET_KEY:-}" ]] || {
-    error "${func_name}" "get env AES_SECRET_KEY failed !"
-    return "${EXIT_MISSING_ENV_VAR}"
-  }
+  [[ -n "${username}" ]] || { error "${func_name}" "get username failed !"; return "${EXIT_GENERAL_FAILURE}"; }
+  [[ -n "${SECRET_MOUNT:-}" ]] || { error "${func_name}" "get env SECRET_MOUNT failed !"; return "${EXIT_MISSING_ENV_VAR}"; }
+  [[ -d "${SECRET_MOUNT}" ]] || { error "${func_name}" "Not found ${SECRET_MOUNT} failed !"; return "${EXIT_DIR_NOT_FOUND}"; }
+  [[ -n "${AES_SECRET_KEY:-}" ]] || { error "${func_name}" "get env AES_SECRET_KEY failed !"; return "${EXIT_MISSING_ENV_VAR}"; }
 
   # Process encryption
   local enc_key
