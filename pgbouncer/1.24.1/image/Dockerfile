@@ -107,13 +107,12 @@ RUN set -ex \
 
 COPY --from=builder "${PGBOUNCER_BASE_DIR}" "${PGBOUNCER_BASE_DIR}"
 
-# Download pgbouncer package
-RUN chown -R "1001:1001" "${PGBOUNCER_BASE_DIR}"
-
 ENV PATH=$PATH:${PGBOUNCER_BASE_DIR}/bin
 
 COPY service-ctl.sh /usr/local/bin/
-RUN chown 1001:1001 /usr/local/bin/service-ctl.sh && chmod +x /usr/local/bin/service-ctl.sh
+RUN chown -R "1001:1001" "${PGBOUNCER_BASE_DIR}" && \
+    chown 1001:1001 /usr/local/bin/service-ctl.sh && \
+    chmod +x /usr/local/bin/service-ctl.sh
 
 COPY supervisord.conf /etc/supervisord.conf
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
