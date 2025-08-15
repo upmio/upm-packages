@@ -4,17 +4,17 @@ MySQL Community Edition component for UPM Packages - providing open-source relat
 
 ## Overview
 
-This component provides containerized MySQL Community Edition as part of the UPM Packages project. MySQL is the world's most popular open-source relational database management system.
+This directory contains the UPM package for MySQL Community Edition. This is not a standalone Helm chart and is designed to be used with the UPM (Unit Package Manager) system, which manages deployment and configuration through Custom Resource Definitions (CRDs).
 
 ## Features
 
 - **Multi-architecture support**: linux/amd64 and linux/arm64
-- **Helm Chart deployment**: Simplified Kubernetes deployment
-- **Dynamic configuration**: Template-based configuration generation
-- **Health monitoring**: Built-in health checks and monitoring
-- **Security hardening**: Non-root user operation, secure configuration
-- **Data persistence**: Persistent volume support
-- **High availability**: Support for replication and clustering
+- **UPM Package deployment**: Simplified Kubernetes deployment via UPM.
+- **Dynamic configuration**: Template-based configuration generation.
+- **Health monitoring**: Built-in health checks and monitoring.
+- **Security hardening**: Non-root user operation, secure configuration.
+- **Data persistence**: Persistent volume support.
+- **High availability**: Support for replication and clustering.
 
 ## Version Support
 
@@ -28,71 +28,28 @@ This component provides containerized MySQL Community Edition as part of the UPM
 
 ## Quick Start
 
+This package is managed by the UPM (Unit Package Manager). To deploy a MySQL instance, you need to have UPM installed and configured in your Kubernetes cluster.
+
 ### Using UPM Package Manager
 
-```bash
-# List available packages
-./upm-pkg-mgm.sh list
-
-# Install MySQL Community (component group)
-./upm-pkg-mgm.sh install mysql-community
-
-# Install specific version
-./upm-pkg-mgm.sh install mysql-community-8.4.5
-
-# Install with custom namespace
-./upm-pkg-mgm.sh install -n my-namespace mysql-community
-```
-
-### Using Helm Directly
+First, ensure the MySQL UPM package is installed in your `upm-system` namespace.
 
 ```bash
-# Install from UPM Packages repository
-helm install mysql upm-packages/mysql-community \
-  --namespace mysql \
-  --create-namespace
+# Add the upm-packages Helm repo
+helm repo add upm-packages https://upmio.github.io/upm-packages
+helm repo update
 
-# Install specific version
-helm install mysql upm-packages/mysql-community \
-  --version 8.4.5 \
-  --namespace mysql \
-  --create-namespace
+# Install the mysql-community UPM package for a specific version
+helm install --namespace=upm-system upm-packages-mysql-community-8.4.5 upm-packages/mysql-community-8.4.5
 ```
+
+Once the package is installed, you can create `Unit` and `UnitSet` resources to deploy and manage MySQL instances.
 
 ## Configuration
 
-### Main Parameters
+Configuration is managed through UPM's `Unit` and `UnitSet` CRDs, not through a `values.yaml` file in a traditional Helm workflow. The available parameters and their default values are defined within the UPM package.
 
-```yaml
-# Basic configuration
-image:
-  repository: quay.io/upmio/mysql-community
-  tag: "8.4.5"
-
-# MySQL configuration
-mysql:
-  rootPassword: "secure-password"
-  database: "app_db"
-  user: "app_user"
-  password: "app_password"
-  port: 3306
-  maxConnections: 200
-
-# Storage
-persistence:
-  enabled: true
-  size: "20Gi"
-  storageClass: "standard"
-
-# Resources
-resources:
-  requests:
-    memory: "1Gi"
-    cpu: "500m"
-  limits:
-    memory: "2Gi"
-    cpu: "1000m"
-```
+For a detailed list of configurable parameters, please refer to the `mysqlParametersDetail.json` and `mysqlValue.yaml` files located within each version's `charts/files` directory (e.g., `8.4.5/charts/files/`).
 
 ### Environment Variables
 
@@ -283,14 +240,22 @@ replication:
 
 ### Local Development
 
+To build the container image for a specific version:
+
 ```bash
 # Build specific version
 docker buildx build --platform linux/amd64,linux/arm64 \
-  -t mysql-community:8.4.5 \
+  -t upmio/mysql-community:8.4.5 \
   8.4.5/image/
+```
 
-# Test Helm chart
+To test the UPM package:
+
+```bash
+# Lint the UPM package
 helm lint 8.4.5/charts/
+
+# Template the UPM package to inspect the output
 helm template test-release 8.4.5/charts/
 ```
 
