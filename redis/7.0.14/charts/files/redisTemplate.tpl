@@ -1,6 +1,6 @@
 protected-mode no
 replica-announce-ip {{ getenv "POD_NAME" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}
-port {{ getv "/redis_redis_port" }}
+port {{ getenv "REDIS_PORT" }}
 tcp-backlog {{ getv "/defaults/tcp-backlog" }}
 unixsocket {{ getenv "DATA_MOUNT" }}/redis.sock
 timeout {{ getv "/defaults/timeout" }}
