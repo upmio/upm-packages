@@ -301,4 +301,27 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/mysql-router-community-8.4.5-1.0.0/mysql-router-community-8.4.5-1.0.0.tgz
     version: 1.0.0
-generated: "2025-08-19T05:45:49.24854855Z"
+  pgbouncer-1.23.1:
+  - apiVersion: v2
+    appVersion: 1.23.1
+    created: "2025-08-19T05:46:04.004881374Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: PGBouncer software packages, including configuration templates and
+      pod templates.
+    digest: 56bfb0708437fb4f05aad9408f4a32d5e222db3b297f0756035e02e726be2b50
+    keywords:
+    - postgresql
+    - pgbouncer
+    - database
+    - sql
+    name: pgbouncer-1.23.1
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/pgbouncer-1.23.1-1.0.0/pgbouncer-1.23.1-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-08-19T05:46:04.004896853Z"
