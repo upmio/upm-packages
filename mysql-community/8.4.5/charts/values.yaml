@@ -1,0 +1,32 @@
+---
+global:
+  imageRegistry: ""
+
+image:
+  registry: quay.io
+  repository: upmio/mysql-community
+  tag: "8.4.5"
+  digest: ""
+  pullPolicy: IfNotPresent
+
+metrics:
+  image:
+    registry: quay.io
+    repository: upmio/mysqld-exporter
+    tag: "0.16.0"
+    digest: ""
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+agent:
+  image:
+    registry: quay.io
+    repository: upmio/mysql-community-agent
+    tag: "8.4"
+    pullPolicy: IfNotPresent

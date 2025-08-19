@@ -1,0 +1,123 @@
+[
+  {
+    "key": "idle_in_transaction_session_timeout",
+    "scope": "Global",
+    "section": "postgresql",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "0-2147483647",
+    "default": "0",
+    "desc_en": "Terminate any session with an open transaction that has been idle for longer than the specified amount of time. This allows any locks held by that session to be released and the connection slot to be reused; it also allows tuples visible only to this transaction to be vacuumed.",
+    "desc_zh": "终止任何打开事务的会话，该事务在指定时间内处于空闲状态。这样可以释放该会话持有的任何锁，并重新使用连接槽；它还允许仅对该事务可见的元组被清理。"
+  },
+  {
+    "key": "statement_timeout",
+    "scope": "Global",
+    "section": "postgresql",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "0-2147483647",
+    "default": "0",
+    "desc_en": "Abort any statement that takes more than the specified amount of time. If log_min_error_statement is set to ERROR or lower, the statement that timed out will also be logged. If this value is specified without units, it is taken as milliseconds. A value of zero (the default) disables the timeout.",
+    "desc_zh": "中止任何超过指定时间的语句。如果log_min_error_statement设置为ERROR或更低，则超时的语句也将被记录。如果此值未指定单位，则将其视为毫秒。零值（默认值）禁用超时。"
+  },
+  {
+    "key": "checkpoint_timeout",
+    "scope": "Global",
+    "section": "postgresql",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "30-86400",
+    "default": "300",
+    "desc_en": "Maximum time between automatic WAL checkpoints. If this value is specified without units, it is taken as seconds. The valid range is between 30 seconds and one day. The default is five minutes (5min). Increasing this parameter can increase the amount of time needed for crash recovery. This parameter can only be set in the postgresql.conf file or on the server command line.",
+    "desc_zh": "自动WAL检查点之间的最长时间。如果此值未指定单位，则将其视为秒。有效范围为30秒到一天。默认值为五分钟（5分钟）。增加此参数可能会增加崩溃恢复所需的时间。此参数只能在postgresql.conf文件或服务器命令行中设置。"
+  },
+  {
+    "key": "work_mem",
+    "scope": "Global",
+    "section": "postgresql",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "64-2147483647",
+    "default": "4096",
+    "desc_en": "Sets the base maximum amount of memory to be used by a query operation (such as a sort or hash table) before writing to temporary disk files. If this value is specified without units, it is taken as kilobytes. The default value is four megabytes (4MB). Note that a complex query might perform several sort and hash operations at the same time, with each operation generally being allowed to use as much memory as this value specifies before it starts to write data into temporary files. Also, several running sessions could be doing such operations concurrently. Therefore, the total memory used could be many times the value of work_mem; it is necessary to keep this fact in mind when choosing the value. Sort operations are used for ORDER BY, DISTINCT, and merge joins. Hash tables are used in hash joins, hash-based aggregation, memoize nodes and hash-based processing of IN subqueries.",
+    "desc_zh": "设置查询操作（如排序或哈希表）在写入临时磁盘文件之前使用的最大内存量的基准值。如果此值未指定单位，则将其视为千字节。默认值为四兆字节（4MB）。请注意，复杂查询可能会同时执行多个排序和哈希操作，每个操作通常被允许使用与此值指定的内存一样多的内存，然后才开始将数据写入临时文件。此外，多个正在运行的会话可能会同时执行此类操作。因此，使用的总内存可能是work_mem值的多倍；在选择值时需要牢记这一点。排序操作用于ORDER BY、DISTINCT和合并连接。哈希表用于哈希连接、基于哈希的聚合、记忆节点和基于哈希的IN子查询处理。"
+  },
+  {
+    "key": "max_prepared_transactions",
+    "scope": "Global",
+    "section": "postgresql",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "0-262143",
+    "default": "0",
+    "desc_en": "Sets the maximum number of transactions that can be in the \"prepared\" state simultaneously. Setting this parameter to zero (which is the default) disables the prepared-transaction feature. This parameter can only be set at server start. If you are not planning to use prepared transactions, this parameter should be set to zero to prevent accidental creation of prepared transactions. If you are using prepared transactions, you will probably want max_prepared_transactions to be at least as large as max_connections, so that every session can have a prepared transaction pending. When running a standby server, you must set this parameter to the same or higher value than on the primary server. Otherwise, queries will not be allowed in the standby server.",
+    "desc_zh": "设置可以同时处于“准备”状态的事务的最大数量。将此参数设置为零（默认值）将禁用准备事务功能。此参数只能在服务器启动时设置。如果您不打算使用准备事务，则应将此参数设置为零，以防止意外创建准备事务。如果您使用准备事务，则可能希望max_prepared_transactions至少与max_connections一样大，以便每个会话都可以有一个准备事务挂起。在运行备用服务器时，必须将此参数设置为与主服务器相同或更高的值。否则，备用服务器将不允许查询。"
+  },
+  {
+    "key": "max_wal_size",
+    "scope": "Global",
+    "section": "postgresql",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "2-2147483647",
+    "default": "1024",
+    "desc_en": "Maximum size to let the WAL grow during automatic checkpoints. This is a soft limit; WAL size can exceed max_wal_size under special circumstances, such as heavy load, a failing archive_command or archive_library, or a high wal_keep_size setting. If this value is specified without units, it is taken as megabytes. The default is 1 GB. Increasing this parameter can increase the amount of time needed for crash recovery. This parameter can only be set in the postgresql.conf file or on the server command line.",
+    "desc_zh": "允许WAL在自动检查点期间增长的最大大小。这是一个软限制；在特殊情况下，例如负载过重、归档命令或归档库失败或wal_keep_size设置过高，WAL大小可能会超过max_wal_size。如果此值未指定单位，则将其视为兆字节。默认值为1 GB。增加此参数可能会增加崩溃恢复所需的时间。此参数只能在postgresql.conf文件或服务器命令行中设置。"
+  },
+  {
+    "key": "checkpoint_completion_target",
+    "scope": "Global",
+    "section": "postgresql",
+    "type": "Float",
+    "dynamic": true,
+    "range": "0.0-1.0",
+    "default": "0.9",
+    "desc_en": "Specifies the target of checkpoint completion, as a fraction of total time between checkpoints. The default is 0.9, which spreads the checkpoint across almost all of the available interval, providing fairly consistent I/O load while also leaving some time for checkpoint completion overhead. Reducing this parameter is not recommended because it causes the checkpoint to complete faster. This results in a higher rate of I/O during the checkpoint followed by a period of less I/O between the checkpoint completion and the next scheduled checkpoint. This parameter can only be set in the postgresql.conf file or on the server command line.",
+    "desc_zh": "指定检查点完成的目标，作为检查点之间总时间的一个分数。默认值为0.9，这将检查点分布在几乎所有可用间隔中，从而提供相当一致的I/O负载，同时还留出一些时间用于检查点完成开销。不建议减少此参数，因为这会导致检查点更快完成。这会导致在检查点期间I/O速率更高，随后是检查点完成和下一个计划检查点之间的较少I/O时间段。此参数只能在postgresql.conf文件或服务器命令行中设置。"
+  },
+  {
+    "key": "autovacuum_vacuum_scale_factor",
+    "scope": "Global",
+    "section": "postgresql",
+    "type": "Float",
+    "dynamic": true,
+    "range": "0.0-100.0",
+    "default": "0.2",
+    "desc_en": "Specifies a fraction of the table size to add to autovacuum_vacuum_threshold when deciding whether to trigger a VACUUM. The default is 0.2 (20% of table size). This parameter can only be set in the postgresql.conf file or on the server command line; but the setting can be overridden for individual tables by changing table storage parameters.",
+    "desc_zh": "指定表大小的一个分数，以添加到autovacuum_vacuum_threshold中，以决定是否触发VACUUM。默认值为0.2（表大小的20%）。此参数只能在postgresql.conf文件或服务器命令行中设置；但可以通过更改表存储参数来覆盖单个表的设置。"
+  },
+  {
+    "key": "autovacuum_analyze_scale_factor",
+    "scope": "Global",
+    "section": "postgresql",
+    "type": "Float",
+    "dynamic": true,
+    "range": "0.0-100.0",
+    "default": "0.1",
+    "desc_en": "Specifies a fraction of the table size to add to autovacuum_analyze_threshold when deciding whether to trigger an ANALYZE. The default is 0.1 (10% of table size). This parameter can only be set in the postgresql.conf file or on the server command line; but the setting can be overridden for individual tables by changing table storage parameters.",
+    "desc_zh": "指定表大小的一个分数，以添加到autovacuum_analyze_threshold中，以决定是否触发ANALYZE。默认值为0.1（表大小的10%）。此参数只能在postgresql.conf文件或服务器命令行中设置；但可以通过更改表存储参数来覆盖单个表的设置。"
+  },
+  {
+    "key": "log_min_duration_statement",
+    "scope": "Global",
+    "section": "postgresql",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "-1-2147483647",
+    "default": "-1",
+    "desc_en": "Causes the duration of each completed statement to be logged if the statement ran for at least the specified amount of time. For example, if you set it to 250ms then all SQL statements that run 250ms or longer will be logged. Enabling this parameter can be helpful in tracking down unoptimized queries in your applications. If this value is specified without units, it is taken as milliseconds. Setting this to zero prints all statement durations. -1 (the default) disables logging statement durations. Only superusers and users with the appropriate SET privilege can change this setting.",
+    "desc_zh": "如果语句运行时间至少达到指定时间，则会导致记录每个已完成语句的持续时间。例如，如果将其设置为250毫秒，则所有运行250毫秒或更长时间的SQL语句都将被记录。启用此参数有助于跟踪应用程序中的未优化查询。如果此值未指定单位，则将其视为毫秒。将此值设置为零会打印所有语句持续时间。-1（默认值）禁用记录语句持续时间。只有超级用户和具有适当SET权限的用户才能更改此设置。"
+  },
+  {
+    "key": "jit",
+    "scope": "Global",
+    "section": "postgresql",
+    "type": "Boolean",
+    "dynamic": true,
+    "range": "[\"off\",\"on\"]",
+    "default": "on",
+    "desc_en": "Enable or disable the Just-in-Time (JIT) compilation feature. JIT compilation can improve the performance of certain types of queries by compiling them into machine code at runtime. The default value is 'on', which enables JIT compilation. Setting this parameter to 'off' disables JIT compilation.",
+    "desc_zh": "启用或禁用即时编译（JIT）功能。JIT编译可以通过在运行时将某些类型的查询编译为机器代码来提高性能。默认值为“on”，表示启用JIT编译。将此参数设置为“off”将禁用JIT编译。"
+  }
+]

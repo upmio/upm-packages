@@ -1,0 +1,12 @@
+---
+postgresql:
+  idle_in_transaction_session_timeout: "300000"
+  statement_timeout: "60000"
+  checkpoint_timeout: "300"
+  max_prepared_transactions: "500"
+  max_wal_size: "4096"
+  checkpoint_completion_target: "0.9"
+  autovacuum_vacuum_scale_factor: "0.1"
+  autovacuum_analyze_scale_factor: "0.1"
+  log_min_duration_statement: "1000"
+  jit: "on"

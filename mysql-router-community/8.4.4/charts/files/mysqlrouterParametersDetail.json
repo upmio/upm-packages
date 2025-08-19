@@ -1,0 +1,68 @@
+[
+  {
+    "key": "max_total_connections",
+    "scope": "Global",
+    "section": "default",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "1 - 9223372036854775807",
+    "default": "512",
+    "desc_en": "The maximum number of client connections handled by Router, to help prevent running out of the file descriptors.",
+    "desc_zh": "Router处理的客户端连接的最大数量，以帮助防止文件描述符耗尽。"
+  },
+  {
+    "key": "connect_timeout",
+    "scope": "Global, Session",
+    "section": "default",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "1 - 65536",
+    "default": "5",
+    "desc_en": "Timeout value used by the MySQL Router when connecting to the MySQL metadata server.",
+    "desc_zh": "MySQL Router连接到MySQL元数据服务器时使用的超时值。"
+  },
+  {
+    "key": "read_timeout",
+    "scope": "Global",
+    "section": "default",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "1 - 65536",
+    "default": "30",
+    "desc_en": "Timeout value used by the MySQL Router when reading from the MySQL metadata server. The default value is 30 seconds.",
+    "desc_zh": "MySQL Router从MySQL元数据服务器读取时使用的超时值。默认值为30秒。"
+  },
+  {
+    "key": "unknown_config_option",
+    "scope": "Global",
+    "section": "default",
+    "type": "Enumeration",
+    "dynamic": true,
+    "range": "[\"warning\",\"error\"]",
+    "default": "warning",
+    "desc_en": "Determines MySQL Router behavior for handling unknown configuration options, such as typos.A warning is default behavior, and bootstrapping defines it as error in the generated configuration file. Warning logs a warning message but does not halt, whereas an error means MySQL Router fails to initialize and exits.",
+    "desc_zh": "确定MySQL Router处理未知配置选项（例如拼写错误）的行为。warning是默认行为，引导定义为在生成的配置文件中的错误。警告记录警告消息但不会停止，而error意味着MySQL Router无法初始化并退出。"
+  },
+  {
+    "key": "max_idle_server_connections",
+    "scope": "Global",
+    "section": "default",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "0 - 4294967296",
+    "default": "0",
+    "desc_en": "Connections to keep open in the connection pool after the client disconnects; and is set in the [connection_pool] section. The default is 0, which disables connection pooling.",
+    "desc_zh": "客户端断开连接后保持在连接池中打开的连接数；并在[connection_pool]部分中设置。默认值为0，表示禁用连接池。"
+  },
+  {
+    "key": "level",
+    "scope": "Global, Session",
+    "section": "logger",
+    "type": "Enumeration",
+    "dynamic": true,
+    "range": "[\"DEBUG\",\"NOTE\",\"INFO\",\"WARNING\",\"ERROR\",\"SYSTEM\",\"FATAL\"]",
+    "default": "INFO",
+    "desc_en": "Use the logger plugin to log notices, errors, and debugging information. The available log levels are DEBUG, NOTE, INFO (default), WARNING, ERROR, SYSTEM, and FATAL. These values are case-insensitive.",
+    "desc_zh": "使用日志记录器插件记录通知、错误和调试信息。可用的日志级别为DEBUG、NOTE、INFO（默认）、WARNING、ERROR、SYSTEM和FATAL。这些值不区分大小写。"
+  }
+]

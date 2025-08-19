@@ -1,0 +1,6 @@
+---
+defaults:
+  i18n_locale: "en"
+  monitoring_enabled: "true"
+  monitoring_ui_container_apm_enabled: "true"
+  monitoring_ui_container_elasticsearch_enabled: "true"

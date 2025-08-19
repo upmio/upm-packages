@@ -1,0 +1,99 @@
+name: CI
+
+run-name: ${{ github.actor }} is running CI checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-and-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install base dependencies
+        run: |
+          set -e
+          sudo apt-get update
+          sudo apt-get install -y shellcheck jq curl gpg
+          pip3 install yamllint
+          # yq
+          sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+          # Helm
+          curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+          sudo apt-get update
+          sudo apt-get install -y helm
+
+      - name: Run lint suite
+        run: |
+          ./scripts/lint.sh --install-deps
+
+      - name: Run tests (unit + integration)
+        run: |
+          SKIP_SHELLCHECK_IN_TESTS=true ./scripts/test.sh all
+
+      - name: Validate Helm charts
+        run: |
+          ./scripts/validate-charts.sh
+
+  build-test-images:
+    needs: quality-and-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Determine changed components
+        id: find-changes
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            changed_files=$(git diff --name-only origin/${{ github.base_ref }} HEAD | grep "image/" || true)
+          else
+            changed_files=$(git diff --name-only HEAD^ HEAD | grep "image/" || true)
+          fi
+
+          if [ -n "$changed_files" ]; then
+            components_json="$(echo "$changed_files" | while read -r file; do
+              [ -n "$file" ] || continue
+              component=$(echo "$file" | awk -FS'/' '{print $1}')
+              [ -n "$component" ] && echo "$component"
+            done | sort | uniq | jq -R . | jq -sc .)"
+            echo "components=$components_json" >> $GITHUB_OUTPUT
+          else
+            echo "components=[]" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Test Docker build for changed components
+        if: steps.find-changes.outputs.components != '[]'
+        run: |
+          echo '=== Testing Docker builds for changed components ==='
+          echo '${{ steps.find-changes.outputs.components }}' | jq -r '.[]' | while read -r component; do
+            echo "Testing component: $component"
+            find . -path "*/${component}/*/image/Dockerfile" -type f | while read dockerfile; do
+              context_dir=$(dirname "$dockerfile")
+              echo "Building: $context_dir"
+              docker build --pull --rm -t test-build:${component} "$context_dir"
+              docker rmi test-build:${component} || true
+            done
+          done
+
+      - name: No image changes detected
+        if: steps.find-changes.outputs.components == '[]'
+        run: |
+          echo "No image changes detected in this PR. Skipping image build tests."

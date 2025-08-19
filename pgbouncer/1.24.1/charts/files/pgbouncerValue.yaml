@@ -1,0 +1,8 @@
+---
+pgbouncer:
+  pool_mode: "transaction"
+  min_pool_size: "0"
+  default_pool_size: "1000"
+  max_client_conn: "1000"
+  max_db_connections: "200"
+  max_user_connections: "200"

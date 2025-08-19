@@ -1,0 +1,189 @@
+[
+  {
+    "key": "num_network_threads",
+    "scope": "Global",
+    "section": "kafka",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1 - ",
+    "default": "3",
+    "desc_en": "The number of threads that the server uses for receiving requests from the network and sending responses to the network. Noted: each listener (except for controller listener) creates its own thread pool.",
+    "desc_zh": "服务器用于接收网络请求和向网络发送响应的线程数。注意：每个监听器（控制器监听器除外）都会创建自己的线程池。"
+  },
+  {
+    "key": "num_io_threads",
+    "scope": "Global",
+    "section": "kafka",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1 - ",
+    "default": "8",
+    "desc_en": "The number of threads that the server uses for processing requests, which may include disk I/O",
+    "desc_zh": "服务器用于处理请求的线程数，可能包括磁盘I/O操作。"
+  },
+  {
+    "key": "socket_send_buffer_bytes",
+    "scope": "Global",
+    "section": "kafka",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "",
+    "default": "102400",
+    "desc_en": "The SO_SNDBUF buffer of the socket server sockets. If the value is -1, the OS default will be used.",
+    "desc_zh": "套接字服务器套接字的SO_SNDBUF缓冲区大小。如果值为-1，将使用操作系统默认值。"
+  },
+  {
+    "key": "socket_receive_buffer_bytes",
+    "scope": "Global",
+    "section": "kafka",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "",
+    "default": "102400",
+    "desc_en": "The SO_RCVBUF buffer of the socket server sockets. If the value is -1, the OS default will be used.",
+    "desc_zh": "套接字服务器套接字的SO_RCVBUF缓冲区大小。如果值为-1，将使用操作系统默认值。"
+  },
+  {
+    "key": "socket_request_max_bytes",
+    "scope": "Global",
+    "section": "kafka",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "",
+    "default": "104857600",
+    "desc_en": "The maximum number of bytes in a socket request.",
+    "desc_zh": "套接字请求的最大字节数。"
+  },
+  {
+    "key": "num_partitions",
+    "scope": "Global",
+    "section": "kafka",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1 - ",
+    "default": "1",
+    "desc_en": "The default number of log partitions per topic.",
+    "desc_zh": "每个主题的默认日志分区数。"
+  },
+  {
+    "key": "num_recovery_threads_per_data_dir",
+    "scope": "Global",
+    "section": "kafka",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1 - ",
+    "default": "1",
+    "desc_en": "The number of threads per data directory to be used for log recovery at startup and flushing at shutdown.",
+    "desc_zh": "每个数据目录用于启动时日志恢复和关闭时刷新的线程数。"
+  },
+  {
+    "key": "offsets_topic_replication_factor",
+    "scope": "Global",
+    "section": "kafka",
+    "type": "Short",
+    "dynamic": false,
+    "range": "1 - ",
+    "default": "3",
+    "desc_en": "The replication factor for the offsets topic (set higher to ensure availability). Internal topic creation will fail until the cluster size meets this replication factor requirement.",
+    "desc_zh": "偏移量主题的复制因子（设置更高以确保可用性）。内部主题创建将失败，直到集群大小满足此复制因子要求。"
+  },
+  {
+    "key": "transaction_state_log_replication_factor",
+    "scope": "Global",
+    "section": "kafka",
+    "type": "Short",
+    "dynamic": false,
+    "range": "1 - ",
+    "default": "3",
+    "desc_en": "The replication factor for the transaction topic (set higher to ensure availability). Internal topic creation will fail until the cluster size meets this replication factor requirement.",
+    "desc_zh": "事务状态日志的复制因子（设置更高以确保可用性）。内部主题创建将失败，直到集群大小满足此复制因子要求。"
+  },
+  {
+    "key": "transaction_state_log_min_isr",
+    "scope": "Global",
+    "section": "kafka",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1 - ",
+    "default": "2",
+    "desc_en": "Overridden min.insync.replicas config for the transaction topic.",
+    "desc_zh": "事务状态日志主题的min.insync.replicas配置覆盖值。"
+  },
+  {
+    "key": "log_retention_hours",
+    "scope": "Global",
+    "section": "kafka",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "",
+    "default": "168",
+    "desc_en": "The number of hours to keep a log file before deleting it (in hours), tertiary to log.retention.ms property.",
+    "desc_zh": "删除日志文件前保留的小时数（以小时为单位），优先级低于log.retention.ms属性。"
+  },
+  {
+    "key": "log_segment_bytes",
+    "scope": "Global",
+    "section": "kafka",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "14 - ",
+    "default": "1073741824",
+    "desc_en": "The maximum size of a single log file",
+    "desc_zh": "单个日志文件的最大大小。"
+  },
+  {
+    "key": "log_retention_check_interval_ms",
+    "scope": "Global",
+    "section": "kafka",
+    "type": "Long",
+    "dynamic": false,
+    "range": "",
+    "default": "300000",
+    "desc_en": "The frequency in milliseconds that the log cleaner checks whether any log is eligible for deletion.",
+    "desc_zh": "日志清理器检查是否有日志符合删除条件的频率（毫秒）。"
+  },
+  {
+    "key": "zookeeper_connection_timeout_ms",
+    "scope": "Global",
+    "section": "kafka",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "",
+    "default": "",
+    "desc_en": "The max time that the client waits to establish a connection to ZooKeeper. If not set, the value in zookeeper.session.timeout.ms is used.",
+    "desc_zh": "客户端等待建立ZooKeeper连接的最长时间。如果未设置，将使用zookeeper.session.timeout.ms的值。"
+  },
+  {
+    "key": "group_initial_rebalance_delay_ms",
+    "scope": "Global",
+    "section": "kafka",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "",
+    "default": "3000",
+    "desc_en": "The amount of time the group coordinator will wait for more consumers to join a new group before performing the first rebalance. A longer delay means potentially fewer rebalances, but increases the time until processing begins.",
+    "desc_zh": "组协调器在执行第一次重平衡之前等待更多消费者加入新组的时间。更长的延迟意味着可能更少的重平衡，但会增加开始处理的时间。"
+  },
+  {
+    "key": "delete_topic_enable",
+    "scope": "Global",
+    "section": "kafka",
+    "type": "Boolean",
+    "dynamic": false,
+    "range": "[\"true\", \"false\"]",
+    "default": "true",
+    "desc_en": "Enables delete topic. Delete topic through the admin tool will have no effect if this config is turned off",
+    "desc_zh": "启用删除主题功能。如果关闭此配置，通过管理工具删除主题将无效。"
+  },
+  {
+    "key": "auto_create_topics_enable",
+    "scope": "Global",
+    "section": "kafka",
+    "type": "Boolean",
+    "dynamic": false,
+    "range": "[\"true\", \"false\"]",
+    "default": "true",
+    "desc_en": "Enable auto creation of topic on the server.",
+    "desc_zh": "启用服务器上主题的自动创建功能。"
+  }
+]
