@@ -98,4 +98,26 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/mysql-community-8.0.40-1.0.0/mysql-community-8.0.40-1.0.0.tgz
     version: 1.0.0
-generated: "2025-08-19T05:43:40.52468853Z"
+  mysql-community-8.0.41:
+  - apiVersion: v2
+    appVersion: 8.0.41
+    created: "2025-08-19T05:43:53.388618344Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: MySQL community edition software packages, including configuration
+      templates and pod templates.
+    digest: 295abf6a8c8d7ca26517a64307c5ad54178b8ed2eea167beb6da103e00b870cd
+    keywords:
+    - mysql
+    - database
+    - sql
+    name: mysql-community-8.0.41
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/mysql-community-8.0.41-1.0.0/mysql-community-8.0.41-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-08-19T05:43:53.388631079Z"
