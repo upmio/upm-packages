@@ -393,4 +393,27 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/postgresql-15.13-1.0.0/postgresql-15.13-1.0.0.tgz
     version: 1.0.0
-generated: "2025-08-19T05:46:40.950669229Z"
+  proxysql-2.7.2:
+  - apiVersion: v2
+    appVersion: 2.7.2
+    created: "2025-08-19T05:46:51.072692222Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: ProxySQL software packages, including configuration templates and
+      pod templates.
+    digest: 1b4c161847aa083200ffb48ade7d49477654bf9b9b19c8a3f7b9ba6ea0e32ec5
+    keywords:
+    - mysql
+    - database
+    - sql
+    - proxy
+    name: proxysql-2.7.2
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/proxysql-2.7.2-1.0.0/proxysql-2.7.2-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-08-19T05:46:51.072704415Z"
