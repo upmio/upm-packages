@@ -52,4 +52,28 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/kafka-3.5.2-1.0.0/kafka-3.5.2-1.0.0.tgz
     version: 1.0.0
-generated: "2025-08-19T05:43:00.911082862Z"
+  kibana-7.17.14:
+  - apiVersion: v2
+    appVersion: 7.17.14
+    created: "2025-08-19T05:43:16.333225069Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: Kibana software packages, including configuration templates and pod
+      templates.
+    digest: 97375f20319758649ef94108cd6a79b392adeba659275be7774bf2dcb2d89abf
+    keywords:
+    - kibana
+    - elasticsearch
+    - observability
+    - logging
+    - monitoring
+    name: kibana-7.17.14
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/kibana-7.17.14-1.0.0/kibana-7.17.14-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-08-19T05:43:16.333234657Z"
