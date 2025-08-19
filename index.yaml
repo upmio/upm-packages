@@ -278,4 +278,27 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/mysql-router-community-8.4.4-1.0.0/mysql-router-community-8.4.4-1.0.0.tgz
     version: 1.0.0
-generated: "2025-08-19T05:45:30.461843622Z"
+  mysql-router-community-8.4.5:
+  - apiVersion: v2
+    appVersion: 8.4.5
+    created: "2025-08-19T05:45:49.248535706Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: MySQL router community edition software packages, including configuration
+      templates and pod templates.
+    digest: 483e3a5a6a06e490fa23eb922de7bc3886470c92680572d72bb7f0190e4cf2f3
+    keywords:
+    - mysql
+    - router
+    - database
+    - sql
+    name: mysql-router-community-8.4.5
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/mysql-router-community-8.4.5-1.0.0/mysql-router-community-8.4.5-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-08-19T05:45:49.24854855Z"
