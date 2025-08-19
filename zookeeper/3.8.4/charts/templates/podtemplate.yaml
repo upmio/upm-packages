@@ -48,6 +48,8 @@ template:
             value: "$(DATA_MOUNT)/data"
           - name: ZOO_DATA_LOG_DIR
             value: "$(DATA_MOUNT)/dataLog"
+          - name: ZOOCFGDIR
+            value: "$(DATA_MOUNT)/conf"
           - name: ZOO_LOG_DIR
             value: "$(LOG_MOUNT)/logs"
           - name: ZK_MEMORY_LIMIT
