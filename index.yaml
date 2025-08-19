@@ -347,4 +347,27 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/pgbouncer-1.24.1-1.0.0/pgbouncer-1.24.1-1.0.0.tgz
     version: 1.0.0
-generated: "2025-08-19T05:46:16.21083419Z"
+  postgresql-15.12:
+  - apiVersion: v2
+    appVersion: "15.12"
+    created: "2025-08-19T05:46:27.650812519Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: PostgreSQL software packages, including configuration templates and
+      pod templates.
+    digest: e9cddaecf4517dd0c0990ee5795fb34e663f4e5511f642941e79c015aad2c832
+    keywords:
+    - postgresql
+    - database
+    - sql
+    - relational
+    name: postgresql-15.12
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/postgresql-15.12-1.0.0/postgresql-15.12-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-08-19T05:46:27.650822307Z"
