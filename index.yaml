@@ -439,4 +439,28 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/proxysql-2.7.3-1.0.0/proxysql-2.7.3-1.0.0.tgz
     version: 1.0.0
-generated: "2025-08-19T05:47:06.66440532Z"
+  redis-sentinel-7.0.14:
+  - apiVersion: v2
+    appVersion: 7.0.14
+    created: "2025-08-19T05:47:19.826705295Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: Redis Sentinel software packages, including configuration templates
+      and pod templates.
+    digest: 06b620193d30861552cfcf758315c835ab494321d2cd1995bead3660d24b7dc7
+    keywords:
+    - redis
+    - sentinel
+    - key-value
+    - replication
+    - high-availability
+    name: redis-sentinel-7.0.14
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/redis-sentinel-7.0.14-1.0.0/redis-sentinel-7.0.14-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-08-19T05:47:19.82671876Z"
