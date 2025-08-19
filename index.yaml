@@ -490,4 +490,32 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/redis-sentinel-7.0.14-1.0.0/redis-sentinel-7.0.14-1.0.0.tgz
     version: 1.0.0
-generated: "2025-08-19T05:47:32.203751175Z"
+  zookeeper-3.8.4:
+  - apiVersion: v2
+    appVersion: 3.8.4
+    created: "2025-08-19T05:47:47.404573646Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: ZooKeeper software packages, including configuration templates and
+      pod templates.
+    digest: 34d435532ec03be891bb8d8597b7af5f23a92a524f451cd34e7971e97db8d15e
+    keywords:
+    - zookeeper
+    - coordination
+    - distributed
+    - consensus
+    - configuration
+    - synchronization
+    - cluster
+    - distributed system
+    - service discovery
+    name: zookeeper-3.8.4
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/zookeeper-3.8.4-1.0.0/zookeeper-3.8.4-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-08-19T05:47:47.404596017Z"
