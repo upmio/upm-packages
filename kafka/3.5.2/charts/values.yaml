@@ -4,8 +4,8 @@ global:
 
 image:
   registry: quay.io
-  repository: upmio/proxysql
-  tag: "2.7.3"
+  repository: upmio/kafka
+  tag: "3.5.2"
   digest: ""
   pullPolicy: IfNotPresent
 

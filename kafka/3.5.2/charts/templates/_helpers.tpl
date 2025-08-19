@@ -1,7 +1,7 @@
 {{/* vim: set filetype=mustache: */}}
 
 {{/*
-Return the proper ProxySQL image name
+Return the proper kafka image name
 */}}
 {{- define "kafka.image" -}}
 {{- include "common.images.image" (dict "imageRoot" .Values.image "global" .Values.global) }}

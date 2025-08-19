@@ -44,5 +44,5 @@ group.initial.rebalance.delay.ms={{ getv "/defaults/group_initial_rebalance_dela
 delete.topic.enable={{ getv "/defaults/delete_topic_enable" }}
 auto.create.topics.enable={{ getv "/defaults/auto_create_topics_enable" }}
 
-zookeeper.connect={{ index (jsonArray (getv "/service_zookeeper_array")) 0 }}-svc.{{ getenv "NAMESPACE" }}.svc:{{ getenv "ZOOKEEPER_PORT" "2181" }}
+zookeeper.connect={{ getenv "ZOOKEEPER_SERVICE_NAME" }}-svc.{{ getenv "NAMESPACE" }}.svc:{{ getenv "ZOOKEEPER_PORT" "2181" }}
 zookeeper.connection.timeout.ms={{ getv "/defaults/zookeeper_connection_timeout_ms" }}

@@ -8,11 +8,8 @@ autopurge.purgeInterval={{ getv "/defaults/autopurge_purge_interval" }}
 maxClientCnxns={{ getv "/defaults/max_client_cnxns" }}
 maxSessionTimeout={{ getv "/defaults/max_session_timeout" }}
 clientPort={{ getenv "ZOOKEEPER_PORT" "2181" }}
-{{- $service_name := index (jsonArray (getv "/service_zookeeper_array")) 0  }}
-{{- $zookeeper_clone_member_list := printf "/%s_zookeeper_clone_member_list" $service_name }}
-{{ $data := jsonArray (getv $zookeeper_clone_member_list) }}
-{{ range $key, $val := $data -}}
-server.{{add $key 1}}={{$val}}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}:{{ getenv "TRANSPORT_PORT" "2888" }}:{{ getenv "LEADERSHIP_PORT" 3888 }}
+{{- range $i := seq 1 3 }}
+server.{{ $i }}={{ getenv "SERVICE_NAME" }}-{{ sub $i 1 }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}:{{ getenv "TRANSPORT_PORT" "2888" }}:{{ getenv "LEADERSHIP_PORT" 3888 }}
 {{end}}
 admin.enableServer=false
 metricsProvider.className=org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider

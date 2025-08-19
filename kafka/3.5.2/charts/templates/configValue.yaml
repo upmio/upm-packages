@@ -5,8 +5,8 @@ metadata:
   namespace: {{ .Release.Namespace | quote }}
   labels:
     upm.io/owner: upm
-    type: proxysql
+    type: kafka
     version: {{ .Chart.AppVersion | quote }}
 data:
-  proxysql: |
-{{ .Files.Get "files/proxysqlValue.yaml" | indent 4 }}
+  kafka: |
+{{ .Files.Get "files/kafkaValue.yaml" | indent 4 }}
