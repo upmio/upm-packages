@@ -370,4 +370,27 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/postgresql-15.12-1.0.0/postgresql-15.12-1.0.0.tgz
     version: 1.0.0
-generated: "2025-08-19T05:46:27.650822307Z"
+  postgresql-15.13:
+  - apiVersion: v2
+    appVersion: "15.13"
+    created: "2025-08-19T05:46:40.950660663Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: PostgreSQL software packages, including configuration templates and
+      pod templates.
+    digest: 185378d35fc13cd98e0168bfb64a535fc590911adc22f24f7facf14944d0276c
+    keywords:
+    - postgresql
+    - database
+    - sql
+    - relational
+    name: postgresql-15.13
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/postgresql-15.13-1.0.0/postgresql-15.13-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-08-19T05:46:40.950669229Z"
