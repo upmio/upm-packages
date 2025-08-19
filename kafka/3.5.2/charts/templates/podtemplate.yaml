@@ -161,6 +161,11 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.labels['unitset.name']"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
         resources:
           requests:
             cpu: 100m

@@ -186,6 +186,11 @@ template:
             value: "$(DATA_MOUNT)/conf"
           - name: CONFIG_PATH
             value: "$(DATA_MOUNT)/conf/elasticsearch.yml"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
         resources:
           requests:
             cpu: 100m
