@@ -25,4 +25,31 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/elasticsearch-7.17.14-1.0.0/elasticsearch-7.17.14-1.0.0.tgz
     version: 1.0.0
-generated: "2025-08-19T05:42:49.037743433Z"
+  kafka-3.5.2:
+  - apiVersion: v2
+    appVersion: 3.5.2
+    created: "2025-08-19T05:43:00.911073514Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: Kafka software packages, including configuration templates and pod
+      templates.
+    digest: 79268714af99182d3e106241f677fb86f8a84b54c5f236720f79541d4dcd029e
+    keywords:
+    - kafka
+    - streaming
+    - messaging
+    - pubsub
+    - event
+    - broker
+    - cluster
+    - distributed system
+    name: kafka-3.5.2
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/kafka-3.5.2-1.0.0/kafka-3.5.2-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-08-19T05:43:00.911082862Z"
