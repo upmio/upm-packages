@@ -14,6 +14,7 @@ RUN set -eux; \
     telnet \
     wget \
     glibc-common \
+    nmap-ncat \
     epel-release \
   && dnf clean all
 # generate en_US.UTF-8
