@@ -3,7 +3,6 @@
 set -o nounset
 set -o errexit
 set -o pipefail
-umask 027
 
 # ##############################################################################
 # Global Constants and Configuration
