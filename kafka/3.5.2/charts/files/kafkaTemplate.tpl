@@ -7,9 +7,9 @@ listener.security.protocol.map=EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
 listeners=EXTERNAL://0.0.0.0:{{ getenv "KAFKA_PORT" "9094" }},INTERNAL://0.0.0.0:{{ getenv "INTERNAL_PORT" "9092" }}
 {{- $pod := getenv "POD_NAME" -}}
 {{- $m := json (getenv "UNIT_SERVICE_KAFKA_NODEPORT_MAP") -}}
-{{- with index $m $pod -}}
-advertised.listeners=EXTERNAL://{{ getenv "EXTERNAL_NODEPORT_IP" }}:{{ . }},INTERNAL://{{ getenv "POD_NAME" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}:{{ getenv "INTERNAL_PORT" "9092" }}
-{{- end -}}
+{{- with index $m $pod }}
+advertised.listeners=EXTERNAL://{{ getenv "NODEPORT_IP" }}:{{ . }},INTERNAL://{{ getenv "POD_NAME" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}:{{ getenv "INTERNAL_PORT" "9092" }}
+{{- end }}
 inter.broker.listener.name=INTERNAL
 {{- end }}
 

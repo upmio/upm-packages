@@ -166,7 +166,7 @@ template:
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.annotations['upm.api/nodeport.ip']"
+                fieldPath: "metadata.annotations['upm.api/nodeport-ip']"
           - name: UNIT_SERVICE_TYPE
             valueFrom:
               fieldRef:
