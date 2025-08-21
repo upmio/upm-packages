@@ -2,21 +2,29 @@ node.id={{ getenv "UNIT_SN" }}
 broker.id={{ getenv "UNIT_SN" }}
 log.dirs={{ getenv "DATA_DIR" }}
 
-{{- if contains (getv "/external_service_type") "NodePort" }}
+{{- if contains (getenv "UNIT_SERVICE_TYPE") "NodePort" }}
 listener.security.protocol.map=EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
 listeners=EXTERNAL://0.0.0.0:{{ getenv "KAFKA_PORT" "9094" }},INTERNAL://0.0.0.0:{{ getenv "INTERNAL_PORT" "9092" }}
-advertised.listeners=EXTERNAL://{{ getv "/nodeport_keepalive_ip" }}:{{ getenv "KAFKA_NODEPORT" }},INTERNAL://{{ getenv "POD_NAME" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}:{{ getenv "INTERNAL_PORT" "9092" }}
+{{- $pod := getenv "POD_NAME" -}}
+{{- $m := json (getenv "UNIT_SERVICE_KAFKA_NODEPORT_MAP") -}}
+{{- with index $m $pod -}}
+advertised.listeners=EXTERNAL://{{ getenv "EXTERNAL_NODEPORT_IP" }}:{{ . }},INTERNAL://{{ getenv "POD_NAME" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}:{{ getenv "INTERNAL_PORT" "9092" }}
+{{- end -}}
 inter.broker.listener.name=INTERNAL
 {{- end }}
 
-{{- if contains (getv "/external_service_type") "LoadBalancer" }}
+{{- if contains (getenv "UNIT_SERVICE_TYPE") "LoadBalancer" }}
 listener.security.protocol.map=EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
 listeners=EXTERNAL://0.0.0.0:{{ getenv "KAFKA_PORT" "9094" }},INTERNAL://0.0.0.0:{{ getenv "INTERNAL_PORT" "9092" }}
-advertised.listeners=EXTERNAL://{{ getenv "LOADBALANCER_IP" }}:{{ getenv "KAFKA_PORT" "9094" }},INTERNAL://{{ getenv "POD_NAME" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}:{{ getenv "INTERNAL_PORT" "9092" }}
+{{- $pod := getenv "POD_NAME" -}}
+{{- $m := json (getenv "UNIT_SERVICE_LOADBALANCER_IP_MAP") -}}
+{{- with index $m $pod -}}
+advertised.listeners=EXTERNAL://{{ . }}:{{ getenv "KAFKA_PORT" "9094" }},INTERNAL://{{ getenv "POD_NAME" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}:{{ getenv "INTERNAL_PORT" "9092" }}
+{{- end -}}
 inter.broker.listener.name=INTERNAL
 {{- end }}
 
-{{- if contains (getv "/external_service_type") "ClusterIP" }}
+{{- if contains (getenv "UNIT_SERVICE_TYPE") "ClusterIP" }}
 listener.security.protocol.map=INTERNAL:PLAINTEXT
 listeners=INTERNAL://0.0.0.0:{{ getenv "INTERNAL_PORT" "9092" }}
 advertised.listeners=INTERNAL://{{ getenv "POD_NAME" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}:{{ getenv "INTERNAL_PORT" "9092" }}

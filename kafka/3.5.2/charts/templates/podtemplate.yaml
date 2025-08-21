@@ -162,6 +162,26 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.labels['unitset.name']"
+          - name: NODEPORT_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['upm.api/nodeport.ip']"
+          - name: UNIT_SERVICE_TYPE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator.unit-service.type']"
+          - name: UNIT_SERVICE_KAFKA_NODEPORT_MAP
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator.unit-service.kafka.nodeport.map']"
+          - name: UNIT_SERVICE_LOADBALANCER_IP_MAP
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator.unit-service.loadbalancer-ip.map']"
           - name: AES_SECRET_KEY
             valueFrom:
               secretKeyRef:
