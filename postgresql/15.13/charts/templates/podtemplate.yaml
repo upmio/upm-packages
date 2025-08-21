@@ -26,6 +26,7 @@ template:
     terminationGracePeriodSeconds: 30
     securityContext:
       fsGroup: 1001
+      fsGroupChangePolicy: OnRootMismatch
     initContainers:
       - name: init-container
         image: {{ include "postgresql.image" . }}
