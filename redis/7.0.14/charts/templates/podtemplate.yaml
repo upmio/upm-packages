@@ -171,7 +171,19 @@ template:
         command:
           - "sh"
           - "-c"
-          - "redis_exporter --is-cluster=${CLUSTER_ENABLED} --include-config-metrics=true --redis-only-metrics=true --web.listen-address=:${METRICS_PORT} --redis.addr=redis://127.0.0.1:${REDIS_PORT} --redis.password-file=${CONF_DIR}/.pwd.json"
+          - |
+            if [ "$ARCH_MODE" = "cluster" ]; then
+              CLUSTER_ENABLED=true
+            else
+              CLUSTER_ENABLED=false
+            fi
+            exec redis_exporter \
+              --is-cluster=$CLUSTER_ENABLED \
+              --include-config-metrics=true \
+              --redis-only-metrics=true \
+              --web.listen-address=:${METRICS_PORT} \
+              --redis.addr=redis://127.0.0.1:${REDIS_PORT} \
+              --redis.password-file=${CONF_DIR}/.pwd.json
         ports:
           - containerPort: 9121
             name: metrics
@@ -180,6 +192,11 @@ template:
             value: "9121"
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
+          - name: ARCH_MODE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['upm.api/service.arch.mode']"
         {{- if .Values.metrics.resources }}
         resources: {{ toYaml .Values.metrics.resources | nindent 10 }}
         {{- end }}

@@ -38,7 +38,7 @@ auto-aof-rewrite-min-size {{ getv "/defaults/auto-aof-rewrite-min-size" }}
 aof-load-truncated {{ getv "/defaults/aof-load-truncated" }}
 aof-use-rdb-preamble {{ getv "/defaults/aof-use-rdb-preamble" }}
 lua-time-limit {{ getv "/defaults/lua-time-limit" }}
-{{- if contains (getenv "CLUSTER_ENABLED") "true" }}
+{{- if contains (getenv "ARCH_MODE") "cluster" }}
 cluster-enabled yes
 cluster-config-file "{{ getenv "DATA_MOUNT" }}/conf/nodes.conf"
 cluster-node-timeout {{ getv "/defaults/cluster-node-timeout" }}
