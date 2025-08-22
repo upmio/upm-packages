@@ -233,6 +233,7 @@ The `upm-pkg-mgm.sh` script is a unified management tool for UPM (Unified Platfo
 
 ### Redis
 
+- `redis-7.0.15`
 - `redis-7.0.14`
 
 ### Zookeeper

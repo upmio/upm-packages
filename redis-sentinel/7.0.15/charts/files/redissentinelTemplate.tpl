@@ -1,0 +1,17 @@
+protected-mode no
+port {{ getenv "REDIS-SENTINEL_PORT" "26379" }}
+daemonize no
+pidfile "{{ getenv "DATA_MOUNT" }}/redis-sentinel.pid"
+loglevel {{ getv "/defaults/loglevel" }}
+logfile "{{ getenv "LOG_MOUNT" }}/redis-sentinel.log"
+sentinel announce-ip {{ getenv "POD_NAME" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}
+dir "{{ getenv "DATA_MOUNT" }}/data"
+sentinel monitor {{ getenv "REDIS_SERVICE_NAME" }} {{ getenv "REDISREPLICATION_SOURCE" }}.{{ getenv "REDIS_SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }} {{ getenv "REDIS_PORT" "6379" }} 2
+sentinel auth-pass {{ getenv "REDIS_SERVICE_NAME" }} "{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER")) }}"
+sentinel down-after-milliseconds {{ getenv "REDIS_SERVICE_NAME" }} {{ getv "/defaults/down-after-milliseconds" }}
+sentinel parallel-syncs {{ getenv "REDIS_SERVICE_NAME" }} 1
+sentinel failover-timeout {{ getenv "REDIS_SERVICE_NAME" }} {{ getv "/defaults/failover-timeout" }}
+sentinel client-reconfig-script {{ getenv "REDIS_SERVICE_NAME" }} /usr/local/bin/sentinelReconfig.sh
+sentinel master-reboot-down-after-period {{ getenv "REDIS_SERVICE_NAME" }} {{ getv "/defaults/master-reboot-down-after-period" }}
+sentinel resolve-hostnames yes
+sentinel announce-hostnames yes

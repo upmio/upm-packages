@@ -200,7 +200,8 @@ Recent focus areas:
 
 | Component | Versions | Description                                | Status    |
 | --------- | -------- | ------------------------------------------ | --------- |
-| **Redis** | 7.0.14   | High-performance in-memory key-value store | ✅ Stable |
+| **Redis** | 7.0.15, 7.0.14 | High-performance in-memory key-value store | ✅ Stable |
+| **Redis Sentinel** | 7.0.15, 7.0.14 | High-availability monitoring and automatic failover for Redis | ✅ Stable |
 
 ### 📨 Message Queue
 

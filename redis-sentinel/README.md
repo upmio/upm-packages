@@ -19,7 +19,8 @@ This component delivers Redis Sentinel to supervise Redis masters and replicas, 
 
 | Version | Status    | Kubernetes | Notes          |
 | ------- | --------- | ---------- | -------------- |
-| 7.0.14  | ✅ Latest | 1.29+      | Current stable |
+| 7.0.15  | ✅ Latest | 1.29+      | Current stable |
+| 7.0.14  | ✅ Stable | 1.29+      | Previous       |
 
 ## Quick Start
 
@@ -28,13 +29,13 @@ This component delivers Redis Sentinel to supervise Redis masters and replicas, 
 ```bash
 ./upm-pkg-mgm.sh list
 ./upm-pkg-mgm.sh install redis-sentinel        # install latest
-./upm-pkg-mgm.sh install redis-sentinel-7.0.14 # install specific version
+./upm-pkg-mgm.sh install redis-sentinel-7.0.15 # install specific version
 ```
 
 ### Using Helm Directly
 
 ```bash
-helm install redis-sentinel upm-packages/redis-sentinel-7.0.14 \
+helm install redis-sentinel upm-packages/redis-sentinel-7.0.15 \
   --namespace redis \
   --create-namespace
 ```
@@ -60,13 +61,13 @@ helm install redis-sentinel upm-packages/redis-sentinel-7.0.14 \
 ### Container Structure
 
 ```
-redis-sentinel/7.0.14/image/
+redis-sentinel/7.0.15/image/
 ├── Dockerfile
 ├── service-ctl.sh
 ├── sentinelReconfig.sh
 └── supervisord.conf
 
-redis-sentinel/7.0.14/charts/
+redis-sentinel/7.0.15/charts/
 ├── Chart.yaml
 ├── values.yaml
 ├── files/
@@ -140,10 +141,10 @@ kubectl exec -it <pod> -- df -h
 ```bash
 # Build image
 docker buildx build --platform linux/amd64,linux/arm64 \
-  -t quay.io/upmio/redis-sentinel:7.0.14 redis-sentinel/7.0.14/image/
+  -t quay.io/upmio/redis-sentinel:7.0.15 redis-sentinel/7.0.15/image/
 
 # Lint chart
-helm lint redis-sentinel/7.0.14/charts/
+helm lint redis-sentinel/7.0.15/charts/
 ```
 
 ## Changelog

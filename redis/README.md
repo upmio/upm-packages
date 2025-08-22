@@ -20,7 +20,8 @@ This component provides containerized Redis as part of the UPM Packages project.
 
 | Version | Status    | Kubernetes | Notes          |
 | ------- | --------- | ---------- | -------------- |
-| 7.0.14  | ✅ Latest | 1.29+      | Current stable |
+| 7.0.15  | ✅ Latest | 1.29+      | Current stable |
+| 7.0.14  | ✅ Stable | 1.29+      | Previous       |
 
 ## Quick Start
 
@@ -29,13 +30,13 @@ This component provides containerized Redis as part of the UPM Packages project.
 ```bash
 ./upm-pkg-mgm.sh list
 ./upm-pkg-mgm.sh install redis        # install latest
-./upm-pkg-mgm.sh install redis-7.0.14 # install specific version
+./upm-pkg-mgm.sh install redis-7.0.15 # install specific version
 ```
 
 ### Using Helm Directly
 
 ```bash
-helm install redis upm-packages/redis-7.0.14 \
+helm install redis upm-packages/redis-7.0.15 \
   --namespace redis \
   --create-namespace
 ```
@@ -47,7 +48,7 @@ helm install redis upm-packages/redis-7.0.14 \
 ```yaml
 image:
   repository: quay.io/upmio/redis
-  tag: "7.0.14"
+  tag: "7.0.15"
 
 redis:
   port: 6379
@@ -86,12 +87,12 @@ resources:
 ### Container Structure
 
 ```
-redis/7.0.14/image/
+redis/7.0.15/image/
 ├── Dockerfile
 ├── service-ctl.sh
 └── supervisord.conf
 
-redis/7.0.14/charts/
+redis/7.0.15/charts/
 ├── Chart.yaml
 ├── values.yaml
 ├── files/
@@ -159,10 +160,10 @@ kubectl exec -it <pod> -- df -h
 ```bash
 # Build image
 docker buildx build --platform linux/amd64,linux/arm64 \
-  -t quay.io/upmio/redis:7.0.14 redis/7.0.14/image/
+  -t quay.io/upmio/redis:7.0.15 redis/7.0.15/image/
 
 # Lint chart
-helm lint redis/7.0.14/charts/
+helm lint redis/7.0.15/charts/
 ```
 
 ## Changelog
