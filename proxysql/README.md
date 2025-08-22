@@ -62,27 +62,21 @@ helm install proxysql upm-packages/proxysql \
 ### Main Parameters
 
 ```yaml
-# Basic configuration
+# Image
 image:
   repository: quay.io/upmio/proxysql
   tag: "2.7.3"
 
-# MySQL backend servers
-mysql:
-  hosts:
-    - "mysql-primary:3306"
-    - "mysql-secondary-1:3306"
-    - "mysql-secondary-2:3306"
-  poll_timeout: 10000
-  threads: 4
-
-# ProxySQL settings
-proxy:
-  adminPort: 6032
-  proxyPort: 6033
-  metricsPort: 6070
-  webPort: 6080
+# Ports (backed by environment variables in the image/charts)
+# ADMIN_PORT   -> admin interface (default 6032)
+# PROXYSQL_PORT-> proxy interface (default 6033)
+# METRICS_PORT -> REST/metrics (default 6070)
+# WEB_PORT     -> web UI (default 6080)
 ```
+
+Note:
+- Backend MySQL servers are configured via ProxySQL admin interface/tables at runtime; this chart does not template `mysql_servers` or hostgroups in values.
+- Port values are sourced from environment variables (see Environment Variables section), not Helm values.
 
 ### Environment Variables
 
