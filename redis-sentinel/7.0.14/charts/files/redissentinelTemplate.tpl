@@ -6,7 +6,7 @@ loglevel {{ getv "/defaults/loglevel" }}
 logfile "{{ getenv "LOG_MOUNT" }}/redis-sentinel.log"
 sentinel announce-ip {{ getenv "POD_NAME" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}
 dir "{{ getenv "DATA_MOUNT" }}/data"
-sentinel monitor {{ getenv "REDIS_SERVICE_NAME" }} {{ getenv "REDISREPLICATION_SOURCE" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }} {{ getenv "REDIS_PORT" "6379" }} 2
+sentinel monitor {{ getenv "REDIS_SERVICE_NAME" }} {{ getenv "REDISREPLICATION_SOURCE" }}.{{ getenv "REDIS_SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }} {{ getenv "REDIS_PORT" "6379" }} 2
 sentinel auth-pass {{ getenv "REDIS_SERVICE_NAME" }} "{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER")) }}"
 sentinel down-after-milliseconds {{ getenv "REDIS_SERVICE_NAME" }} {{ getv "/defaults/down-after-milliseconds" }}
 sentinel parallel-syncs {{ getenv "REDIS_SERVICE_NAME" }} 1
