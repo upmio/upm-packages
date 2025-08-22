@@ -162,6 +162,26 @@ Every component follows the same enterprise-grade structure:
         └── *.yaml         # Value mapping files
 ```
 
+### 🧭 Design Decision: Supervisord in all services
+
+All services embed `supervisord` as the process manager for two primary reasons:
+
+1. Process reaping and robust child-process management
+   - In containers, PID 1 must properly handle SIGCHLD to reap zombie processes. Running `supervisord` as PID 1 ensures orphaned children are re-parented and reaped, preventing zombie buildup and resource leaks. See Docker’s guidance on using an init process to handle reaping: [Use the init flag](https://docs.docker.com/engine/reference/run/#init).
+   - `supervisord` provides fine-grained control of managed processes, including exit status handling and automatic restarts via `autorestart`, `startretries`, and related settings. See Supervisor docs: [Program settings](http://supervisord.org/configuration.html#program-x-section-settings) and [Introduction](http://supervisord.org/introduction.html).
+
+2. Restart service processes without deleting Pods
+   - Operators can restart the service process inside the container without recreating the Pod, improving availability and MTTR.
+   - Example operations:
+
+```bash
+# Check process status
+supervisorctl status
+
+# Restart main service process (program name may vary per component)
+supervisorctl restart unit_app
+```
+
 ## Project Status
 
 This project is actively maintained. We follow semantic versioning and aim to keep backward compatibility when feasible.
