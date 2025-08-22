@@ -137,7 +137,7 @@ admin_user_login() {
     export REDISCLI_AUTH="${adm_pwd}"
   fi
 
-  redis-cli -h 127.0.0.1 -p "${SENTINEL_PORT}"
+  redis-cli -h 127.0.0.1 -p "${REDIS-SENTINEL_PORT}"
 }
 
 health() {
@@ -154,7 +154,7 @@ health() {
   fi
 
   local pong
-  if pong=$(redis-cli -h 127.0.0.1 -p "${SENTINEL_PORT}" ping 2>/dev/null); then
+  if pong=$(redis-cli -h 127.0.0.1 -p "${REDIS-SENTINEL_PORT}" ping 2>/dev/null); then
     if [[ "${pong}" == "PONG" ]]; then
       info "${func_name}" "Redis Sentinel ping OK"
       return 0
@@ -235,7 +235,7 @@ validate_environment() {
   [[ -n "${CONF_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env CONF_DIR failed !"
   [[ -n "${LOG_MOUNT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env LOG_MOUNT failed !"
   [[ -d ${LOG_MOUNT} ]] || die "${EXIT_DIR_NOT_FOUND}" "${func_name}" "Not found LOG_MOUNT !"
-  SENTINEL_PORT="${SENTINEL_PORT:-26379}"
+  REDIS-SENTINEL_PORT="${REDIS-SENTINEL_PORT:-26379}"
 
   # Set global variables with defaults
   readonly INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"

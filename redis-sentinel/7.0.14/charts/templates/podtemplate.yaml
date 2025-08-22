@@ -29,7 +29,7 @@ template:
       fsGroupChangePolicy: OnRootMismatch
     initContainers:
       - name: init-container
-        image: {{ include "redis.image" . }}
+        image: {{ include "redis-sentinel.image" . }}
         imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
         securityContext:
           runAsUser: 1001
@@ -44,8 +44,13 @@ template:
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
       - name: sysctl
-        image: {{ include "redis.image" . }}
+        image: {{ include "redis-sentinel.image" . }}
         command:
           - "bash"
           - "-c"
@@ -54,8 +59,8 @@ template:
           privileged: true
           runAsUser: 0
     containers:
-      - name: redis
-        image: {{ include "redis.image" . }}
+      - name: redis-sentinel
+        image: {{ include "redis-sentinel.image" . }}
         imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
         securityContext:
           allowPrivilegeEscalation: false
@@ -79,6 +84,11 @@ template:
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
         livenessProbe:
           exec:
             command:
@@ -119,7 +129,7 @@ template:
           timeoutSeconds: 4
           successThreshold: 1
       - name: unit-agent
-        image: {{ include "redis.agent.image" . }}
+        image: {{ include "redis-sentinel.agent.image" . }}
         imagePullPolicy: {{ .Values.agent.image.pullPolicy | quote }}
         securityContext:
           allowPrivilegeEscalation: false
@@ -158,6 +168,11 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.annotations['compose-operator.redisreplication.source']"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
         resources:
           requests:
             cpu: 200m

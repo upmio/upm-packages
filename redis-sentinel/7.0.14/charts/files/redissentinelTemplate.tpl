@@ -1,5 +1,5 @@
 protected-mode no
-port {{ getenv "SENTINEL_PORT" "26379" }}
+port {{ getenv "REDIS-SENTINEL_PORT" "26379" }}
 daemonize no
 pidfile "{{ getenv "DATA_MOUNT" }}/redis-sentinel.pid"
 loglevel {{ getv "/defaults/loglevel" }}
