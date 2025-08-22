@@ -49,6 +49,32 @@ print_header() {
   echo -e "${CYAN}$1${NC}"
 }
 
+# Normalize user-friendly target aliases to canonical component names
+normalize_target() {
+  local t="$1"
+  case "$t" in
+  mysql)
+    echo "mysql-community"
+    ;;
+  mysql-router)
+    echo "mysql-router-community"
+    ;;
+  postgres)
+    echo "postgresql"
+    ;;
+  elastic)
+    echo "elasticsearch"
+    ;;
+  zk)
+    echo "zookeeper"
+    ;;
+  *)
+    # pass through other values (already canonical component or specific chart name)
+    echo "$t"
+    ;;
+  esac
+}
+
 # Helpers for release status and idempotency
 # Return release status string (e.g., deployed, failed, pending-install) or non-zero if not found
 get_release_status() {
@@ -135,7 +161,11 @@ EXAMPLES:
     # Dry run installation
     $0 install --dry-run mysql-community
 
-NOTE: These are UPM packages that require UPM CRDs to function.
+NOTE:
+  - You can pass multiple component names in one command, e.g.:
+      $0 install mysql mysql-router proxysql
+    Aliases are supported: mysql -> mysql-community, mysql-router -> mysql-router-community, postgres -> postgresql, elastic -> elasticsearch, zk -> zookeeper.
+  - These are UPM packages that require UPM CRDs to function.
 
 EOF
 }
@@ -198,7 +228,10 @@ parse_args() {
       exit 1
       ;;
     *)
-      targets+=("$1")
+      # Allow multiple component names and aliases in a single command
+      local normalized
+      normalized=$(normalize_target "$1")
+      targets+=("$normalized")
       shift
       ;;
     esac
