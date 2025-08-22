@@ -52,33 +52,12 @@ info() {
   echo "[${timestamp}] INFO| (${VERSION})[${function_name}]: $* ;" >>"${log_file}"
 }
 
-update_shared_configmap() {
-  local func_name="update_shared_configmap"
-
-  local new_master_ip="${1}"
-  [[ -n "${new_master_ip}" ]] || die 10 "${func_name}" "new_master_ip is empty !"
-
-  [[ -n "${SERVICE_GROUP_NAME}" ]] || die 10 "${func_name}" "SERVICE_GROUP_NAME is empty !"
-  [[ -n "${NAMESPACE}" ]] || die 10 "${func_name}" "NAMESPACE is empty !"
-  [[ -n "${REDIS_MASTER_NAME}" ]] || die 10 "${func_name}" "REDIS_MASTER_NAME is empty !"
-
-  local shared_configmap_name="redis-sg-${SERVICE_GROUP_NAME}-configmap"
-  local key_name="${REDIS_MASTER_NAME}_redis-sentinel_master_ip"
-
-  grpcurl -plaintext -d '{"configmap_name":"'"${shared_configmap_name}"'","namespace":"'"${NAMESPACE}"'","key":"'"${key_name}"'","value":"'"${new_master_ip}"'"}' "${UNIT_AGENT_ENDPOINT}" config.SyncConfigService.RewriteConfig
-
-  info "${func_name}" "update shared configmap success !"
-}
-
 update_redisreplication_source() {
   local func_name="update_redisreplication_source"
 
   local new_master_ip="${1}"
-  [[ -n "${REDIS_MASTER_NAME}" ]] || die 10 "${func_name}" "REDIS_MASTER_NAME is empty !"
 
-  local redis_replication_name=${REDIS_MASTER_NAME}-replication
-
-  grpcurl -plaintext -d '{"redis_replication_name":"'"${redis_replication_name}"'","namespace":"'"${NAMESPACE}"'","self_unit_name":"'"${POD_NAME}"'","master_host":"'"${new_master_ip}"'"}' "${UNIT_AGENT_ENDPOINT}" sentinel.SentinelOperation.UpdateRedisReplication
+  grpcurl -plaintext -d '{"redis_replication_name":"'"${REDIS_SERVICE_NAME}-replication"'","namespace":"'"${NAMESPACE}"'","self_unit_name":"'"${POD_NAME}"'","master_host":"'"${new_master_ip}"'"}' "${UNIT_AGENT_ENDPOINT}" sentinel.SentinelOperation.UpdateRedisReplication
 
   info "${func_name}" "update redisreplication source success !"
 }
@@ -111,7 +90,6 @@ main() {
   info "${func_name}" "master_name: ${master_name} , role: ${role} , state: ${state} , from_ip: ${from_ip} , from_port: ${from_port} , to_ip: ${to_ip} , to_port: ${to_port}"
   info "${func_name}" "arguments: ${master_name} ${role} ${state} ${from_ip} ${from_port} ${to_ip} ${to_port}"
 
-  update_shared_configmap "${to_ip}" || die 20 "${func_name}" "update shared configmap failed !"
   update_redisreplication_source "${to_ip}" || die 21 "${func_name}" "update redisreplication source failed !"
 
   info "${func_name}" "update shared configmap and redisreplication source success !"
@@ -120,8 +98,8 @@ main() {
 [[ -d ${LOG_MOUNT} ]] || die 10 "Globals" "Not found LOG_MOUNT !"
 LOG_FILE="${LOG_MOUNT}/${FILE_NAME}.log"
 [[ -v SERVICE_GROUP_NAME ]] || die 10 "Globals" "get env SERVICE_GROUP_NAME failed !"
-[[ -v NAMESPACE ]] || die 10 "Globals" "get env NAMESPACE failed !"
-[[ -v POD_NAME ]] || die 10 "Globals" "get env POD_NAME failed !"
-[[ -v REDIS_MASTER_NAME ]] || die 10 "Globals" "get env REDIS_MASTER_NAME failed !"
+[[ -n "${NAMESPACE:-}" ]] || die 10 "Globals" "get env NAMESPACE failed !"
+[[ -n "${POD_NAME:-}" ]] || die 10 "Globals" "get env POD_NAME failed !"
+[[ -n "${REDIS_SERVICE_NAME:-}" ]] || die 10 "Globals" "get env REDIS_SERVICE_NAME failed !"
 
 main "${@:-""}"

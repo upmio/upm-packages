@@ -6,15 +6,12 @@ loglevel {{ getv "/defaults/loglevel" }}
 logfile "{{ getenv "LOG_MOUNT" }}/redis-sentinel.log"
 sentinel announce-ip {{ getenv "POD_NAME" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}
 dir "{{ getenv "DATA_MOUNT" }}/data"
-{{- range $index, $value := jsonArray (getv "/service_redis_array")}}
-{{- $master_ip := printf "/%s_redis-sentinel_master_ip" $value }}
-sentinel monitor {{ $value }} {{ getv $master_ip }} {{ getv "/redis_redis_port" }} 2
-sentinel auth-pass {{ $value }} "{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER")) }}"
-sentinel down-after-milliseconds {{ $value }} {{ getv "/defaults/down-after-milliseconds" }}
-sentinel parallel-syncs {{ $value }} 1
-sentinel failover-timeout {{ $value }} {{ getv "/defaults/failover-timeout" }}
-sentinel client-reconfig-script {{ $value }} /usr/local/bin/sentinelReconfig.sh
-sentinel master-reboot-down-after-period {{ $value }} {{ getv "/defaults/master-reboot-down-after-period" }}
-{{- end }}
+sentinel monitor {{ getenv "REDIS_SERVICE_NAME" }} {{ getenv "REDISREPLICATION_SOURCE" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }} {{ getenv "REDIS_PORT" "6379" }} 2
+sentinel auth-pass {{ getenv "REDIS_SERVICE_NAME" }} "{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER")) }}"
+sentinel down-after-milliseconds {{ getenv "REDIS_SERVICE_NAME" }} {{ getv "/defaults/down-after-milliseconds" }}
+sentinel parallel-syncs {{ getenv "REDIS_SERVICE_NAME" }} 1
+sentinel failover-timeout {{ getenv "REDIS_SERVICE_NAME" }} {{ getv "/defaults/failover-timeout" }}
+sentinel client-reconfig-script {{ getenv "REDIS_SERVICE_NAME" }} /usr/local/bin/sentinelReconfig.sh
+sentinel master-reboot-down-after-period {{ getenv "REDIS_SERVICE_NAME" }} {{ getv "/defaults/master-reboot-down-after-period" }}
 sentinel resolve-hostnames yes
 sentinel announce-hostnames yes
