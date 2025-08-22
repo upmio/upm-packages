@@ -237,10 +237,12 @@ check_prerequisites() {
     exit 1
   fi
 
-  # Check if kubernetes cluster is accessible
-  if ! kubectl cluster-info &>/dev/null; then
-    print_error "Kubernetes cluster is not accessible"
-    exit 1
+  # Check if kubernetes cluster is accessible (skip for 'list' and for DRY_RUN)
+  if [[ "$ACTION" != "list" && "$DRY_RUN" != true ]]; then
+    if ! kubectl cluster-info --request-timeout=10s >/dev/null; then
+      print_error "Kubernetes cluster is not accessible"
+      exit 1
+    fi
   fi
 
   # Check if jq is installed for JSON parsing (optional)
@@ -255,6 +257,11 @@ check_prerequisites() {
 create_namespace() {
   if [[ "$ACTION" == "install" ]]; then
     print_info "Creating namespace: $NAMESPACE"
+
+    if [[ "$DRY_RUN" == true ]]; then
+      print_info "DRY_RUN: would ensure namespace $NAMESPACE exists"
+      return
+    fi
 
     if kubectl get namespace "$NAMESPACE" &>/dev/null; then
       print_warning "Namespace $NAMESPACE already exists"
