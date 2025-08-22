@@ -9,11 +9,12 @@ The `upm-pkg-mgm.sh` script is a unified management tool for UPM (Unified Platfo
 - **Unified Management**: Single script for all UPM package operations
 - **Multiple Package Types**: Support for MySQL, MySQL Router, PostgreSQL, ProxySQL, PgBouncer, Elasticsearch, Kibana, Kafka, Redis, and Zookeeper
 - **Idempotent Operations**: Install/upgrade/uninstall are safe to run repeatedly; installs skip when already deployed and reconcile non-deployed states
-- **Flexible Targeting**: Install individual packages, component groups, or all packages
+- **Flexible Targeting**: Install individual packages, component groups, multiple targets in one command, or all packages
 - **Dry Run Mode**: Test operations without making actual changes
 - **Remote Charts**: Support for remote Helm repositories
 - **Comprehensive Status**: List available packages and monitor installed releases
 - **Error Handling**: Robust error handling with graceful degradation
+  - Network/transient errors during install are retried up to 3 times with backoff
 
 ## Prerequisites
 
@@ -82,6 +83,16 @@ The `upm-pkg-mgm.sh` script is a unified management tool for UPM (Unified Platfo
 | `zookeeper`              | Zookeeper                                           |
 | `<chart-name>`           | Specific chart name (e.g., `mysql-community-8.4.5`) |
 
+#### Aliases
+
+You can pass user-friendly aliases. The script normalizes them to canonical component names:
+
+- `mysql` → `mysql-community`
+- `mysql-router` → `mysql-router-community`
+- `postgres` → `postgresql`
+- `elastic` → `elasticsearch`
+- `zk` → `zookeeper`
+
 ### Options
 
 | Option                  | Short | Description                     | Default        |
@@ -126,6 +137,14 @@ The `upm-pkg-mgm.sh` script is a unified management tool for UPM (Unified Platfo
 
 ```bash
 ./upm-pkg-mgm.sh install mysql-community mysql-router-community
+```
+
+**Install multiple components with aliases in a single command**:
+
+```bash
+./upm-pkg-mgm.sh install mysql mysql-router proxysql
+# Equivalent to:
+# ./upm-pkg-mgm.sh install mysql-community mysql-router-community proxysql
 ```
 
 **Install specific package**:
@@ -292,7 +311,7 @@ The script includes comprehensive error handling:
 
 ### Invalid Target Hints
 
-When an invalid target (e.g., `mysql`) is provided, the script reports the error and prints the available components and packages so you can choose a valid component like `mysql-community` or `mysql-router-community`, or a specific chart name.
+When an unknown target is provided, the script reports the error and prints the available components and packages so you can choose a valid component (canonical name or supported alias) or a specific chart name. Supported aliases include: `mysql` (→ `mysql-community`), `mysql-router` (→ `mysql-router-community`), `postgres` (→ `postgresql`), `elastic` (→ `elasticsearch`), `zk` (→ `zookeeper`).
 
 ## Security Considerations
 
