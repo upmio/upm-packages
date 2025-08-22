@@ -772,7 +772,23 @@ install_package() {
   print_info "Running: $helm_cmd ${helm_opts[*]}"
 
   # Execute helm command
-  if $helm_cmd "${helm_opts[@]}"; then
+  local attempt=1
+  local max_attempts=3
+  local delays=(2 5 10)
+  local installed=false
+  while (( attempt <= max_attempts )); do
+    if $helm_cmd "${helm_opts[@]}"; then
+      installed=true
+      break
+    fi
+    if (( attempt < max_attempts )); then
+      print_warning "Install failed for $package_name (attempt $attempt/$max_attempts). Retrying in ${delays[$((attempt-1))]}s..."
+      sleep "${delays[$((attempt-1))]}"
+    fi
+    ((attempt++))
+  done
+
+  if [[ "$installed" == true ]]; then
     print_success "UPM package $package_name installed successfully as $release_name"
 
     # Verify installation if not dry run
@@ -781,7 +797,7 @@ install_package() {
       verify_package_installation "$release_name" "$package_name"
     fi
   else
-    print_error "Failed to install UPM package $package_name"
+    print_error "Failed to install UPM package $package_name after $max_attempts attempts"
     return 1
   fi
 }
