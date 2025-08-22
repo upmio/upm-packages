@@ -1,7 +1,7 @@
 path.data: "{{ getenv "DATA_DIR" }}"
 path.logs: "{{ getenv "LOG_MOUNT" }}"
 cluster.name: "{{ getenv "SERVICE_GROUP_NAME" }}"
-node.name: "{{ getenv "UNIT_NAME" }}"
+node.name: "{{ getenv "POD_NAME" }}"
 network.host: "_eth0_"
 node.roles: {{ getenv "NODE_ROLES" }}
 http.port: {{ getenv "ELASTICSEARCH_PORT" "9200" }}
