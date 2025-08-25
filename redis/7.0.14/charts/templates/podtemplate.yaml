@@ -25,6 +25,8 @@ template:
     restartPolicy: Always
     terminationGracePeriodSeconds: 30
     securityContext:
+      runAsUser: 1001
+      runAsGroup: 1001
       fsGroup: 1001
       fsGroupChangePolicy: OnRootMismatch
     initContainers:
@@ -32,8 +34,6 @@ template:
         image: {{ include "redis.image" . }}
         imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
         securityContext:
-          runAsUser: 1001
-          runAsGroup: 1001
           allowPrivilegeEscalation: false
         command:
           - "bash"
