@@ -44,6 +44,8 @@ template:
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
+          - name: REDIS_PORT
+            value: "6379"
           - name: AES_SECRET_KEY
             valueFrom:
               secretKeyRef:
@@ -64,11 +66,16 @@ template:
         imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
         securityContext:
           allowPrivilegeEscalation: false
+        ports:
+          - containerPort: 6379
+            name: redis
         env:
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
+          - name: REDIS_PORT
+            value: "6379"
           - name: AES_SECRET_KEY
             valueFrom:
               secretKeyRef:
@@ -154,6 +161,8 @@ template:
                 containerName: "redis"
                 resource: "limits.memory"
                 divisor: "1Mi"
+          - name: REDIS_PORT
+            value: "6379"
           - name: AES_SECRET_KEY
             valueFrom:
               secretKeyRef:
@@ -190,6 +199,8 @@ template:
         env:
           - name: METRICS_PORT
             value: "9121"
+          - name: REDIS_PORT
+            value: "6379"
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
           - name: ARCH_MODE
