@@ -54,7 +54,7 @@ helm install redis-sentinel upm-packages/redis-sentinel-7.0.15 \
 | `ADM_USER`                       | Admin user name for password decryption               |
 | `SECRET_MOUNT`, `AES_SECRET_KEY` | Required for credential decryption via `decrypt_pwd`  |
 
-> Note: Historically the script used `REDIS-SENTINEL_PORT` (an invalid shell variable name). We standardize on `SENTINEL_PORT`. If legacy environments still export the old name, map it to `SENTINEL_PORT` in the container entrypoint.
+> Note: Historically the script used `REDIS_SENTINEL_PORT` (an invalid shell variable name). We standardize on `SENTINEL_PORT`. If legacy environments still export the old name, map it to `SENTINEL_PORT` in the container entrypoint.
 
 ## Architecture
 

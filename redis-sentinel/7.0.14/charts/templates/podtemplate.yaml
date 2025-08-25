@@ -44,6 +44,8 @@ template:
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
+          - name: REDIS_SENTINEL_PORT
+            value: "26379"
           - name: AES_SECRET_KEY
             valueFrom:
               secretKeyRef:
@@ -64,6 +66,9 @@ template:
         imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
         securityContext:
           allowPrivilegeEscalation: false
+        ports:
+          - containerPort: 26379
+            name: redis-sentinel
         env:
           - name: POD_NAME
             valueFrom:
@@ -84,6 +89,8 @@ template:
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
+          - name: REDIS_SENTINEL_PORT
+            value: "26379"
           - name: AES_SECRET_KEY
             valueFrom:
               secretKeyRef:
@@ -168,6 +175,8 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.annotations['compose-operator.redisreplication.source']"
+          - name: REDIS_SENTINEL_PORT
+            value: "26379"
           - name: AES_SECRET_KEY
             valueFrom:
               secretKeyRef:

@@ -12,8 +12,7 @@ This project adheres to Keep a Changelog and Semantic Versioning.
 
 ### Changed
 
-- Standardized environment variable: use `SENTINEL_PORT` (defaults to 26379).
-- Backward compatibility: optionally map legacy `REDIS-SENTINEL_PORT` into `SENTINEL_PORT`.
+- Standardized environment variable: use `REDIS_SENTINEL_PORT` (defaults to 26379).
 
 ### Fixed
 
