@@ -421,6 +421,33 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/redis-7.0.14-1.1.0/redis-7.0.14-1.1.0.tgz
     version: 1.1.0
+  redis-7.0.15:
+  - apiVersion: v2
+    appVersion: 7.0.15
+    created: "2025-09-04T07:13:16.981292207Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: Redis software packages, including configuration templates and pod
+      templates.
+    digest: fd8aa3c303881ba7670457520323fbed85baaca2ca02dfaedaa3a900300acfe0
+    keywords:
+    - redis
+    - database
+    - key-value
+    - cache
+    - in-memory
+    - persistence
+    - cluster
+    - replication
+    name: redis-7.0.15
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/redis-7.0.15-1.1.0/redis-7.0.15-1.1.0.tgz
+    version: 1.1.0
   redis-sentinel-7.0.14:
   - apiVersion: v2
     appVersion: 7.0.14
@@ -469,4 +496,4 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/redis-sentinel-7.0.15-1.1.0/redis-sentinel-7.0.15-1.1.0.tgz
     version: 1.1.0
-generated: "2025-09-04T07:12:58.775439832Z"
+generated: "2025-09-04T07:13:16.98130487Z"
