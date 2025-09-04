@@ -75,4 +75,26 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/kibana-7.17.14-1.1.0/kibana-7.17.14-1.1.0.tgz
     version: 1.1.0
-generated: "2025-09-04T07:09:15.121516029Z"
+  mysql-community-8.0.41:
+  - apiVersion: v2
+    appVersion: 8.0.41
+    created: "2025-09-04T07:09:29.693742979Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: MySQL community edition software packages, including configuration
+      templates and pod templates.
+    digest: aec3c0a7039e228426f82bc88abcde161492e22b622d459f1140b7918eb89db0
+    keywords:
+    - mysql
+    - database
+    - sql
+    name: mysql-community-8.0.41
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/mysql-community-8.0.41-1.1.0/mysql-community-8.0.41-1.1.0.tgz
+    version: 1.1.0
+generated: "2025-09-04T07:09:29.693751044Z"
