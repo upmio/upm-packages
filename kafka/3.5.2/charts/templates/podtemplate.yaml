@@ -1,0 +1,204 @@
+apiVersion: v1
+kind: PodTemplate
+metadata:
+  name: {{ .Chart.Name }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    upm.io/owner: upm
+    type: kafka
+    version: {{ .Chart.AppVersion | quote }}
+template:
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/default-container: kafka
+    labels:
+      upm.io/owner: upm
+      type: kafka
+      version: {{ .Chart.AppVersion | quote }}
+  spec:
+    tolerations:
+      - key: "key"
+        operator: "Equal"
+        value: "value"
+        effect: "NoSchedule"
+    dnsPolicy: ClusterFirst
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    securityContext:
+      fsGroup: 1001
+      fsGroupChangePolicy: OnRootMismatch
+    initContainers:
+      - name: init-container
+        image: {{ include "kafka.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+        command:
+          - "bash"
+          - "-c"
+          - "service-ctl.sh initialize"
+        env:
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/conf"
+          - name: KAFKA_MEMORY_LIMIT
+            valueFrom:
+                resourceFieldRef:
+                    containerName: kafka
+                    resource: limits.memory
+                    divisor: 1Mi
+      - name: sysctl
+        image: {{ include "kafka.image" . }}
+        command:
+          - "bash"
+          - "-c"
+          - "ulimit -n 65535"
+        securityContext:
+          privileged: true
+          runAsUser: 0
+    containers:
+      - name: kafka
+        image: {{ include "kafka.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+        ports:
+          - containerPort: 9094
+            name: kafka
+        env:
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/conf"
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.namespace"
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.name"
+          - name: SERVICE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['unitset.name']"
+          - name: KAFKA_PORT
+            value: "9094"
+        livenessProbe:
+          exec:
+            command:
+              - "timeout"
+              - "3"
+              - "bash"
+              - "-c"
+              - "</dev/tcp/localhost/9001"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+        readinessProbe:
+          exec:
+            command:
+              - "bash"
+              - "-c"
+              - "service-ctl.sh health"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+        startupProbe:
+          exec:
+            command:
+              - "timeout"
+              - "3"
+              - "bash"
+              - "-c"
+              - "</dev/tcp/localhost/9001"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+      - name: unit-agent
+        image: {{ include "kafka.agent.image" . }}
+        imagePullPolicy: {{ .Values.agent.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+        ports:
+          - containerPort: 2214
+            name: unit-agent
+        env:
+          - name: UNIT_TYPE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['kubectl.kubernetes.io/default-container']"
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/conf"
+          - name: CONFIG_PATH
+            value: "$(DATA_MOUNT)/conf/server.properties"
+          - name: UNIT_SN
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['unit.sn']"
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.namespace"
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.name"
+          - name: SERVICE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['unitset.name']"
+          - name: NODEPORT_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['upm.api/nodeport-ip']"
+          - name: UNIT_SERVICE_TYPE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator.unit-service.type']"
+          - name: UNIT_SERVICE_KAFKA_NODEPORT_MAP
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator.unit-service.kafka.nodeport.map']"
+          - name: UNIT_SERVICE_LOADBALANCER_IP_MAP
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator.unit-service.loadbalancer-ip.map']"
+          - name: KAFKA_PORT
+            value: "9094"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi

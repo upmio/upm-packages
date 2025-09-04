@@ -1,0 +1,17 @@
+---
+global:
+  imageRegistry: ""
+
+image:
+  registry: quay.io
+  repository: upmio/zookeeper
+  tag: "3.8.4"
+  digest: ""
+  pullPolicy: IfNotPresent
+
+agent:
+  image:
+    registry: quay.io
+    repository: upmio/unit-agent
+    tag: "v1.1.0"
+    pullPolicy: IfNotPresent

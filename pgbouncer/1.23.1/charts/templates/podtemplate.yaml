@@ -1,0 +1,163 @@
+apiVersion: v1
+kind: PodTemplate
+metadata:
+  name: {{ .Chart.Name }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    upm.io/owner: upm
+    type: pgbouncer
+    version: {{ .Chart.AppVersion | quote }}
+template:
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/default-container: pgbouncer
+    labels:
+      upm.io/owner: upm
+      type: pgbouncer
+      version: {{ .Chart.AppVersion | quote }}
+  spec:
+    tolerations:
+      - key: "key"
+        operator: "Equal"
+        value: "value"
+        effect: "NoSchedule"
+    dnsPolicy: ClusterFirst
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    securityContext:
+      fsGroup: 1001
+      fsGroupChangePolicy: OnRootMismatch
+    initContainers:
+      - name: init-container
+        image: {{ include "pgbouncer.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+        command:
+          - "bash"
+          - "-c"
+          - "service-ctl.sh initialize"
+        env:
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/conf"
+          - name: PGBOUNCER_PORT
+            value: "6432"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
+      - name: sysctl
+        image: {{ include "pgbouncer.image" . }}
+        command:
+          - "bash"
+          - "-c"
+          - "ulimit -n 65535"
+        securityContext:
+          privileged: true
+          runAsUser: 0
+    containers:
+      - name: pgbouncer
+        image: {{ include "pgbouncer.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+        ports:
+          - containerPort: 6432
+            name: pgbouncer
+        env:
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/conf"
+          - name: PGBOUNCER_PORT
+            value: "6432"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
+        livenessProbe:
+          exec:
+            command:
+              - "timeout"
+              - "3"
+              - "bash"
+              - "-c"
+              - "</dev/tcp/localhost/9001"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+        readinessProbe:
+          tcpSocket:
+              port: "pgbouncer"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+        startupProbe:
+          exec:
+            command:
+              - "timeout"
+              - "3"
+              - "bash"
+              - "-c"
+              - "</dev/tcp/localhost/9001"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+      - name: unit-agent
+        image: {{ include "pgbouncer.agent.image" . }}
+        imagePullPolicy: {{ .Values.agent.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+        ports:
+          - containerPort: 2214
+            name: unit-agent
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.name"
+          - name: UNIT_TYPE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['kubectl.kubernetes.io/default-container']"
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/conf"
+          - name: CONFIG_PATH
+            value: "$(DATA_MOUNT)/conf/pgbouncer.ini"
+          - name: PGSQL_MEMORY_LIMIT
+            valueFrom:
+              resourceFieldRef:
+                containerName: "pgbouncer"
+                resource: "limits.memory"
+                divisor: "1Mi"
+          - name: PGBOUNCER_PORT
+            value: "6432"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi

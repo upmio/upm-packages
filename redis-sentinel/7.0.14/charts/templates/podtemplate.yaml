@@ -1,0 +1,192 @@
+apiVersion: v1
+kind: PodTemplate
+metadata:
+  name: {{ .Chart.Name }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    upm.io/owner: upm
+    type: redis-sentinel
+    version: {{ .Chart.AppVersion | quote }}
+template:
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/default-container: redis-sentinel
+    labels:
+      upm.io/owner: upm
+      type: redis-sentinel
+      version: {{ .Chart.AppVersion | quote }}
+  spec:
+    tolerations:
+      - key: "key"
+        operator: "Equal"
+        value: "value"
+        effect: "NoSchedule"
+    dnsPolicy: ClusterFirst
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    securityContext:
+      fsGroup: 1001
+      fsGroupChangePolicy: OnRootMismatch
+    initContainers:
+      - name: init-container
+        image: {{ include "redis-sentinel.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+        command:
+          - "bash"
+          - "-c"
+          - "service-ctl.sh initialize"
+        env:
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/conf"
+          - name: REDIS_SENTINEL_PORT
+            value: "26379"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
+      - name: sysctl
+        image: {{ include "redis-sentinel.image" . }}
+        command:
+          - "bash"
+          - "-c"
+          - "ulimit -n 65535"
+        securityContext:
+          privileged: true
+          runAsUser: 0
+    containers:
+      - name: redis-sentinel
+        image: {{ include "redis-sentinel.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+        ports:
+          - containerPort: 26379
+            name: redis-sentinel
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.name"
+          - name: SERVICE_GROUP_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['upm.api/service-group.name']"
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.namespace"
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/conf"
+          - name: REDIS_SENTINEL_PORT
+            value: "26379"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
+        livenessProbe:
+          exec:
+            command:
+              - "timeout"
+              - "3"
+              - "bash"
+              - "-c"
+              - "</dev/tcp/localhost/9001"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+        readinessProbe:
+          exec:
+            command:
+              - "timeout"
+              - "3"
+              - "bash"
+              - "-c"
+              - "service-ctl.sh health"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+        startupProbe:
+          exec:
+            command:
+              - "timeout"
+              - "3"
+              - "bash"
+              - "-c"
+              - "</dev/tcp/localhost/9001"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+      - name: unit-agent
+        image: {{ include "redis-sentinel.agent.image" . }}
+        imagePullPolicy: {{ .Values.agent.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+        ports:
+          - containerPort: 2214
+            name: unit-agent
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.name"
+          - name: UNIT_TYPE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['kubectl.kubernetes.io/default-container']"
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/conf"
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.namespace"
+          - name: CONFIG_PATH
+            value: "$(DATA_MOUNT)/conf/redis-sentinel.cnf"
+          - name: SERVICE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['unitset.name']"
+          - name: REDISREPLICATION_SOURCE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['compose-operator.redisreplication.source']"
+          - name: REDIS_SENTINEL_PORT
+            value: "26379"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi

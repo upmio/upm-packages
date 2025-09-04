@@ -1,0 +1,46 @@
+[
+  {
+    "key": "loglevel",
+    "scope": "",
+    "section": "defaults",
+    "type": "Enumeration",
+    "dynamic": true,
+    "range": "[\"debug\",\"verbose\",\"notice\",\"warning\"]",
+    "default": "",
+    "desc_en": "Specifies the server log verbosity level.",
+    "desc_zh": "指定服务器日志详细级别。"
+  },
+  {
+    "key": "down-after-milliseconds",
+    "scope": "",
+    "section": "defaults",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "",
+    "default": "30000",
+    "desc_en": "Time (in milliseconds) a master can remain unresponsive before Sentinel marks it as down.",
+    "desc_zh": "主节点允许保持无响应而仍视为正常的最长时间（毫秒），超出后 Sentinel 标记为 down。"
+  },
+  {
+    "key": "failover-timeout",
+    "scope": "",
+    "section": "defaults",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "",
+    "default": "60000",
+    "desc_en": "Total timeout (ms) for a complete failover: detection, election, promotion and replica resync.",
+    "desc_zh": "一次完整故障转移（检测、选举、主提升及副本同步）的总超时时间（毫秒）。"
+  },
+  {
+    "key": "master-reboot-down-after-period",
+    "scope": "",
+    "section": "defaults",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "",
+    "default": "0",
+    "desc_en": "Grace period (ms) to tolerate -LOADING replies from a restarting master before considering failover; 0 disables this behavior.",
+    "desc_zh": "主节点重启期间容忍其返回 -LOADING 回复的宽限时间（毫秒）；0 表示不因 -LOADING 进入故障转移流程。"
+  }
+]

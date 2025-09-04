@@ -1,0 +1,261 @@
+apiVersion: v1
+kind: PodTemplate
+metadata:
+  name: {{ .Chart.Name }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    upm.io/owner: upm
+    type: redis
+    version: {{ .Chart.AppVersion | quote }}
+template:
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/default-container: redis
+    labels:
+      upm.io/owner: upm
+      type: redis
+      version: {{ .Chart.AppVersion | quote }}
+  spec:
+    tolerations:
+      - key: "key"
+        operator: "Equal"
+        value: "value"
+        effect: "NoSchedule"
+    dnsPolicy: ClusterFirst
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    securityContext:
+      fsGroup: 1001
+      fsGroupChangePolicy: OnRootMismatch
+    initContainers:
+      - name: init-container
+        image: {{ include "redis.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+        command:
+          - "bash"
+          - "-c"
+          - "service-ctl.sh initialize"
+        env:
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/conf"
+          - name: REDIS_PORT
+            value: "6379"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
+      - name: sysctl
+        image: {{ include "redis.image" . }}
+        command:
+          - "bash"
+          - "-c"
+          - "ulimit -n 65535"
+        securityContext:
+          privileged: true
+          runAsUser: 0
+    containers:
+      - name: redis
+        image: {{ include "redis.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+        ports:
+          - containerPort: 6379
+            name: redis
+          - containerPort: 16379  # for redis cluster bus, port=base + 10000
+            name: cluster-bus
+        env:
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/conf"
+          - name: REDIS_PORT
+            value: "6379"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
+        livenessProbe:
+          exec:
+            command:
+              - "timeout"
+              - "3"
+              - "bash"
+              - "-c"
+              - "</dev/tcp/localhost/9001"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+        readinessProbe:
+          exec:
+            command:
+              - "timeout"
+              - "3"
+              - "bash"
+              - "-c"
+              - "service-ctl.sh health"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+        startupProbe:
+          exec:
+            command:
+              - "timeout"
+              - "3"
+              - "bash"
+              - "-c"
+              - "</dev/tcp/localhost/9001"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+      - name: unit-agent
+        image: {{ include "redis.agent.image" . }}
+        imagePullPolicy: {{ .Values.agent.image.pullPolicy | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
+        ports:
+          - containerPort: 2214
+            name: unit-agent
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.name"
+          - name: UNIT_TYPE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['kubectl.kubernetes.io/default-container']"
+          - name: ARCH_MODE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['upm.api/service.arch.mode']"
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/conf"
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.namespace"
+          - name: CONFIG_PATH
+            value: "$(DATA_MOUNT)/conf/redis.cnf"
+          - name: SERVICE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['unitset.name']"
+          - name: REDIS_MEMORY_LIMIT
+            valueFrom:
+              resourceFieldRef:
+                containerName: "redis"
+                resource: "limits.memory"
+                divisor: "1Mi"
+          - name: NODEPORT_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['upm.api/nodeport-ip']"
+          - name: UNIT_SERVICE_TYPE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator.unit-service.type']"
+          - name: UNIT_SERVICE_REDIS_NODEPORT_MAP
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator.unit-service.redis.nodeport.map']"
+          - name: UNIT_SERVICE_REDIS_CLUSTER_BUS_NODEPORT_MAP
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator.unit-service.cluster-bus.nodeport.map']"
+          - name: UNIT_SERVICE_LOADBALANCER_IP_MAP
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator.unit-service.loadbalancer-ip.map']"
+          - name: REDIS_PORT
+            value: "6379"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+      - name: metrics
+        image: {{ include "redis.metrics.image" . }}
+        imagePullPolicy: {{ .Values.metrics.image.pullPolicy | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
+        command:
+          - "sh"
+          - "-c"
+          - |
+            if [ "$ARCH_MODE" = "cluster" ]; then
+              CLUSTER_ENABLED=true
+            else
+              CLUSTER_ENABLED=false
+            fi
+            exec redis_exporter \
+              --is-cluster=$CLUSTER_ENABLED \
+              --include-config-metrics=true \
+              --redis-only-metrics=true \
+              --web.listen-address=:${METRICS_PORT} \
+              --redis.addr=redis://127.0.0.1:${REDIS_PORT} \
+              --redis.password-file=${CONF_DIR}/.pwd.json
+        ports:
+          - containerPort: 9121
+            name: metrics
+        env:
+          - name: METRICS_PORT
+            value: "9121"
+          - name: REDIS_PORT
+            value: "6379"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/conf"
+          - name: ARCH_MODE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['upm.api/service.arch.mode']"
+        {{- if .Values.metrics.resources }}
+        resources: {{ toYaml .Values.metrics.resources | nindent 10 }}
+        {{- end }}
+        livenessProbe:
+          httpGet:
+            path: /metrics
+            port: metrics
+          failureThreshold: 4
+          periodSeconds: 12
+          timeoutSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: metrics
+          failureThreshold: 4
+          periodSeconds: 12
+          timeoutSeconds: 3

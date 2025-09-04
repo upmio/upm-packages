@@ -1,0 +1,17 @@
+---
+global:
+  imageRegistry: ""
+
+image:
+  registry: quay.io
+  repository: upmio/postgresql
+  tag: "15.13"
+  digest: ""
+  pullPolicy: IfNotPresent
+
+agent:
+  image:
+    registry: quay.io
+    repository: upmio/postgresql-agent
+    tag: "15"
+    pullPolicy: IfNotPresent

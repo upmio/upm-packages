@@ -1,0 +1,28 @@
+---
+global:
+  imageRegistry: ""
+
+image:
+  registry: quay.io
+  repository: upmio/elasticsearch
+  tag: "7.17.14"
+  digest: ""
+  pullPolicy: IfNotPresent
+
+agent:
+  image:
+    registry: quay.io
+    repository: upmio/unit-agent
+    tag: "v1.1.0"
+    pullPolicy: IfNotPresent
+
+metrics:
+  image:
+    registry: docker.io
+    repository: prometheuscommunity/elasticsearch-exporter
+    tag: "v1.6.0"
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi

@@ -1,0 +1,190 @@
+apiVersion: v1
+kind: PodTemplate
+metadata:
+  name: {{ .Chart.Name }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    upm.io/owner: upm
+    type: zookeeper
+    version: {{ .Chart.AppVersion | quote }}
+template:
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/default-container: zookeeper
+    labels:
+      upm.io/owner: upm
+      type: zookeeper
+      version: {{ .Chart.AppVersion | quote }}
+  spec:
+    tolerations:
+      - key: "key"
+        operator: "Equal"
+        value: "value"
+        effect: "NoSchedule"
+    dnsPolicy: ClusterFirst
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    securityContext:
+      fsGroup: 1001
+      fsGroupChangePolicy: OnRootMismatch
+    initContainers:
+      - name: init-container
+        image: {{ include "zookeeper.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+        command:
+          - "bash"
+          - "-c"
+          - "service-ctl.sh initialize"
+        env:
+          - name: UNIT_SN
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['unit.sn']"
+          - name: ZOO_DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: ZOO_DATA_LOG_DIR
+            value: "$(DATA_MOUNT)/dataLog"
+          - name: ZOOCFGDIR
+            value: "$(DATA_MOUNT)/conf"
+          - name: ZOO_LOG_DIR
+            value: "$(LOG_MOUNT)/logs"
+          - name: ZK_MEMORY_LIMIT
+            valueFrom:
+              resourceFieldRef:
+                containerName: zookeeper
+                resource: limits.memory
+                divisor: 1Mi
+      - name: sysctl
+        image: {{ include "zookeeper.image" . }}
+        command:
+          - "bash"
+          - "-c"
+          - "ulimit -n 65535"
+        securityContext:
+          privileged: true
+          runAsUser: 0
+    containers:
+      - name: zookeeper
+        image: {{ include "zookeeper.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
+        ports:
+          - containerPort: 7000
+            name: metrics
+          - containerPort: 2181
+            name: zookeeper
+        env:
+          - name: ZOOCFGDIR
+            value: "$(DATA_MOUNT)/conf"
+          - name: ZOO_DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: ZOO_DATA_LOG_DIR
+            value: "$(DATA_MOUNT)/dataLog"
+          - name: ZOO_LOG_DIR
+            value: "$(LOG_MOUNT)/logs"
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.namespace"
+          - name: SERVICE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['unitset.name']"
+          - name: ZOOKEEPER_PORT
+            value: "2181"
+          - name: METRICS_PORT
+            value: "7000"
+        livenessProbe:
+          exec:
+            command:
+              - "timeout"
+              - "3"
+              - "bash"
+              - "-c"
+              - "</dev/tcp/localhost/9001"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+        readinessProbe:
+          exec:
+            command:
+              - "bash"
+              - "-c"
+              - "service-ctl.sh health"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+        startupProbe:
+          exec:
+            command:
+              - "timeout"
+              - "3"
+              - "bash"
+              - "-c"
+              - "</dev/tcp/localhost/9001"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+      - name: unit-agent
+        image: {{ include "zookeeper.agent.image" . }}
+        imagePullPolicy: {{ .Values.agent.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+        ports:
+          - containerPort: 2214
+            name: unit-agent
+        env:
+          - name: UNIT_TYPE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['kubectl.kubernetes.io/default-container']"
+          - name: ZOOCFGDIR
+            value: "$(DATA_MOUNT)/conf"
+          - name: ZOO_DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: ZOO_DATA_LOG_DIR
+            value: "$(DATA_MOUNT)/dataLog"
+          - name: ZOO_LOG_DIR
+            value: "$(LOG_MOUNT)/logs"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/conf"
+          - name: CONFIG_PATH
+            value: "$(DATA_MOUNT)/conf/zoo.cfg"
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.namespace"
+          - name: SERVICE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['unitset.name']"
+          - name: ZOOKEEPER_PORT
+            value: "2181"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi

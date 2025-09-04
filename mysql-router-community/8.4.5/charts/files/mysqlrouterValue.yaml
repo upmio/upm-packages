@@ -1,0 +1,9 @@
+---
+default:
+  max_total_connections: "1024"
+  connect_timeout: "30"
+  read_timeout: "30"
+  unknown_config_option: "warning"
+  max_idle_server_connections: "32"
+logger:
+  level: "INFO"

@@ -1,0 +1,13 @@
+[
+  {
+    "key": "i18n_locale",
+    "scope": "",
+    "section": "defaults",
+    "type": "Enumeration",
+    "dynamic": false,
+    "range": "[\"en\",\"zh-CN\",\"ja-JP\",\"fr-FR\"]",
+    "default": "en",
+    "desc_en": "kibana internationalization locale, default is en. support en, zh-CN, ja-JP, fr-FR",
+    "desc_zh": "kibana 国际化语言环境，默认是 en，支持 en, zh-CN, ja-JP, fr-FR"
+  }
+]

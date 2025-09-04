@@ -1,0 +1,9 @@
+---
+defaults:
+  tick_time: "2000"
+  init_limit: "10"
+  sync_limit: "5"
+  autopurge_snap_retain_count: "30"
+  autopurge_purge_interval: "24"
+  max_client_cnxns: "300"
+  max_session_timeout: "180000"

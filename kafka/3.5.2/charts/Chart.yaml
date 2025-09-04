@@ -1,0 +1,20 @@
+apiVersion: v2
+appVersion: 3.5.2
+dependencies:
+  - name: common
+    repository: oci://registry-1.docker.io/bitnamicharts
+    tags:
+      - bitnami-common
+    version: 2.31.3
+name: kafka-3.5.2
+version: 1.1.0
+description: Kafka software packages, including configuration templates and pod templates.
+type: application
+keywords:
+  - kafka
+  - streaming
+  - messaging
+  - pubsub
+  - event
+  - broker
+  - distributed system

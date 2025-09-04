@@ -1,0 +1,167 @@
+name: Release
+
+run-name: ${{ github.actor }} is releasing images and charts
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      changed_components: ${{ steps.analyze.outputs.changed_components }}
+      changed_image_dirs: ${{ steps.analyze.outputs.changed_image_dirs }}
+      changed_chart_dirs: ${{ steps.analyze.outputs.changed_chart_dirs }}
+      has_image_changes: ${{ steps.analyze.outputs.has_image_changes }}
+      has_chart_changes: ${{ steps.analyze.outputs.has_chart_changes }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Analyze
+        id: analyze
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            changed_files=$(git diff --name-only origin/${{ github.base_ref }} HEAD)
+          else
+            changed_files=$(git diff --name-only HEAD^ HEAD)
+          fi
+
+          echo "Changed files:\n$changed_files"
+
+          changed_components_json="$(echo "$changed_files" | while read -r f; do
+            [ -n "$f" ] || continue
+            comp=$(echo "$f" | awk -F'/' '{print $1}')
+            [ -n "$comp" ] && [ "$comp" != ".github" ] && echo "$comp"
+          done | sort | uniq | jq -R . | jq -sc .)"
+
+          changed_image_dirs_json="$(echo "$changed_files" | grep "image/" | while read -r file; do
+            [ -n "$file" ] || continue
+            dir=$(dirname "$file" | sed 's|^\./||')
+            while [[ "$dir" != "." && "$dir" != *"image" ]]; do dir=$(dirname "$dir"); done
+            if [[ "$dir" == *"image" ]]; then
+              comp=$(echo "$dir" | awk -F'/' '{print $1}')
+              seg2=$(echo "$dir" | awk -F'/' '{print $2}')
+              seg3=$(echo "$dir" | awk -F'/' '{print $3}')
+              if [ "$seg2" = "agent" ]; then
+                image_name="${comp}-agent"
+                image_tag="$seg3"
+              else
+                image_name="$comp"
+                image_tag="$seg2"
+              fi
+              echo "{\"component\": \"$comp\", \"context\": \"$dir\", \"image_name\": \"$image_name\", \"tag\": \"$image_tag\"}"
+            fi
+          done | sort | uniq | jq -sc .)"
+
+          changed_chart_dirs_json="$(echo "$changed_files" | grep "charts/" | while read -r file; do
+            [ -n "$file" ] || continue
+            dir=$(dirname "$file" | sed 's|^\./||')
+            while [[ "$dir" != "." && "$dir" != *"charts" ]]; do dir=$(dirname "$dir"); done
+            [[ "$dir" == *"charts" ]] && echo "$dir"
+          done | sort | uniq | jq -R . | jq -sc .)"
+
+          has_image_changes=$(echo "$changed_files" | grep -q "image/" && echo true || echo false)
+          has_chart_changes=$(echo "$changed_files" | grep -q "charts/" && echo true || echo false)
+
+          echo "changed_components=$changed_components_json" >> $GITHUB_OUTPUT
+          echo "changed_image_dirs=$changed_image_dirs_json" >> $GITHUB_OUTPUT
+          echo "changed_chart_dirs=$changed_chart_dirs_json" >> $GITHUB_OUTPUT
+          echo "has_image_changes=$has_image_changes" >> $GITHUB_OUTPUT
+          echo "has_chart_changes=$has_chart_changes" >> $GITHUB_OUTPUT
+
+  build-and-push-images:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_image_changes == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 3
+      matrix:
+        image_info: ${{ fromJson(needs.detect-changes.outputs.changed_image_dirs) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Quay
+        uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAYIO_USERNAME }}
+          password: ${{ secrets.QUAYIO_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.image_info.context }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            quay.io/upmio/${{ matrix.image_info.image_name }}:${{ matrix.image_info.tag }}
+
+  release-charts:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_chart_changes == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        chart_dir: ${{ fromJson(needs.detect-changes.outputs.changed_chart_dirs) }}
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git fetch --all
+          git fetch --tags
+
+      - name: Read chart version
+        id: meta
+        run: |
+          CHART_VERSION=$(yq eval '.version' ${{ matrix.chart_dir }}/Chart.yaml)
+          CHART_NAME=$(yq eval '.name' ${{ matrix.chart_dir }}/Chart.yaml)
+          echo "name=$CHART_NAME" >> $GITHUB_OUTPUT
+          echo "version=$CHART_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Package chart
+        run: |
+          rm -rf .cr-release-packages
+          mkdir -p .cr-release-packages
+          helm package ${{ matrix.chart_dir }} --destination=.cr-release-packages -u
+
+      - name: Release chart
+        uses: helm/chart-releaser-action@v1.5.0
+        with:
+          charts_dir: ${{ matrix.chart_dir }}
+          skip_packaging: true
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+  summary:
+    needs: [detect-changes, build-and-push-images, release-charts]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summary
+        run: |
+          echo "### Release Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Image changes: ${{ needs.detect-changes.outputs.has_image_changes }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Chart changes: ${{ needs.detect-changes.outputs.has_chart_changes }}" >> $GITHUB_STEP_SUMMARY

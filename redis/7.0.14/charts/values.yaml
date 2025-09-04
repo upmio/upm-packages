@@ -1,0 +1,32 @@
+---
+global:
+  imageRegistry: ""
+
+image:
+  registry: quay.io
+  repository: upmio/redis
+  tag: "7.0.14"
+  digest: ""
+  pullPolicy: IfNotPresent
+
+metrics:
+  image:
+    registry: quay.io
+    repository: panquest/bitnami-redis-exporter
+    tag: "1.69.0-debian-12-r1-1.9.3"
+    digest: ""
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+agent:
+  image:
+    registry: quay.io
+    repository: upmio/unit-agent
+    tag: "v1.1.0"
+    pullPolicy: IfNotPresent

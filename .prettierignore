@@ -1,0 +1,7 @@
+# Ignore generated or template-like YAML
+**/charts/templates/**
+**/charts/**/Chart.lock
+
+# Vendored or build outputs
+node_modules/
+dist/
