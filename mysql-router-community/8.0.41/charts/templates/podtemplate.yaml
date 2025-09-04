@@ -160,7 +160,7 @@ template:
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.labels['unit.sn']"
+                fieldPath: "metadata.labels['unit-operator/unit.sn']"
           - name: MYSQL_ROUTER_PORT
             value: "6446"
           - name: MYSQLX_ROUTER_PORT

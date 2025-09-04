@@ -89,7 +89,7 @@ template:
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.labels['unitset.name']"
+                fieldPath: "metadata.labels['unit-operator/unitset.name']"
           - name: KAFKA_PORT
             value: "9094"
         livenessProbe:
@@ -155,7 +155,7 @@ template:
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.labels['unit.sn']"
+                fieldPath: "metadata.labels['unit-operator/unit.sn']"
           - name: NAMESPACE
             valueFrom:
               fieldRef:
@@ -170,7 +170,7 @@ template:
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.labels['unitset.name']"
+                fieldPath: "metadata.labels['unit-operator/unitset.name']"
           - name: NODEPORT_IP
             valueFrom:
               fieldRef:

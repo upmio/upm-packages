@@ -44,7 +44,7 @@ template:
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.labels['unit.sn']"
+                fieldPath: "metadata.labels['unit-operator/unit.sn']"
           - name: ZOO_DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: ZOO_DATA_LOG_DIR
@@ -97,7 +97,7 @@ template:
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.labels['unitset.name']"
+                fieldPath: "metadata.labels['unit-operator/unitset.name']"
           - name: ZOOKEEPER_PORT
             value: "2181"
           - name: METRICS_PORT
@@ -176,7 +176,7 @@ template:
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.labels['unitset.name']"
+                fieldPath: "metadata.labels['unit-operator/unitset.name']"
           - name: ZOOKEEPER_PORT
             value: "2181"
           - name: AES_SECRET_KEY

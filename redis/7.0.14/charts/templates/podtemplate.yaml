@@ -163,7 +163,7 @@ template:
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.labels['unitset.name']"
+                fieldPath: "metadata.labels['unit-operator/unitset.name']"
           - name: REDIS_MEMORY_LIMIT
             valueFrom:
               resourceFieldRef:
