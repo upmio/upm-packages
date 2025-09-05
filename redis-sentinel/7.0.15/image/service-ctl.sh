@@ -127,31 +127,11 @@ decrypt_pwd() {
 admin_user_login() {
   local func_name="admin_user_login"
 
-  # Use admin password for auth; if not available, just try without auth
-  local adm_pwd=""
-  if [[ -n "${ADM_USER:-}" ]]; then
-    adm_pwd=$(decrypt_pwd "${ADM_USER}" || true)
-  fi
-
-  if [[ -n "${adm_pwd}" ]]; then
-    export REDISCLI_AUTH="${adm_pwd}"
-  fi
-
   redis-cli -h 127.0.0.1 -p "${REDIS_SENTINEL_PORT}"
 }
 
 health() {
   local func_name="health"
-
-  # Use admin password for auth; if not available, just try without auth
-  local adm_pwd=""
-  if [[ -n "${ADM_USER:-}" ]]; then
-    adm_pwd=$(decrypt_pwd "${ADM_USER}" || true)
-  fi
-
-  if [[ -n "${adm_pwd}" ]]; then
-    export REDISCLI_AUTH="${adm_pwd}"
-  fi
 
   local pong
   if pong=$(redis-cli -h 127.0.0.1 -p "${REDIS_SENTINEL_PORT}" ping 2>/dev/null); then
