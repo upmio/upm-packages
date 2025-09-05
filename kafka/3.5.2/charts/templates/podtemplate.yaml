@@ -180,17 +180,17 @@ template:
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.annotations['unit-operator.unit-service.type']"
+                fieldPath: "metadata.annotations['unit-operator/unit-service.type']"
           - name: UNIT_SERVICE_KAFKA_NODEPORT_MAP
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.annotations['unit-operator.unit-service.kafka.nodeport.map']"
+                fieldPath: "metadata.annotations['unit-operator/unit-service.kafka.nodeport.map']"
           - name: UNIT_SERVICE_LOADBALANCER_IP_MAP
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.annotations['unit-operator.unit-service.loadbalancer-ip.map']"
+                fieldPath: "metadata.annotations['unit-operator/unit-service.loadbalancer-ip.map']"
           - name: KAFKA_PORT
             value: "9094"
           - name: AES_SECRET_KEY

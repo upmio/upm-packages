@@ -181,22 +181,22 @@ template:
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.annotations['unit-operator.unit-service.type']"
+                fieldPath: "metadata.annotations['unit-operator/unit-service.type']"
           - name: UNIT_SERVICE_REDIS_NODEPORT_MAP
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.annotations['unit-operator.unit-service.redis.nodeport.map']"
+                fieldPath: "metadata.annotations['unit-operator/unit-service.redis.nodeport.map']"
           - name: UNIT_SERVICE_REDIS_CLUSTER_BUS_NODEPORT_MAP
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.annotations['unit-operator.unit-service.cluster-bus.nodeport.map']"
+                fieldPath: "metadata.annotations['unit-operator/unit-service.cluster-bus.nodeport.map']"
           - name: UNIT_SERVICE_LOADBALANCER_IP_MAP
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.annotations['unit-operator.unit-service.loadbalancer-ip.map']"
+                fieldPath: "metadata.annotations['unit-operator/unit-service.loadbalancer-ip.map']"
           - name: REDIS_PORT
             value: "6379"
           - name: AES_SECRET_KEY
