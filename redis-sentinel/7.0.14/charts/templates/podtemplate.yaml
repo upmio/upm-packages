@@ -178,7 +178,7 @@ template:
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.annotations['compose-operator/redisreplication.source']"
+                fieldPath: "metadata.labels['compose-operator/redis-replication.source']"
           - name: REDIS_SENTINEL_PORT
             value: "26379"
           - name: AES_SECRET_KEY
