@@ -12,7 +12,6 @@ template:
     annotations:
       kubectl.kubernetes.io/default-container: kibana
     labels:
-      upm.io/owner: upm
       type: kibana
       version: {{ .Chart.AppVersion | quote }}
   spec:

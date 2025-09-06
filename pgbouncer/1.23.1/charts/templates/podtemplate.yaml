@@ -12,7 +12,6 @@ template:
     annotations:
       kubectl.kubernetes.io/default-container: pgbouncer
     labels:
-      upm.io/owner: upm
       type: pgbouncer
       version: {{ .Chart.AppVersion | quote }}
   spec:

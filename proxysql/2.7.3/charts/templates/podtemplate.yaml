@@ -12,7 +12,6 @@ template:
     annotations:
       kubectl.kubernetes.io/default-container: proxysql
     labels:
-      upm.io/owner: upm
       type: proxysql
       version: {{ .Chart.AppVersion | quote }}
   spec:

@@ -12,7 +12,6 @@ template:
     annotations:
       kubectl.kubernetes.io/default-container: elasticsearch
     labels:
-      upm.io/owner: upm
       type: elasticsearch
       version: {{ .Chart.AppVersion | quote }}
   spec:

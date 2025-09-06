@@ -12,7 +12,6 @@ template:
     annotations:
       kubectl.kubernetes.io/default-container: zookeeper
     labels:
-      upm.io/owner: upm
       type: zookeeper
       version: {{ .Chart.AppVersion | quote }}
   spec:

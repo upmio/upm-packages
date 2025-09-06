@@ -12,7 +12,6 @@ template:
     annotations:
       kubectl.kubernetes.io/default-container: postgresql
     labels:
-      upm.io/owner: upm
       type: postgresql
       version: {{ .Chart.AppVersion | quote }}
   spec:

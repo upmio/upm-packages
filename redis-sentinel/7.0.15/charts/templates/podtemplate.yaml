@@ -12,7 +12,6 @@ template:
     annotations:
       kubectl.kubernetes.io/default-container: redis-sentinel
     labels:
-      upm.io/owner: upm
       type: redis-sentinel
       version: {{ .Chart.AppVersion | quote }}
   spec:

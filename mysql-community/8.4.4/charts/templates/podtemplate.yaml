@@ -13,7 +13,6 @@ template:
     annotations:
       kubectl.kubernetes.io/default-container: mysql
     labels:
-      upm.io/owner: upm
       type: mysql
       edition: community
       version: {{ .Chart.AppVersion | quote }}

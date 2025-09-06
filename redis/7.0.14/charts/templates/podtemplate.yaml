@@ -12,7 +12,6 @@ template:
     annotations:
       kubectl.kubernetes.io/default-container: redis
     labels:
-      upm.io/owner: upm
       type: redis
       version: {{ .Chart.AppVersion | quote }}
   spec:
