@@ -173,11 +173,16 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.labels['unit-operator/unitset.name']"
-          - name: REDISREPLICATION_SOURCE
+          - name: REDIS_REPLICATION_SOURCE_HOST
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.labels['compose-operator/redis-replication.source']"
+                fieldPath: "metadata.labels['compose-operator/redis-replication.source.host']"
+          - name: REDIS_REPLICATION_SOURCE_PORT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['compose-operator/redis-replication.source.port']"
           - name: REDIS_SENTINEL_PORT
             value: "26379"
           - name: AES_SECRET_KEY
