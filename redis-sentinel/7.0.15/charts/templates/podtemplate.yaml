@@ -45,6 +45,16 @@ template:
             value: "$(DATA_MOUNT)/conf"
           - name: REDIS_SENTINEL_PORT
             value: "26379"
+          - name: REDIS_REPLICATION_SOURCE_HOST
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['compose-operator/redis-replication.source.host']"
+          - name: REDIS_REPLICATION_SOURCE_PORT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['compose-operator/redis-replication.source.port']"
           - name: AES_SECRET_KEY
             valueFrom:
               secretKeyRef:
@@ -76,11 +86,6 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.name"
-          - name: SERVICE_GROUP_NAME
-            valueFrom:
-              fieldRef:
-                apiVersion: "v1"
-                fieldPath: "metadata.labels['upm.api/service-group.name']"
           - name: NAMESPACE
             valueFrom:
               fieldRef:
@@ -140,6 +145,8 @@ template:
         image: {{ include "redis-sentinel.agent.image" . }}
         imagePullPolicy: {{ .Values.agent.image.pullPolicy | quote }}
         securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
           allowPrivilegeEscalation: false
         ports:
           - containerPort: 2214
@@ -171,11 +178,16 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.labels['unit-operator/unitset.name']"
-          - name: REDISREPLICATION_SOURCE
+          - name: REDIS_REPLICATION_SOURCE_HOST
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
-                fieldPath: "metadata.labels['compose-operator/redis-replication.source']"
+                fieldPath: "metadata.labels['compose-operator/redis-replication.source.host']"
+          - name: REDIS_REPLICATION_SOURCE_PORT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['compose-operator/redis-replication.source.port']"
           - name: REDIS_SENTINEL_PORT
             value: "26379"
           - name: AES_SECRET_KEY
