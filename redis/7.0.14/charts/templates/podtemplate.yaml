@@ -219,7 +219,7 @@ template:
             else
               CLUSTER_ENABLED=false
             fi
-            exec redis_exporter \
+            exec /redis_exporter \
               --is-cluster=$CLUSTER_ENABLED \
               --include-config-metrics=true \
               --redis-only-metrics=true \

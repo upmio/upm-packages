@@ -12,8 +12,8 @@ image:
 metrics:
   image:
     registry: quay.io
-    repository: panquest/bitnami-redis-exporter
-    tag: "1.69.0-debian-12-r1-1.9.3"
+    repository: opstree/redis-exporter
+    tag: "v1.76.0-alpine"
     digest: ""
     pullPolicy: IfNotPresent
   resources:
