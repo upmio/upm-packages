@@ -312,9 +312,15 @@ add_helm_repo() {
 
     if helm repo list | grep -q "^$HELM_REPO_NAME "; then
       print_info "Repository $HELM_REPO_NAME already exists, updating..."
-      helm repo update "$HELM_REPO_NAME"
+      if ! helm repo update "$HELM_REPO_NAME"; then
+        print_error "Failed to update helm repository $HELM_REPO_NAME"
+        exit 1
+      fi
     else
-      helm repo add "$HELM_REPO_NAME" "$HELM_REPO_URL"
+      if ! helm repo add "$HELM_REPO_NAME" "$HELM_REPO_URL"; then
+        print_error "Failed to add helm repository $HELM_REPO_NAME"
+        exit 1
+      fi
       print_success "Repository $HELM_REPO_NAME added"
     fi
   fi
@@ -338,9 +344,15 @@ fetch_available_packages() {
 
   # Ensure repository is added and updated
   if ! helm repo list | grep -q "^$HELM_REPO_NAME "; then
-    helm repo add "$HELM_REPO_NAME" "$HELM_REPO_URL" >/dev/null 2>&1
+    if ! helm repo add "$HELM_REPO_NAME" "$HELM_REPO_URL" >/dev/null 2>&1; then
+      print_error "Failed to add helm repository $HELM_REPO_NAME"
+      return 1
+    fi
   fi
-  helm repo update "$HELM_REPO_NAME" >/dev/null 2>&1
+  if ! helm repo update "$HELM_REPO_NAME" >/dev/null 2>&1; then
+    print_error "Failed to update helm repository $HELM_REPO_NAME"
+    return 1
+  fi
 
   # Search for all charts in the repository
   local packages
@@ -890,7 +902,8 @@ upgrade_package() {
   # Ensure helm repository is updated to get latest versions
   print_info "Updating helm repository to ensure latest versions..."
   if ! helm repo update "$HELM_REPO_NAME" >/dev/null 2>&1; then
-    print_warning "Failed to update helm repository, continuing with upgrade..."
+    print_error "Failed to update helm repository $HELM_REPO_NAME"
+    return 1
   fi
 
   local helm_cmd="helm upgrade"
