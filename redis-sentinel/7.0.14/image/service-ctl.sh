@@ -126,12 +126,28 @@ decrypt_pwd() {
 
 admin_user_login() {
   local func_name="admin_user_login"
+  [[ -n "${ADM_USER:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "ADM_USER environment variable not set!"
+
+  local adm_pwd
+  adm_pwd=$(decrypt_pwd "${ADM_USER}")
+  [[ -n "${adm_pwd}" ]] || die "${EXIT_GENERAL_FAILURE}" "${func_name}" "get ${ADM_USER} password failed!"
+  export REDISCLI_AUTH="${adm_pwd}"
 
   redis-cli -h 127.0.0.1 -p "${REDIS_SENTINEL_PORT}"
 }
 
 health() {
   local func_name="health"
+
+  # Use admin password for auth; if not available, just try without auth
+  local adm_pwd=""
+  if [[ -n "${ADM_USER:-}" ]]; then
+    adm_pwd=$(decrypt_pwd "${ADM_USER}" || true)
+  fi
+
+  if [[ -n "${adm_pwd}" ]]; then
+    export REDISCLI_AUTH="${adm_pwd}"
+  fi
 
   local pong
   if pong=$(redis-cli -h 127.0.0.1 -p "${REDIS_SENTINEL_PORT}" ping 2>/dev/null); then
@@ -159,17 +175,17 @@ initialize() {
 
   # Check REDIS_REPLICATION_SOURCE_HOST and REDIS_REPLICATION_SOURCE_PORT connectivity if set
   export REDISCLI_AUTH="${adm_pwd}"
-  
+
   # Check if REDIS_REPLICATION_SOURCE_HOST is set but empty
   if [[ -v REDIS_REPLICATION_SOURCE_HOST && -z "${REDIS_REPLICATION_SOURCE_HOST}" ]]; then
     die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "REDIS_REPLICATION_SOURCE_HOST is set but empty!"
   fi
-  
+
   # Check if REDIS_REPLICATION_SOURCE_PORT is set but empty
   if [[ -v REDIS_REPLICATION_SOURCE_PORT && -z "${REDIS_REPLICATION_SOURCE_PORT}" ]]; then
     die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "REDIS_REPLICATION_SOURCE_PORT is set but empty!"
   fi
-  
+
   # Only proceed with connection test if both variables have values
   if ! redis-cli -h "${REDIS_REPLICATION_SOURCE_HOST}" -p "${REDIS_REPLICATION_SOURCE_PORT}" ping | grep -q "PONG"; then
     die "${EXIT_REDIS_HEALTH_FAILED}" "${func_name}" "Cannot connect to ${REDIS_REPLICATION_SOURCE_HOST}:${REDIS_REPLICATION_SOURCE_PORT}"
