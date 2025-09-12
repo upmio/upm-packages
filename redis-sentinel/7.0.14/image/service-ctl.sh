@@ -173,9 +173,6 @@ initialize() {
   adm_pwd=$(decrypt_pwd "${ADM_USER}")
   [[ -n "${adm_pwd}" ]] || die "${EXIT_GENERAL_FAILURE}" "${func_name}" "get ${ADM_USER} password failed!"
 
-  # Check REDIS_REPLICATION_SOURCE_HOST and REDIS_REPLICATION_SOURCE_PORT connectivity if set
-  export REDISCLI_AUTH="${adm_pwd}"
-
   # Check if REDIS_REPLICATION_SOURCE_HOST is set but empty
   if [[ -v REDIS_REPLICATION_SOURCE_HOST && -z "${REDIS_REPLICATION_SOURCE_HOST}" ]]; then
     die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "REDIS_REPLICATION_SOURCE_HOST is set but empty!"
@@ -186,7 +183,8 @@ initialize() {
     die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "REDIS_REPLICATION_SOURCE_PORT is set but empty!"
   fi
 
-  # Only proceed with connection test if both variables have values
+  # If replication source is specified, validate connectivity
+  export REDISCLI_AUTH="${adm_pwd}"
   if ! redis-cli -h "${REDIS_REPLICATION_SOURCE_HOST}" -p "${REDIS_REPLICATION_SOURCE_PORT}" ping | grep -q "PONG"; then
     die "${EXIT_REDIS_HEALTH_FAILED}" "${func_name}" "Cannot connect to ${REDIS_REPLICATION_SOURCE_HOST}:${REDIS_REPLICATION_SOURCE_PORT}"
   fi

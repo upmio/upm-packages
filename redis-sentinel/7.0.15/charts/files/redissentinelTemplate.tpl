@@ -5,7 +5,7 @@ pidfile "{{ getenv "DATA_MOUNT" }}/redis-sentinel.pid"
 loglevel {{ getv "/defaults/loglevel" }}
 logfile "{{ getenv "LOG_MOUNT" }}/redis-sentinel.log"
 dir "{{ getenv "DATA_MOUNT" }}/data"
-requirepass "{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER")) }}"
+user default on sanitize-payload #{{ sha256sum (AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER"))) }}  ~* &* +@all
 sentinel resolve-hostnames yes
 sentinel announce-hostnames yes
 sentinel announce-ip {{ getenv "POD_NAME" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}

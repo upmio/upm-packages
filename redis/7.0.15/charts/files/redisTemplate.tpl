@@ -18,8 +18,6 @@ rdbcompression {{ getv "/defaults/rdbcompression" }}
 rdbchecksum {{ getv "/defaults/rdbchecksum" }}
 dbfilename dump.rdb
 dir "{{ getenv "DATA_MOUNT" }}/data"
-masterauth "{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER")) }}"
-requirepass "{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER")) }}"
 user default on sanitize-payload #{{ sha256sum (AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER"))) }}  ~* &* +@all
 maxclients {{ getv "/defaults/maxclients" }}
 maxmemory {{ mul (div (atoi (getenv "REDIS_MEMORY_LIMIT")) 4) 3 }}mb
@@ -75,6 +73,7 @@ cluster-announce-bus-port {{ add (atoi (getenv "REDIS_PORT" "6379")) 10000 }}
 {{- end }}
 {{- end }}
 {{- if contains (getenv "ARCH_MODE") "replication" }}
+masterauth "{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER")) }}"
 {{- if contains (getenv "UNIT_SERVICE_TYPE") "ClusterIP" }}
 replica-announce-ip {{ getenv "POD_NAME" }}-svc.{{ getenv "NAMESPACE" }}.svc
 replica-announce-port {{ getenv "REDIS_PORT" "6379" }}
