@@ -149,15 +149,33 @@ health() {
     export REDISCLI_AUTH="${adm_pwd}"
   fi
 
+  # First check if sentinel is responding to ping
   local pong
   if pong=$(redis-cli -h 127.0.0.1 -p "${REDIS_SENTINEL_PORT}" ping 2>/dev/null); then
     if [[ "${pong}" == "PONG" ]]; then
       info "${func_name}" "Redis Sentinel ping OK"
-      return 0
+    else
+      die "${EXIT_REDIS_HEALTH_FAILED}" "${func_name}" "redis-cli ping failed!"
+    fi
+  else
+    die "${EXIT_REDIS_HEALTH_FAILED}" "${func_name}" "redis-cli ping failed!"
+  fi
+
+  # Check sentinel quorum status
+  local ckquorum_result
+  if ckquorum_result=$(redis-cli -h 127.0.0.1 -p "${REDIS_SENTINEL_PORT}" SENTINEL CKQUORUM "${REDIS_MASTER_NAME}" 2>&1); then
+    info "${func_name}" "Redis Sentinel CKQUORUM check OK for master: ${REDIS_MASTER_NAME}"
+  else
+    # Check if the error contains NOQUORUM
+    if [[ "${ckquorum_result}" == *"NOQUORUM"* ]]; then
+      die "${EXIT_REDIS_HEALTH_FAILED}" "${func_name}" "Redis Sentinel CKQUORUM failed: ${ckquorum_result}"
+    else
+      # For other errors, log but don't fail (might be during initialization)
+      info "${func_name}" "Redis Sentinel CKQUORUM check warning: ${ckquorum_result}"
     fi
   fi
 
-  die "${EXIT_REDIS_HEALTH_FAILED}" "${func_name}" "redis-cli ping failed!"
+  return 0
 }
 
 initialize() {
@@ -249,6 +267,7 @@ validate_environment() {
   [[ -n "${LOG_MOUNT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env LOG_MOUNT failed !"
   [[ -d ${LOG_MOUNT} ]] || die "${EXIT_DIR_NOT_FOUND}" "${func_name}" "Not found LOG_MOUNT !"
   REDIS_SENTINEL_PORT="${REDIS_SENTINEL_PORT:-26379}"
+  REDIS_MASTER_NAME="${REDIS_MASTER_NAME:-mymaster}"
 
   # Set global variables with defaults
   readonly INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"

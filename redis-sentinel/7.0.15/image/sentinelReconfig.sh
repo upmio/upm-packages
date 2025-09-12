@@ -56,8 +56,9 @@ update_redis_replication_source() {
   local func_name="update_redis_replication_source"
 
   local new_master_ip="${1}"
+  local new_master_port="${2}"
 
-  grpcurl -plaintext -d '{"redis_replication_name":"'"${REDIS_REPLICATION_NAME}"'","namespace":"'"${NAMESPACE}"'","self_unit_name":"'"${POD_NAME}"'","master_host":"'"${new_master_ip}"'"}' "${UNIT_AGENT_ENDPOINT}" sentinel.SentinelOperation.UpdateRedisReplication
+  grpcurl -plaintext -d '{"redis_replication_name":"'"${REDIS_REPLICATION_NAME}"'","namespace":"'"${NAMESPACE}"'","self_unit_name":"'"${POD_NAME}"'","master_host":"'"${new_master_ip}"'","master_port":"'"${new_master_port}"'"}' "${UNIT_AGENT_ENDPOINT}" sentinel.SentinelOperation.UpdateRedisReplication
 
   info "${func_name}" "update redis replication source success !"
 }
@@ -90,7 +91,7 @@ main() {
   info "${func_name}" "master_name: ${master_name} , role: ${role} , state: ${state} , from_ip: ${from_ip} , from_port: ${from_port} , to_ip: ${to_ip} , to_port: ${to_port}"
   info "${func_name}" "arguments: ${master_name} ${role} ${state} ${from_ip} ${from_port} ${to_ip} ${to_port}"
 
-  update_redis_replication_source "${to_ip}" || die 21 "${func_name}" "update redis replication source failed !"
+  update_redis_replication_source "${to_ip}" "${to_port}" || die 21 "${func_name}" "update redis replication source failed !"
 
   info "${func_name}" "update shared configmap and redis replication source success !"
 }

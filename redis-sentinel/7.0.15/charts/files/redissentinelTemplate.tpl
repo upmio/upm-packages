@@ -11,7 +11,10 @@ sentinel announce-hostnames yes
 sentinel announce-ip {{ getenv "POD_NAME" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}
 sentinel announce-port {{ getenv "REDIS_SENTINEL_PORT" "26379" }}
 sentinel monitor {{ getenv "REDIS_MASTER_NAME" "mymaster" }} {{ getenv "REDIS_REPLICATION_SOURCE_HOST" }} {{ getenv "REDIS_REPLICATION_SOURCE_PORT" "6379" }} 2
+sentinel auth-user {{ getenv "REDIS_MASTER_NAME" "mymaster" }} default
 sentinel auth-pass {{ getenv "REDIS_MASTER_NAME" "mymaster" }} "{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER")) }}"
+sentinel sentinel-user default
+sentinel sentinel-pass "{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER")) }}"
 sentinel down-after-milliseconds {{ getenv "REDIS_MASTER_NAME" "mymaster" }} {{ getv "/defaults/down-after-milliseconds" }}
 sentinel parallel-syncs {{ getenv "REDIS_MASTER_NAME" "mymaster" }} 1
 sentinel failover-timeout {{ getenv "REDIS_MASTER_NAME" "mymaster" }} {{ getv "/defaults/failover-timeout" }}
