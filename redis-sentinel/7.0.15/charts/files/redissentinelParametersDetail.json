@@ -4,7 +4,7 @@
     "scope": "",
     "section": "defaults",
     "type": "Enumeration",
-    "dynamic": true,
+    "dynamic": false,
     "range": "[\"debug\",\"verbose\",\"notice\",\"warning\"]",
     "default": "",
     "desc_en": "Specifies the server log verbosity level.",
