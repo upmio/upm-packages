@@ -198,14 +198,14 @@ Recent focus areas:
 
 | Component           | Versions                             | Description                                   | Status    |
 | ------------------- | ------------------------------------ | --------------------------------------------- | --------- |
-| **MySQL Community** | 8.0.40, 8.0.41, 8.0.42, 8.4.4, 8.4.5 | Production-ready MySQL with monitoring agents | ✅ Stable |
+| **MySQL Community** | 8.0.41, 8.0.42, 8.4.4, 8.4.5 | Production-ready MySQL with monitoring agents | ✅ Stable |
 | **PostgreSQL**      | 15.12, 15.13                         | Advanced PostgreSQL with enterprise features  | ✅ Stable |
 
 ### 🔗 Database Proxies & Connection Pooling
 
 | Component        | Versions                             | Description                              | Status    |
 | ---------------- | ------------------------------------ | ---------------------------------------- | --------- |
-| **MySQL Router** | 8.0.40, 8.0.41, 8.0.42, 8.4.4, 8.4.5 | Lightweight MySQL routing middleware     | ✅ Stable |
+| **MySQL Router** | 8.0.41, 8.0.42, 8.4.4, 8.4.5 | Lightweight MySQL routing middleware             | ✅ Stable |
 | **ProxySQL**     | 2.7.2, 2.7.3                         | Advanced MySQL proxy with query caching  | ✅ Stable |
 | **PgBouncer**    | 1.23.1, 1.24.1                       | Lightweight PostgreSQL connection pooler | ✅ Stable |
 

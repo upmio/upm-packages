@@ -503,7 +503,7 @@ lint_file_naming() {
     local chart_dir
     chart_dir=$(dirname "$chart_file")
     # Build expected name based on path segments before /charts
-    # Example: ./mysql-community/8.0.40/charts -> expected mysql-community-8.0.40
+    # Example: ./mysql-community/8.0.41/charts -> expected mysql-community-8.0.41
     local rel_path
     rel_path=$(echo "$chart_dir" | sed 's#^\./##' | sed 's#/charts$##')
     local expected_name

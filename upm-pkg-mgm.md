@@ -209,7 +209,6 @@ You can pass user-friendly aliases. The script normalizes them to canonical comp
 
 ### MySQL Community
 
-- `mysql-community-8.0.40`
 - `mysql-community-8.0.41`
 - `mysql-community-8.0.42`
 - `mysql-community-8.4.4`
@@ -217,7 +216,6 @@ You can pass user-friendly aliases. The script normalizes them to canonical comp
 
 ### MySQL Router Community
 
-- `mysql-router-community-8.0.40`
 - `mysql-router-community-8.0.41`
 - `mysql-router-community-8.0.42`
 - `mysql-router-community-8.4.4`
