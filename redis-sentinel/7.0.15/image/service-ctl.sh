@@ -175,6 +175,35 @@ health() {
     fi
   fi
 
+  # Get master address and port from sentinel
+  local master_info
+  if master_info=$(redis-cli -h 127.0.0.1 -p "${REDIS_SENTINEL_PORT}" SENTINEL get-master-addr-by-name "${REDIS_MASTER_NAME}" 2>&1); then
+    # Parse master IP and port from the response
+    local master_ip=$(echo "${master_info}" | sed -n '1p')
+    local master_port=$(echo "${master_info}" | sed -n '2p')
+    
+    # Validate that we got valid IP and port
+    if [[ -z "${master_ip}" || -z "${master_port}" ]]; then
+      die "${EXIT_REDIS_HEALTH_FAILED}" "${func_name}" "Failed to get valid master address from sentinel: IP='${master_ip}', Port='${master_port}'"
+    fi
+    
+    info "${func_name}" "Got master address from sentinel: ${master_ip}:${master_port}"
+    
+    # Test connection to master
+    local master_pong
+    if master_pong=$(redis-cli -h "${master_ip}" -p "${master_port}" ping 2>/dev/null); then
+      if [[ "${master_pong}" == "PONG" ]]; then
+        info "${func_name}" "Master connection test OK: ${master_ip}:${master_port}"
+      else
+        die "${EXIT_REDIS_HEALTH_FAILED}" "${func_name}" "Master ping failed, unexpected response: ${master_pong}"
+      fi
+    else
+      die "${EXIT_REDIS_HEALTH_FAILED}" "${func_name}" "Cannot connect to master at ${master_ip}:${master_port}"
+    fi
+  else
+    die "${EXIT_REDIS_HEALTH_FAILED}" "${func_name}" "Failed to get master address from sentinel: ${master_info}"
+  fi
+
   return 0
 }
 
