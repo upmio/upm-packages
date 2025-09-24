@@ -163,16 +163,13 @@ health() {
 
   # Check sentinel quorum status
   local ckquorum_result
-  if ckquorum_result=$(redis-cli -h 127.0.0.1 -p "${REDIS_SENTINEL_PORT}" SENTINEL CKQUORUM "${REDIS_MASTER_NAME}" 2>&1); then
-    info "${func_name}" "Redis Sentinel CKQUORUM check OK for master: ${REDIS_MASTER_NAME}"
+  ckquorum_result=$(redis-cli -h 127.0.0.1 -p "${REDIS_SENTINEL_PORT}" SENTINEL CKQUORUM "${REDIS_MASTER_NAME}" 2>&1)
+  # Check if the error contains NOQUORUM
+  if [[ "${ckquorum_result}" == *"NOQUORUM"* ]]; then
+    die "${EXIT_REDIS_HEALTH_FAILED}" "${func_name}" "Redis Sentinel CKQUORUM failed: ${ckquorum_result}"
   else
-    # Check if the error contains NOQUORUM
-    if [[ "${ckquorum_result}" == *"NOQUORUM"* ]]; then
-      die "${EXIT_REDIS_HEALTH_FAILED}" "${func_name}" "Redis Sentinel CKQUORUM failed: ${ckquorum_result}"
-    else
-      # For other errors, log but don't fail (might be during initialization)
-      info "${func_name}" "Redis Sentinel CKQUORUM check warning: ${ckquorum_result}"
-    fi
+    # For other errors, log but don't fail (might be during initialization)
+    info "${func_name}" "Redis Sentinel CKQUORUM check warning: ${ckquorum_result}"
   fi
 
   # Get master address and port from sentinel
@@ -181,14 +178,14 @@ health() {
     # Parse master IP and port from the response
     local master_ip=$(echo "${master_info}" | sed -n '1p')
     local master_port=$(echo "${master_info}" | sed -n '2p')
-    
+
     # Validate that we got valid IP and port
     if [[ -z "${master_ip}" || -z "${master_port}" ]]; then
       die "${EXIT_REDIS_HEALTH_FAILED}" "${func_name}" "Failed to get valid master address from sentinel: IP='${master_ip}', Port='${master_port}'"
     fi
-    
+
     info "${func_name}" "Got master address from sentinel: ${master_ip}:${master_port}"
-    
+
     # Test connection to master
     local master_pong
     if master_pong=$(redis-cli -h "${master_ip}" -p "${master_port}" ping 2>/dev/null); then
