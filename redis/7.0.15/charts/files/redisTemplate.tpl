@@ -74,6 +74,11 @@ cluster-announce-bus-port {{ add (atoi (getenv "REDIS_PORT" "6379")) 10000 }}
 {{- end }}
 {{- if contains (getenv "ARCH_MODE") "replication" }}
 masterauth "{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER")) }}"
+{{- if ( checkLabelExists (getenv "POD_NAME") (getenv "NAMESPACE") "compose-operator/redis-replication.readonly" ) }}
+{{- if contains ( getPodLabelValueByKey (getenv "POD_NAME") (getenv "NAMESPACE") "compose-operator/redis-replication.readonly" ) "true" }}
+replicaof {{ getPodLabelValueByKey (getenv "POD_NAME") (getenv "NAMESPACE") "compose-operator/redis-replication.source.host" }} {{ getPodLabelValueByKey (getenv "POD_NAME") (getenv "NAMESPACE") "compose-operator/redis-replication.source.port" }}
+{{- end }}
+{{- end }}
 {{- if contains (getenv "UNIT_SERVICE_TYPE") "ClusterIP" }}
 replica-announce-ip {{ getenv "POD_NAME" }}-svc.{{ getenv "NAMESPACE" }}.svc
 replica-announce-port {{ getenv "REDIS_PORT" "6379" }}
