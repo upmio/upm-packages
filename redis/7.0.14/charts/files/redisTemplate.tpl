@@ -65,7 +65,7 @@ cluster-announce-bus-port {{ . }}
 {{- if contains (getenv "UNIT_SERVICE_TYPE") "LoadBalancer" }}
 {{- $pod := getenv "POD_NAME" -}}
 {{- $m := json (getenv "UNIT_SERVICE_LOADBALANCER_IP_MAP") -}}
-{{- with index $m $pod -}}
+{{- with index $m $pod }}
 cluster-announce-ip {{ . }}
 cluster-announce-port {{ getenv "REDIS_PORT" "6379" }}
 cluster-announce-bus-port {{ add (atoi (getenv "REDIS_PORT" "6379")) 10000 }}
@@ -94,7 +94,7 @@ replica-announce-port {{ . }}
 {{- if contains (getenv "UNIT_SERVICE_TYPE") "LoadBalancer" }}
 {{- $pod := getenv "POD_NAME" -}}
 {{- $m := json (getenv "UNIT_SERVICE_LOADBALANCER_IP_MAP") -}}
-{{- with index $m $pod -}}
+{{- with index $m $pod }}
 replica-announce-ip {{ . }}
 replica-announce-port {{ getenv "REDIS_PORT" "6379" }}
 {{- end }}
