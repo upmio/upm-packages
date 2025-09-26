@@ -1,5 +1,7 @@
 protected-mode no
+bind 0.0.0.0
 port {{ getenv "REDIS_PORT" "6379" }}
+cluster-port {{ add (atoi (getenv "REDIS_PORT" "6379")) 10000 }}
 tcp-backlog {{ getv "/defaults/tcp-backlog" }}
 unixsocket {{ getenv "DATA_MOUNT" }}/redis.sock
 timeout {{ getv "/defaults/timeout" }}
