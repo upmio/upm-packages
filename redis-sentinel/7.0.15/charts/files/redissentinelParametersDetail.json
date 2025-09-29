@@ -42,5 +42,16 @@
     "default": "0",
     "desc_en": "Grace period (ms) to tolerate -LOADING replies from a restarting master before considering failover; 0 disables this behavior.",
     "desc_zh": "主节点重启期间容忍其返回 -LOADING 回复的宽限时间（毫秒）；0 表示不因 -LOADING 进入故障转移流程。"
+  },
+  {
+    "key": "parallel-syncs",
+    "scope": "",
+    "section": "defaults",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "1-10",
+    "default": "1",
+    "desc_en": "Maximum number of replicas that can be reconfigured to synchronize with the new master simultaneously during failover. This setting helps control resource usage during the failover process.",
+    "desc_zh": "在故障转移期间，可以同时重新配置为与新主节点同步的副本的最大数量。此设置有助于控制故障转移过程中的资源使用。"
   }
 ]

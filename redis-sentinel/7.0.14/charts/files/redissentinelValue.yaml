@@ -3,3 +3,4 @@ defaults:
   down-after-milliseconds: "5000"
   failover-timeout: "60000"
   master-reboot-down-after-period: "0"
+  parallel-syncs: "1"
