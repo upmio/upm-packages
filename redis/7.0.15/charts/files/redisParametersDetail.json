@@ -50,7 +50,7 @@
     "type": "Enumeration",
     "dynamic": true,
     "range": "[\"debug\",\"verbose\",\"notice\",\"warning\"]",
-    "default": "",
+    "default": "notice",
     "desc_en": "Specify the server verbosity level.",
     "desc_zh": "指定服务器日志的详细级别。"
   },
@@ -270,7 +270,7 @@
     "type": "Integer",
     "dynamic": true,
     "range": "",
-    "default": "15000",
+    "default": "5000",
     "desc_en": "Cluster node timeout is the amount of milliseconds a node must be unreachable for it to be considered in failure state.",
     "desc_zh": "集群节点超时时长（毫秒）。节点不可达超过该时长将被视为故障。"
   },
@@ -446,7 +446,7 @@
     "type": "Boolean",
     "dynamic": true,
     "range": "[\"no\",\"yes\"]",
-    "default": "",
+    "default": "yes",
     "desc_en": "Control whether active rehashing is turned on",
     "desc_zh": "控制是否启用主动 rehash。"
   },

@@ -22,7 +22,7 @@ defaults:
   aof-load-truncated: "yes"
   aof-use-rdb-preamble: "yes"
   lua-time-limit: "5000"
-  cluster-node-timeout: "15000"
+  cluster-node-timeout: "10000"
   cluster-require-full-coverage: "yes"
   slowlog-log-slower-than: "10000"
   slowlog-max-len: "128"
