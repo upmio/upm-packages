@@ -24,8 +24,8 @@ maxclients {{ getv "/defaults/maxclients" }}
 maxmemory {{ mul (div (atoi (getenv "REDIS_MEMORY_LIMIT")) 4) 3 }}mb
 maxmemory-policy {{ getv "/defaults/maxmemory-policy" }}
 maxmemory-samples {{ getv "/defaults/maxmemory-samples" }}
-repl-diskless-sync {{ getv "/defaults/repl-diskless-sync }}
-repl-diskless-sync-delay {{ getv "/defaults/repl-diskless-sync-delay }}
+repl-diskless-sync {{ getv "/defaults/repl-diskless-sync" }}
+repl-diskless-sync-delay {{ getv "/defaults/repl-diskless-sync-delay" }}
 lazyfree-lazy-eviction {{ getv "/defaults/lazyfree-lazy-eviction" }}
 lazyfree-lazy-expire {{ getv "/defaults/lazyfree-lazy-expire" }}
 appendonly {{ getv "/defaults/appendonly" }}
