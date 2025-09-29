@@ -114,13 +114,13 @@ slowlog-log-slower-than {{ getv "/defaults/slowlog-log-slower-than" }}
 slowlog-max-len {{ getv "/defaults/slowlog-max-len" }}
 latency-monitor-threshold {{ getv "/defaults/latency-monitor-threshold" }}
 notify-keyspace-events "{{ getv "/defaults/notify-keyspace-events" }}"
-hash-max-ziplist-entries {{ getv "/defaults/hash-max-ziplist-entries" }}
-hash-max-ziplist-value {{ getv "/defaults/hash-max-ziplist-value" }}
+hash-max-listpack-entries {{ getv "/defaults/hash-max-listpack-entries" }}
+hash-max-listpack-value {{ getv "/defaults/hash-max-listpack-value" }}
 list-max-ziplist-size {{ getv "/defaults/list-max-ziplist-size" }}
 list-compress-depth {{ getv "/defaults/list-compress-depth" }}
 set-max-intset-entries {{ getv "/defaults/set-max-intset-entries" }}
-zset-max-ziplist-entries {{ getv "/defaults/zset-max-ziplist-entries" }}
-zset-max-ziplist-value {{ getv "/defaults/zset-max-ziplist-value" }}
+zset-max-listpack-entries {{ getv "/defaults/zset-max-listpack-entries" }}
+zset-max-listpack-value {{ getv "/defaults/zset-max-listpack-value" }}
 hll-sparse-max-bytes {{ getv "/defaults/hll-sparse-max-bytes" }}
 stream-node-max-bytes {{ getv "/defaults/stream-node-max-bytes" }}
 stream-node-max-entries {{ getv "/defaults/stream-node-max-entries" }}

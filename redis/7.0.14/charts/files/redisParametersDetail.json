@@ -330,26 +330,26 @@
     "desc_zh": "可通过 Pub/Sub 通知键空间发生的事件。"
   },
   {
-    "key": "hash-max-ziplist-entries",
+    "key": "hash-max-listpack-entries",
     "scope": "",
     "section": "defaults",
     "type": "Integer",
     "dynamic": true,
     "range": "",
     "default": "512",
-    "desc_en": "Hashes are encoded using a memory efficient data structure when they have a small number of entries, and the biggest entry does not exceed a given threshold",
-    "desc_zh": "当条目数较少且最大条目不超过阈值时，哈希使用内存高效的数据结构编码。"
+    "desc_en": "Hashes are encoded using a memory efficient data structure (listpack) when they have a small number of entries, and the biggest entry does not exceed a given threshold",
+    "desc_zh": "当条目数较少且最大条目不超过阈值时，哈希使用内存高效的数据结构（listpack）编码。"
   },
   {
-    "key": "hash-max-ziplist-value",
+    "key": "hash-max-listpack-value",
     "scope": "",
     "section": "defaults",
     "type": "Integer",
     "dynamic": true,
     "range": "",
     "default": "64",
-    "desc_en": "Hashes are encoded using a memory efficient data structure when they have a small number of entries, and the biggest entry does not exceed a given threshold",
-    "desc_zh": "当条目数较少且最大条目不超过阈值时，哈希使用内存高效的数据结构编码（条目值大小阈值）。"
+    "desc_en": "Hashes are encoded using a memory efficient data structure (listpack) when they have a small number of entries, and the biggest entry does not exceed a given threshold",
+    "desc_zh": "当条目数较少且最大条目不超过阈值时，哈希使用内存高效的数据结构（listpack）编码（条目值大小阈值）。"
   },
   {
     "key": "list-max-ziplist-size",
@@ -385,26 +385,26 @@
     "desc_zh": "设置使用 intset 编码时集合大小（元素数量）的阈值上限。"
   },
   {
-    "key": "zset-max-ziplist-entries",
+    "key": "zset-max-listpack-entries",
     "scope": "",
     "section": "defaults",
     "type": "Integer",
     "dynamic": true,
     "range": "",
     "default": "128",
-    "desc_en": "Similarly to hashes and lists, sorted sets are also specially encoded in order to save a lot of space. This encoding is only used when the length and elements of a sorted set are below the following limits.",
-    "desc_zh": "与哈希和列表类似，为节省空间，有序集合在规模较小时采用特殊编码（元素数量阈值）。"
+    "desc_en": "Similarly to hashes and lists, sorted sets are also specially encoded using listpack in order to save a lot of space. This encoding is only used when the length and elements of a sorted set are below the following limits.",
+    "desc_zh": "与哈希和列表类似，为节省空间，有序集合在规模较小时采用特殊编码（listpack，元素数量阈值）。"
   },
   {
-    "key": "zset-max-ziplist-value",
+    "key": "zset-max-listpack-value",
     "scope": "",
     "section": "defaults",
     "type": "Integer",
     "dynamic": true,
     "range": "",
     "default": "64",
-    "desc_en": "Similarly to hashes and lists, sorted sets are also specially encoded in order to save a lot of space. This encoding is only used when the length and elements of a sorted set are below the following limits.",
-    "desc_zh": "与哈希和列表类似，为节省空间，有序集合在规模较小时采用特殊编码（元素值大小阈值）。"
+    "desc_en": "Similarly to hashes and lists, sorted sets are also specially encoded using listpack in order to save a lot of space. This encoding is only used when the length and elements of a sorted set are below the following limits.",
+    "desc_zh": "与哈希和列表类似，为节省空间，有序集合在规模较小时采用特殊编码（listpack，元素值大小阈值）。"
   },
   {
     "key": "hll-sparse-max-bytes",
