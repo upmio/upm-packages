@@ -1,7 +1,6 @@
 protected-mode no
 bind 0.0.0.0
 port {{ getenv "REDIS_PORT" "6379" }}
-cluster-port {{ add (atoi (getenv "REDIS_PORT" "6379")) 10000 }}
 tcp-backlog {{ getv "/defaults/tcp-backlog" }}
 unixsocket {{ getenv "DATA_MOUNT" }}/redis.sock
 timeout {{ getv "/defaults/timeout" }}
@@ -25,9 +24,10 @@ maxclients {{ getv "/defaults/maxclients" }}
 maxmemory {{ mul (div (atoi (getenv "REDIS_MEMORY_LIMIT")) 4) 3 }}mb
 maxmemory-policy {{ getv "/defaults/maxmemory-policy" }}
 maxmemory-samples {{ getv "/defaults/maxmemory-samples" }}
+repl-diskless-sync {{ getv "/defaults/repl-diskless-sync }}
+repl-diskless-sync-delay {{ getv "/defaults/repl-diskless-sync-delay }}
 lazyfree-lazy-eviction {{ getv "/defaults/lazyfree-lazy-eviction" }}
 lazyfree-lazy-expire {{ getv "/defaults/lazyfree-lazy-expire" }}
-replica-lazy-flush {{ getv "/defaults/replica-lazy-flush" }}
 appendonly {{ getv "/defaults/appendonly" }}
 appendfilename appendonly.aof
 appendfsync {{ getv "/defaults/appendfsync" }}
@@ -38,6 +38,11 @@ aof-load-truncated {{ getv "/defaults/aof-load-truncated" }}
 aof-use-rdb-preamble {{ getv "/defaults/aof-use-rdb-preamble" }}
 lua-time-limit {{ getv "/defaults/lua-time-limit" }}
 {{- if contains (getenv "ARCH_MODE") "cluster" }}
+min-replicas-to-write {{ getv "/defaults/min-replicas-to-write" }}
+min-replicas-max-lag {{ getv "/defaults/min-replicas-max-lag" }}
+replica-lazy-flush {{ getv "/defaults/replica-lazy-flush" }}
+masterauth "{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER")) }}"
+cluster-port {{ add (atoi (getenv "REDIS_PORT" "6379")) 10000 }}
 cluster-enabled yes
 cluster-config-file "{{ getenv "DATA_MOUNT" }}/conf/nodes.conf"
 cluster-node-timeout {{ getv "/defaults/cluster-node-timeout" }}
@@ -75,12 +80,15 @@ cluster-announce-bus-port {{ add (atoi (getenv "REDIS_PORT" "6379")) 10000 }}
 {{- end }}
 {{- end }}
 {{- if contains (getenv "ARCH_MODE") "replication" }}
-masterauth "{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER")) }}"
 {{- if ( checkLabelExists (getenv "POD_NAME") (getenv "NAMESPACE") "compose-operator/redis-replication.readonly" ) }}
 {{- if contains ( getPodLabelValueByKey (getenv "POD_NAME") (getenv "NAMESPACE") "compose-operator/redis-replication.readonly" ) "true" }}
 replicaof {{ getPodLabelValueByKey (getenv "POD_NAME") (getenv "NAMESPACE") "compose-operator/redis-replication.source.host" }} {{ getPodLabelValueByKey (getenv "POD_NAME") (getenv "NAMESPACE") "compose-operator/redis-replication.source.port" }}
 {{- end }}
 {{- end }}
+masterauth "{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER")) }}"
+min-replicas-to-write {{ getv "/defaults/min-replicas-to-write" }}
+min-replicas-max-lag {{ getv "/defaults/min-replicas-max-lag" }}
+replica-lazy-flush {{ getv "/defaults/replica-lazy-flush" }}
 {{- if contains (getenv "UNIT_SERVICE_TYPE") "ClusterIP" }}
 replica-announce-ip {{ getenv "POD_NAME" }}-svc.{{ getenv "NAMESPACE" }}.svc
 replica-announce-port {{ getenv "REDIS_PORT" "6379" }}

@@ -44,3 +44,7 @@ defaults:
   dynamic-hz: "yes"
   aof-rewrite-incremental-fsync: "yes"
   rdb-save-incremental-fsync: "yes"
+  min-replicas-to-write: "0"
+  min-replicas-max-lag: "10"
+  repl-diskless-sync: "yes"
+  repl-diskless-sync-delay: "5"

@@ -504,5 +504,49 @@
     "default": "yes",
     "desc_en": "Configure whether to use incremental fsync operations when executing RDB snapshots. When redis saves RDB file, if the following option is enabled the file will be fsync-ed every 32 MB of data generated.",
     "desc_zh": "配置在执行 RDB 快照时是否使用增量 fsync；启用后每生成 32MB 数据执行一次 fsync。"
+  },
+  {
+    "key": "min-replicas-to-write",
+    "scope": "",
+    "section": "defaults",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "0-10",
+    "default": "0",
+    "desc_en": "Minimum number of replicas connected and in good state required for the master to accept writes. When the number of connected replicas falls below this threshold, the master will stop accepting writes to prevent data loss during network partitions.",
+    "desc_zh": "主节点接受写操作所需的连接且状态良好的副本的最小数量。当连接的副本数量低于此阈值时，主节点将停止接受写操作，以防止网络分区期间的数据丢失。"
+  },
+  {
+    "key": "min-replicas-max-lag",
+    "scope": "",
+    "section": "defaults",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "0-60",
+    "default": "10",
+    "desc_en": "Maximum replication lag in seconds allowed for replicas to be considered as connected and in good state. Replicas with lag greater than this value will not be counted towards min-replicas-to-write.",
+    "desc_zh": "副本被认为连接且状态良好的最大复制延迟时间（秒）。延迟超过此值的副本将不计入 min-replicas-to-write 的数量。"
+  },
+  {
+    "key": "repl-diskless-sync",
+    "scope": "",
+    "section": "defaults",
+    "type": "Boolean",
+    "dynamic": true,
+    "range": "[\"no\",\"yes\"]",
+    "default": "no",
+    "desc_en": "Enable diskless replication to avoid using disk for RDB file transfer during synchronization. Data is streamed directly from master to replica, which can be beneficial for performance on systems with slow disks but requires more memory.",
+    "desc_zh": "启用无盘复制，避免在同步期间使用磁盘进行 RDB 文件传输。数据直接从主节点流式传输到副本，这对磁盘较慢的系统有性能优势，但需要更多内存。"
+  },
+  {
+    "key": "repl-diskless-sync-delay",
+    "scope": "",
+    "section": "defaults",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "0-100000",
+    "default": "5",
+    "desc_en": "When diskless replication is enabled, this setting controls the delay in seconds before starting the transfer. This allows multiple replicas to connect and receive the data simultaneously, optimizing bandwidth usage.",
+    "desc_zh": "启用无盘复制时，此设置控制开始传输前的延迟时间（秒）。这允许多个副本同时连接并接收数据，优化带宽使用。"
   }
 ]
