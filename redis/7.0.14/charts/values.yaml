@@ -12,7 +12,7 @@ image:
 metrics:
   image:
     registry: quay.io
-    repository: upmio/redis_exporter
+    repository: upmio/redis-exporter
     tag: "v1.76.0-alpine"
     digest: ""
     pullPolicy: IfNotPresent
