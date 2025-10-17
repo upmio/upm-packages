@@ -207,28 +207,6 @@ initialize() {
       die "${EXIT_GENERAL_FAILURE}" "${func_name}" "copy config dir failed!"
     }
 
-    # Copy certificates if they exist
-    if [[ -f ${CERT_MOUNT}/ca.crt ]]; then
-      \cp "${CERT_MOUNT}/ca.crt" "${ES_PATH_CONF}"
-      chmod 600 "${ES_PATH_CONF}/ca.crt"
-    else
-      die "${EXIT_CERT_FILE_NOT_FOUND}" "${func_name}" "Not found ${CERT_MOUNT}/ca.crt !"
-    fi
-
-    if [[ -f ${CERT_MOUNT}/tls.crt ]]; then
-      \cp "${CERT_MOUNT}/tls.crt" "${ES_PATH_CONF}"
-      chmod 600 "${ES_PATH_CONF}/tls.crt"
-    else
-      die "${EXIT_CERT_FILE_NOT_FOUND}" "${func_name}" "Not found ${CERT_MOUNT}/tls.crt !"
-    fi
-
-    if [[ -f ${CERT_MOUNT}/tls.key ]]; then
-      \cp "${CERT_MOUNT}/tls.key" "${ES_PATH_CONF}"
-      chmod 600 "${ES_PATH_CONF}/tls.key"
-    else
-      die "${EXIT_CERT_FILE_NOT_FOUND}" "${func_name}" "Not found ${CERT_MOUNT}/tls.key !"
-    fi
-
     # Create Elasticsearch users
     "${ELASTICSEARCH_BASE_DIR}/bin/elasticsearch-users" useradd "${MON_USER}" -p "${mon_pwd}" -r remote_monitoring_collector || {
       die "${EXIT_USER_ADD_FAILED}" "${func_name}" "add monitor user failed!"
