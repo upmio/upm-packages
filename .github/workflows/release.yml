@@ -35,7 +35,6 @@ jobs:
             changed_files=$(git diff --name-only HEAD^ HEAD)
           fi
 
-#          changed_files=$(find . -name values.yaml | sed 's/\.\///g')
           echo -e "Changed files:\n$changed_files"
 
           changed_components_json="$(echo "$changed_files" | while read -r f; do
