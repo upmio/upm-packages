@@ -92,11 +92,6 @@ template:
               secretKeyRef:
                 key: AES_SECRET_KEY
                 name: aes-secret-key
-          - name: SERVICE_GROUP_NAME
-            valueFrom:
-              fieldRef:
-                apiVersion: "v1"
-                fieldPath: "metadata.labels['upm.api/service-group.name']"
         livenessProbe:
           exec:
             command:
@@ -214,6 +209,11 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.annotations['upm.api/all-member-list']"
+          - name: SERVICE_GROUP_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['upm.api/service-group.name']"
           - name: AES_SECRET_KEY
             valueFrom:
               secretKeyRef:
