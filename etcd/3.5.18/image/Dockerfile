@@ -2,7 +2,7 @@ FROM rockylinux/rockylinux:9.6.20250531
 
 # install common tools
 # hadolint ignore=DL3041
-RUN set -eux; \
+RUN set -euxo pipefail; \
   dnf install -y \
     procps-ng \
     bzip2 \
@@ -12,15 +12,19 @@ RUN set -eux; \
     net-tools \
     hostname \
     telnet \
+    curl \
     wget \
     glibc-common \
     nmap-ncat \
-    epel-release \
-  && dnf clean all
+    epel-release; \
+  dnf clean all; \
+  rm -rf /var/cache/dnf /var/cache/yum
 # generate en_US.UTF-8
-RUN dnf install -y glibc-langpack-en glibc-locale-source \
-  && dnf clean all \
-  && localedef -i en_US -f UTF-8 en_US.UTF-8
+RUN set -euxo pipefail; \
+  dnf install -y glibc-langpack-en glibc-locale-source; \
+  dnf clean all; \
+  rm -rf /var/cache/dnf /var/cache/yum; \
+  localedef -i en_US -f UTF-8 en_US.UTF-8
 
 # set timezone
 ENV TZ=Asia/Shanghai
@@ -34,9 +38,10 @@ ENV LC_ALL=en_US.UTF-8
 
 # install supervisor
 # hadolint ignore=DL3041
-RUN set -eux; \
+RUN set -euxo pipefail; \
   dnf install -y supervisor; \
-  dnf clean all
+  dnf clean all; \
+  rm -rf /var/cache/dnf /var/cache/yum
 
 ENV SUMMARY="Distributed reliable key-value store" \
     DESCRIPTION="etcd is a distributed, reliable key-value store that provides a \
@@ -62,15 +67,17 @@ ENV ETCD_BASE_DIR="/usr/local/etcd"
 ENV ETCDCTL_API=3
 
 ARG TARGETPLATFORM
-RUN set -ex \
-  && case ${TARGETPLATFORM} in \
-       "linux/amd64")  TINI_ARCH=amd64  ;; \
-       "linux/arm64")  TINI_ARCH=arm64  ;; \
-     esac \
-  && curl -L https://github.com/etcd-io/etcd/releases/download/${UNIT_APP_VERSION}/etcd-${UNIT_APP_VERSION}-linux-${TINI_ARCH}.tar.gz -o /tmp/etcd-${UNIT_APP_VERSION}.tar.gz \
-  && mkdir -p "${ETCD_BASE_DIR}" \
-  && tar xzvf /tmp/etcd-${UNIT_APP_VERSION}.tar.gz -C "${ETCD_BASE_DIR}" --strip-components=1 \
-  && rm -f /tmp/etcd-${UNIT_APP_VERSION}-linux-amd64.tar.gz
+RUN set -euxo pipefail; \
+  case "${TARGETPLATFORM}" in \
+    "linux/amd64")  tar_arch="amd64";; \
+    "linux/arm64")  tar_arch="arm64";; \
+    *) echo "Unsupported TARGETPLATFORM: ${TARGETPLATFORM}" >&2; exit 1;; \
+  esac; \
+  artifact="etcd-${UNIT_APP_VERSION}-linux-${tar_arch}.tar.gz"; \
+  curl -fSL --retry 3 --retry-delay 2 "https://github.com/etcd-io/etcd/releases/download/${UNIT_APP_VERSION}/${artifact}" -o "/tmp/${artifact}"; \
+  mkdir -p "${ETCD_BASE_DIR}"; \
+  tar -xzf "/tmp/${artifact}" -C "${ETCD_BASE_DIR}" --strip-components=1; \
+  rm -f "/tmp/${artifact}"
 
 ENV PATH="${ETCD_BASE_DIR}:${PATH}" \
     ETCDCTL_BIN="${ETCD_BASE_DIR}/etcdctl"
