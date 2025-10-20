@@ -25,6 +25,31 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/elasticsearch-7.17.14-1.1.0/elasticsearch-7.17.14-1.1.0.tgz
     version: 1.1.0
+  etcd-3.5.18:
+  - apiVersion: v2
+    appVersion: 3.5.18
+    created: "2025-10-20T13:42:48.994114818Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: etcd is a distributed, reliable key-value store for the most critical
+      data of a distributed system. \ It is used as the backing store for Kubernetes,
+      and many other distributed systems.
+    digest: 25732ca6686b0fb6b3d23201229ed73bed9c42f2442104e284b4b7606d1d7669
+    keywords:
+    - etcd
+    - distributed
+    - key-value
+    - store
+    - database
+    name: etcd-3.5.18
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/etcd-3.5.18-1.1.0/etcd-3.5.18-1.1.0.tgz
+    version: 1.1.0
   kafka-3.5.2:
   - apiVersion: v2
     appVersion: 3.5.2
@@ -546,4 +571,4 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/zookeeper-3.8.4-1.1.0/zookeeper-3.8.4-1.1.0.tgz
     version: 1.1.0
-generated: "2025-10-20T13:20:14.304035276Z"
+generated: "2025-10-20T13:42:48.994127452Z"
