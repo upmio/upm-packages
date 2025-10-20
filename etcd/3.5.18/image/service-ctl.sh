@@ -1,0 +1,241 @@
+#!/usr/bin/env bash
+
+set -o nounset
+set -o errexit
+set -o pipefail
+
+# ##############################################################################
+# Global Constants and Configuration
+# ##############################################################################
+readonly SCRIPT_VERSION="v1.0.0"
+readonly POSIXLY_CORRECT=1
+export POSIXLY_CORRECT
+export LANG=C
+
+# ##############################################################################
+# Exit Code Conventions
+# ##############################################################################
+# 1-9: General system errors
+# 10-19: Environment validation errors
+# 20-29: Argument/usage errors
+# 30-39: Network/communication errors
+# 40-49: Filesystem/permission errors
+# 50-59: Database operation errors
+# 60-69: Configuration errors
+# 70-79: Process management errors
+# 80-89: Resource allocation errors
+# 90-99: Unknown/unexpected errors
+
+# Exit code definitions:
+readonly EXIT_GENERAL_FAILURE=2
+readonly EXIT_MISSING_ENV_VAR=10
+readonly EXIT_DIR_NOT_FOUND=11
+readonly EXIT_UNSUPPORTED_ACTION=21
+readonly EXIT_DIR_REMOVAL_FAILED=41
+readonly EXIT_DIR_CREATION_FAILED=42
+readonly EXIT_FLAG_FILE_CREATION_FAILED=47
+readonly EXIT_MEMORY_LIMIT_INVALID=49
+
+# ##############################################################################
+# Common Functions
+# ##############################################################################
+die() {
+  local exit_code="${1}"
+  shift
+  local function_name="${1}"
+  shift
+  error "${function_name}" "$*"
+  exit "${exit_code}"
+}
+
+error() {
+  local function_name="${1}"
+  shift
+  local timestamp
+  timestamp="$(date +"%Y-%m-%d %T %N")"
+
+  echo "[${timestamp}] ERR | (${SCRIPT_VERSION})[${function_name}]: $* ;"
+}
+
+info() {
+  local function_name="${1}"
+  shift
+  local timestamp
+  timestamp="$(date +"%Y-%m-%d %T %N")"
+
+  echo "[${timestamp}] INFO| (${SCRIPT_VERSION})[${function_name}]: $* ;"
+}
+
+health() {
+  local func_name="health"
+
+  # Ensure the instance finished initialization
+  if [[ ! -f "${INIT_FLAG_FILE}" ]]; then
+    die "${EXIT_GENERAL_FAILURE}" "${func_name}" "Initialization flag ${INIT_FLAG_FILE} not found"
+  fi
+
+  # Make sure the etcd process is running before probing
+  if ! pgrep -f "/usr/local/etcd/etcd" >/dev/null 2>&1; then
+    die "${EXIT_GENERAL_FAILURE}" "${func_name}" "etcd process is not running"
+  fi
+
+  # Resolve etcdctl binary
+  local etcdctl_bin="${ETCDCTL_BIN:-}"
+  if [[ -z "${etcdctl_bin}" ]]; then
+    if ! etcdctl_bin="$(command -v etcdctl 2>/dev/null)"; then
+      die "${EXIT_GENERAL_FAILURE}" "${func_name}" "etcdctl binary not found in PATH"
+    fi
+  fi
+
+  # Determine the endpoints list used for the readiness probe
+  local client_scheme="${ETCD_CLIENT_SCHEME:-https}"
+  local default_port="${ETCD_PORT:-2379}"
+  local default_host="${ETCD_HEALTH_HOST}"
+  if [[ -z "${default_host}" ]]; then
+    local pod_hostname="${POD_NAME:-${HOSTNAME:-}}"
+    if [[ -n "${SERVICE_NAME:-}" && -n "${NAMESPACE:-}" && -n "${pod_hostname}" ]]; then
+      default_host="${pod_hostname}.${SERVICE_NAME}-headless-svc.${NAMESPACE}.svc.cluster.local"
+    fi
+  fi
+  if [[ -z "${default_host}" ]]; then
+    default_host="127.0.0.1"
+  fi
+  local endpoints="${ETCDCTL_ENDPOINTS:-${client_scheme}://${default_host}:${default_port}}"
+
+  # Detect whether TLS arguments are required (based on the first endpoint)
+  local first_endpoint="${endpoints%%,*}"
+  local need_tls="false"
+  if [[ "${first_endpoint}" == https://* ]]; then
+    need_tls="true"
+  elif [[ "${first_endpoint}" == http://* ]]; then
+    need_tls="false"
+  elif [[ "${client_scheme}" == "https" ]]; then
+    need_tls="true"
+  fi
+
+  # Compose etcdctl arguments
+  local -a etcdctl_args
+  etcdctl_args+=("--endpoints=${endpoints}")
+
+  if [[ "${need_tls}" == "true" ]]; then
+    local cert_file="${ETCD_CLIENT_CERT:-}"
+    local key_file="${ETCD_CLIENT_KEY:-}"
+    local ca_file="${ETCD_CLIENT_CA:-}"
+
+    if [[ -z "${cert_file}" || -z "${key_file}" || -z "${ca_file}" ]]; then
+      [[ -n "${CERT_MOUNT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "CERT_MOUNT environment variable not set for TLS probe"
+      cert_file="${cert_file:-${CERT_MOUNT}/tls.crt}"
+      key_file="${key_file:-${CERT_MOUNT}/tls.key}"
+      ca_file="${ca_file:-${CERT_MOUNT}/ca.crt}"
+    fi
+
+    [[ -f "${cert_file}" ]] || die "${EXIT_GENERAL_FAILURE}" "${func_name}" "TLS certificate file ${cert_file} does not exist"
+    [[ -f "${key_file}" ]] || die "${EXIT_GENERAL_FAILURE}" "${func_name}" "TLS private key file ${key_file} does not exist"
+    [[ -f "${ca_file}" ]] || die "${EXIT_GENERAL_FAILURE}" "${func_name}" "TLS CA file ${ca_file} does not exist"
+
+    etcdctl_args+=("--cert=${cert_file}" "--key=${key_file}" "--cacert=${ca_file}")
+  fi
+
+  # Apply timeout guard and execute the readiness probe
+  local timeout_seconds="${ETCD_HEALTH_TIMEOUT:-5}"
+  if ! [[ "${timeout_seconds}" =~ ^[0-9]+$ ]] || [[ "${timeout_seconds}" -le 0 ]]; then
+    timeout_seconds=5
+  fi
+
+  local health_output
+  set +e
+  health_output=$(timeout "${timeout_seconds}" "${etcdctl_bin}" "${etcdctl_args[@]}" endpoint health 2>&1)
+  local probe_status=$?
+  set -e
+
+  if [[ ${probe_status} -ne 0 ]]; then
+    error "${func_name}" "etcdctl endpoint health failed: ${health_output}"
+    die "${EXIT_GENERAL_FAILURE}" "${func_name}" "Readiness probe failed"
+  fi
+
+  if [[ "${health_output}" != *"is healthy"* ]]; then
+    error "${func_name}" "Unexpected health response: ${health_output}"
+    die "${EXIT_GENERAL_FAILURE}" "${func_name}" "Readiness probe failed"
+  fi
+
+  info "${func_name}" "Readiness probe succeeded: ${health_output}"
+}
+
+initialize() {
+  local func_name="initialize"
+  local random_id="$RANDOM"
+  local func_instance="${func_name}(${random_id})"
+
+  info "${func_instance}" "Starting run ${func_instance} ..."
+
+  # Validate required environment variables
+  [[ -n "${ETCD_BASE_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env ETCD_BASE_DIR failed !"
+
+  # Check if already initialized
+  if [[ ! -f "${INIT_FLAG_FILE}" ]]; then
+    # Handle force clean option
+    if [[ "${FORCE_CLEAN}" == "true" ]]; then
+      rm -rf "${DATA_DIR}" "${CONF_DIR}" || {
+        die "${EXIT_DIR_REMOVAL_FAILED}" "${func_name}" "Force remove ${DATA_DIR} ${CONF_DIR} failed!"
+      }
+    fi
+
+    # Create required directories
+    mkdir -p "${DATA_DIR}" "${CONF_DIR}" || {
+      die 42 "${func_name}" "mkdir dir failed!"
+    }
+
+    chown -R "1001.1001" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
+      die 43 "${func_name}" "chown dir failed!"
+    }
+
+    info "${func_name}" "Initialize etcd done !"
+    touch "${INIT_FLAG_FILE}"
+    [[ -f ${INIT_FLAG_FILE} ]] || die "${EXIT_FLAG_FILE_CREATION_FAILED}" "${func_name}" "create ${INIT_FLAG_FILE} failed!"
+  fi
+
+  info "${func_instance}" "run ${func_instance} done."
+}
+
+# ##############################################################################
+# The main() function is called at the action function.
+# ##############################################################################
+main() {
+  local func_name="main"
+  local action="${1:-}"
+
+  case "${action}" in
+  "initialize")
+    initialize
+    ;;
+  "health")
+    health
+    ;;
+  *)
+    die "${EXIT_UNSUPPORTED_ACTION}" "${func_name}" "service action(${action}) nonsupport"
+    ;;
+  esac
+}
+
+# ##############################################################################
+# Global Environment Validation
+# ##############################################################################
+validate_environment() {
+  local func_name="validate_environment"
+
+  # Validate required environment variables
+  [[ -n "${DATA_MOUNT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env DATA_MOUNT failed !"
+  [[ -d ${DATA_MOUNT} ]] || die "${EXIT_DIR_NOT_FOUND}" "${func_name}" "Not found DATA_MOUNT !"
+  [[ -n "${LOG_MOUNT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env LOG_MOUNT failed !"
+  [[ -d ${LOG_MOUNT} ]] || die "${EXIT_DIR_NOT_FOUND}" "${func_name}" "Not found LOG_MOUNT !"
+
+  # Set global variables with defaults
+  readonly INIT_FLAG_FILE="${DATA_MOUNT}/.init.flag"
+  readonly FORCE_CLEAN="${FORCE_CLEAN:-false}"
+}
+
+# ##############################################################################
+# Main Entry Point
+# ##############################################################################
+validate_environment
+main "$@"

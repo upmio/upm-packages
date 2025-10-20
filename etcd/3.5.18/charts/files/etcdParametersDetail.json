@@ -1,0 +1,35 @@
+[
+  {
+    "key": "heartbeat_interval",
+    "scope": "Global",
+    "section": "defaults",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1 - ",
+    "default": "100",
+    "desc_en": "Time (in milliseconds) of a heartbeat interval.",
+    "desc_zh": "心跳间隔的毫秒数。"
+  },
+  {
+    "key": "election_timeout",
+    "scope": "Global",
+    "section": "defaults",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1 - ",
+    "default": "1000",
+    "desc_en": "Time (in milliseconds) for an election to timeout. See tuning documentation for details.",
+    "desc_zh": "选举超时的毫秒数，详情参考调优文档。"
+  },
+  {
+    "key": "quota_backend_bytes",
+    "scope": "Global",
+    "section": "defaults",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "0 - ",
+    "default": "0",
+    "desc_en": "Backend storage quota in bytes. When exceeded etcd raises the NOSPACE alarm and limits writes. 0 uses the built-in 2 GiB default, positive values apply an explicit quota, and negative values disable the quota (not recommended; max suggested is 8 GiB).",
+    "desc_zh": "以字节设定后端存储配额。超过该值时 etcd 会触发 NOSPACE 告警并限制写入。0 表示使用内置的 2 GiB 默认值，正数表示指定额度，负数会关闭配额（不推荐，官方建议不超过 8 GiB）。"
+  }
+]
