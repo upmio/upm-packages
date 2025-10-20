@@ -402,6 +402,8 @@ get_component_categories() {
   local elasticsearch=""
   local kibana=""
   local kafka=""
+  local etcd=""
+  local minio=""
   local redis=""
   local zookeeper=""
   local other=""
@@ -462,6 +464,20 @@ get_component_categories() {
         kafka="$package"
       else
         kafka="$kafka $package"
+      fi
+      ;;
+    etcd-*)
+      if [[ -z "$etcd" ]]; then
+        etcd="$package"
+      else
+        etcd="$etcd $package"
+      fi
+      ;;
+    minio-*)
+      if [[ -z "$minio" ]]; then
+        minio="$package"
+      else
+        minio="$minio $package"
       fi
       ;;
     redis-*)
@@ -539,6 +555,20 @@ get_component_categories() {
       components="$components|kafka:$kafka"
     else
       components="kafka:$kafka"
+    fi
+  fi
+  if [[ -n "$etcd" ]]; then
+    if [[ -n "$components" ]]; then
+      components="$components|etcd:$etcd"
+    else
+      components="etcd:$etcd"
+    fi
+  fi
+  if [[ -n "$minio" ]]; then
+    if [[ -n "$components" ]]; then
+      components="$components|minio:$minio"
+    else
+      components="minio:$minio"
     fi
   fi
   if [[ -n "$redis" ]]; then
@@ -736,6 +766,12 @@ show_available_components() {
       ;;
     kafka)
       echo "  kafka: Kafka"
+      ;;
+    etcd)
+      echo "  etcd: etcd key-value store"
+      ;;
+    minio)
+      echo "  minio: MinIO object storage"
       ;;
     redis)
       echo "  redis: Redis"

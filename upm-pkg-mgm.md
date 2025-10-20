@@ -7,7 +7,7 @@ The `upm-pkg-mgm.sh` script is a unified management tool for UPM (Unified Platfo
 ## Features
 
 - **Unified Management**: Single script for all UPM package operations
-- **Multiple Package Types**: Support for MySQL, MySQL Router, PostgreSQL, ProxySQL, PgBouncer, Elasticsearch, Kibana, Kafka, Redis, and Zookeeper
+- **Multiple Package Types**: Support for MySQL, MySQL Router, PostgreSQL, ProxySQL, PgBouncer, Elasticsearch, Kibana, Kafka, Redis, Zookeeper, etcd, and MinIO
 - **Idempotent Operations**: Install/upgrade/uninstall are safe to run repeatedly; installs skip when already deployed and reconcile non-deployed states
 - **Flexible Targeting**: Install individual packages, component groups, multiple targets in one command, or all packages
 - **Dry Run Mode**: Test operations without making actual changes
@@ -44,6 +44,7 @@ The `upm-pkg-mgm.sh` script is a unified management tool for UPM (Unified Platfo
    ```
 
 3. **Verify prerequisites**:
+
    ```bash
    ./upm-pkg-mgm.sh list
    ```
@@ -81,6 +82,8 @@ The `upm-pkg-mgm.sh` script is a unified management tool for UPM (Unified Platfo
 | `kafka`                  | Kafka                                               |
 | `redis`                  | Redis                                               |
 | `zookeeper`              | Zookeeper                                           |
+| `etcd`                   | etcd key-value store                                |
+| `minio`                  | MinIO object storage                                |
 | `<chart-name>`           | Specific chart name (e.g., `mysql-community-8.4.5`) |
 
 #### Aliases
@@ -163,6 +166,18 @@ You can pass user-friendly aliases. The script normalizes them to canonical comp
 
 ```bash
 ./upm-pkg-mgm.sh install zookeeper
+```
+
+**Install etcd**:
+
+```bash
+./upm-pkg-mgm.sh install etcd
+```
+
+**Install MinIO**:
+
+```bash
+./upm-pkg-mgm.sh install minio
 ```
 
 **Dry run installation**:
@@ -257,6 +272,14 @@ You can pass user-friendly aliases. The script normalizes them to canonical comp
 
 - `zookeeper-3.8.4`
 
+### etcd
+
+- `etcd-3.5.18`
+
+### MinIO
+
+- `minio-20250907161309.0.0`
+
 ## Configuration
 
 ### Default Values
@@ -279,17 +302,13 @@ export HELM_REPO_URL="https://custom-repo.example.com/charts"
 
 ## Release Naming
 
-Installed releases follow this naming pattern:
-
-```
-${RELEASE_PREFIX}-${CHART_NAME}
-```
-
-Examples:
+Installed releases follow this naming examples:
 
 - `upm-packages-mysql-community-8.4.5`
 - `upm-packages-postgresql-15.13`
 - `upm-packages-elasticsearch-7.17.14`
+- `upm-packages-etcd-3.5.18`
+- `upm-packages-minio-20250907161309.0.0`
 
 ## Error Handling
 
