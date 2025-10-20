@@ -48,7 +48,7 @@ ENV SUMMARY="Distributed reliable key-value store" \
     provides a containerized packaging of the etcd server. The etcd server accepts \
     gRPC and HTTP requests from clients and stores configuration data, metadata, and \
     service discovery information reliably and consistently across the cluster." \
-    UNIT_APP_VERSION="3.5.18"
+    UNIT_APP_VERSION="v3.5.18"
 
 LABEL summary="${SUMMARY}" \
   description="${DESCRIPTION}" \
@@ -68,11 +68,11 @@ ENV ETCDCTL_API=3
 ARG TARGETPLATFORM
 RUN set -euxo pipefail; \
   case "${TARGETPLATFORM}" in \
-    "linux/amd64")  tar_arch="amd64";; \
-    "linux/arm64")  tar_arch="arm64";; \
+    "linux/amd64")  tar_arch="linux-amd64";; \
+    "linux/arm64")  tar_arch="linux-arm64";; \
     *) echo "Unsupported TARGETPLATFORM: ${TARGETPLATFORM}" >&2; exit 1;; \
   esac; \
-  artifact="etcd-${UNIT_APP_VERSION}-linux-${tar_arch}.tar.gz"; \
+  artifact="etcd-${UNIT_APP_VERSION}-${tar_arch}.tar.gz"; \
   curl -fSL --retry 3 --retry-delay 2 "https://github.com/etcd-io/etcd/releases/download/${UNIT_APP_VERSION}/${artifact}" -o "/tmp/${artifact}"; \
   mkdir -p "${ETCD_BASE_DIR}"; \
   tar -xzf "/tmp/${artifact}" -C "${ETCD_BASE_DIR}" --strip-components=1; \
