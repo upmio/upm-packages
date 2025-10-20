@@ -33,7 +33,7 @@ LABEL summary="${SUMMARY}" \
       io.k8s.display-name="redis ${UNIT_APP_VERSION}" \
       name="UPM/redis" \
       version="${UNIT_APP_VERSION}" \
-      maintainer="bsgchina.com"
+      maintainer="upm"
 
 RUN set -eux; \
   groupadd --system --gid 1001 "redis"; \

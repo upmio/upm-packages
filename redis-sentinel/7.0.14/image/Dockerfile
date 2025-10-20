@@ -35,7 +35,7 @@ LABEL summary="${SUMMARY}" \
       io.k8s.display-name="redis ${UNIT_APP_VERSION}" \
       name="UPM/redis" \
       version="${UNIT_APP_VERSION}" \
-      maintainer="bsgchina.com"
+      maintainer="upm"
 
 # install grpcurl
 ENV GRPCURL_VERSION="v1.8.9"
