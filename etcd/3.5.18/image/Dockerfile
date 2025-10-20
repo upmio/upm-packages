@@ -12,7 +12,6 @@ RUN set -euxo pipefail; \
     net-tools \
     hostname \
     telnet \
-    curl \
     wget \
     glibc-common \
     nmap-ncat \
