@@ -1,0 +1,18 @@
+apiVersion: v2
+appVersion: 3.5.18
+dependencies:
+  - name: common
+    repository: oci://registry-1.docker.io/bitnamicharts
+    tags:
+      - bitnami-common
+    version: 2.31.3
+name: etcd-3.5.18
+version: 1.1.0
+description: etcd is a distributed, reliable key-value store for the most critical data of a distributed system.
+type: application
+keywords:
+  - etcd
+  - distributed
+  - key-value
+  - store
+  - database

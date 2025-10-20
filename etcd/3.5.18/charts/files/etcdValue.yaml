@@ -1,0 +1,5 @@
+---
+defaults:
+  heartbeat_interval: "500"
+  election_timeout: "2500"
+  quota_backend_bytes: "4294967296"
