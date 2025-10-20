@@ -1,0 +1,17 @@
+---
+global:
+  imageRegistry: ""
+
+image:
+  registry: quay.io
+  repository: upmio/minio
+  tag: "20250907T161309.0.0"
+  digest: ""
+  pullPolicy: IfNotPresent
+
+agent:
+  image:
+    registry: quay.io
+    repository: upmio/unit-agent
+    tag: "v1.1.0"
+    pullPolicy: IfNotPresent

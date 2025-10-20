@@ -1,0 +1,165 @@
+apiVersion: v1
+kind: PodTemplate
+metadata:
+  name: {{ .Chart.Name }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    upm.io/owner: upm
+    type: minio
+    version: {{ .Chart.AppVersion | quote }}
+template:
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/default-container: minio
+    labels:
+      type: minio
+      version: {{ .Chart.AppVersion | quote }}
+  spec:
+    tolerations:
+      - key: "key"
+        operator: "Equal"
+        value: "value"
+        effect: "NoSchedule"
+    dnsPolicy: ClusterFirst
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    securityContext:
+      fsGroup: 1001
+      fsGroupChangePolicy: OnRootMismatch
+    initContainers:
+      - name: init-container
+        image: {{ include "minio.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+        command:
+          - "bash"
+          - "-c"
+          - "service-ctl.sh initialize"
+        env:
+          - name: UNIT_SN
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['unit-operator/unit.sn']"
+    containers:
+      - name: minio
+        image: {{ include "minio.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
+        ports:
+          - containerPort: 2381
+            name: metrics
+          - containerPort: 2379
+            name: minio
+        env:
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.namespace"
+          - name: SERVICE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['unit-operator/unitset.name']"
+          - name: minio_PORT
+            value: "2379"
+          - name: METRICS_PORT
+            value: "2381"
+        livenessProbe:
+          exec:
+            command:
+              - "timeout"
+              - "3"
+              - "bash"
+              - "-c"
+              - "</dev/tcp/localhost/9001"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+        readinessProbe:
+          exec:
+            command:
+              - "bash"
+              - "-c"
+              - "service-ctl.sh health"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+        startupProbe:
+          exec:
+            command:
+              - "timeout"
+              - "3"
+              - "bash"
+              - "-c"
+              - "</dev/tcp/localhost/9001"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 12
+          timeoutSeconds: 4
+          successThreshold: 1
+      - name: unit-agent
+        image: {{ include "minio.agent.image" . }}
+        imagePullPolicy: {{ .Values.agent.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+        ports:
+          - containerPort: 2214
+            name: unit-agent
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.name"
+          - name: UNIT_TYPE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['kubectl.kubernetes.io/default-container']"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/conf"
+          - name: CONFIG_PATH
+            value: "$(DATA_MOUNT)/conf/minio.conf.yml"
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.namespace"
+          - name: SERVICE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['unit-operator/unitset.name']"
+          - name: SERVICE_GROUP_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['upm.api/service-group.name']"
+          - name: MINIO_PORT
+            value: "9000"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
+          - name: UNIT_COUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['unit-operator/unitset.units.count']"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
