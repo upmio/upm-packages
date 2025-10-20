@@ -47,7 +47,7 @@ template:
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: ES_PATH_CONF
-            value: "$(DATA_MOUNT)/conf"
+            value: "$(DATA_MOUNT)/config"
           - name: ELASTICSEARCH_PORT
             value: "9200"
           - name: AES_SECRET_KEY
@@ -84,7 +84,7 @@ template:
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: ES_PATH_CONF
-            value: "$(DATA_MOUNT)/conf"
+            value: "$(DATA_MOUNT)/config"
           - name: ELASTICSEARCH_PORT
             value: "9200"
           - name: AES_SECRET_KEY
@@ -137,7 +137,7 @@ template:
         securityContext:
           allowPrivilegeEscalation: false
         command:
-          - "bash"
+          - "sh"
           - "-c"
           - "export ES_USERNAME=$(head -n 1 ${DATA_DIR}/kbn_user.txt) && export ES_PASSWORD=$(head -n 2 ${DATA_DIR}/kbn_user.txt | tail -n 1) && /bin/elasticsearch_exporter --es.all --es.indices --collector.clustersettings --collector.cluster-info --es.indices_settings --es.shards --es.snapshots --es.timeout=30s --es.ssl-skip-verify --es.uri=https://${POD_NAME}:${ELASTICSEARCH_PORT:-9200} --web.listen-address=:${METRICS_PORT} --web.telemetry-path=/metrics"
         ports:
@@ -194,9 +194,9 @@ template:
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
-            value: "$(DATA_MOUNT)/conf"
+            value: "$(DATA_MOUNT)/config"
           - name: CONFIG_PATH
-            value: "$(DATA_MOUNT)/conf/elasticsearch.yml"
+            value: "$(DATA_MOUNT)/config/elasticsearch.yml"
           - name: ELASTICSEARCH_PORT
             value: "9200"
           - name: MASTER_MEMBER_LIST
