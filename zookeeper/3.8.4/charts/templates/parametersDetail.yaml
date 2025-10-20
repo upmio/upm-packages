@@ -8,5 +8,5 @@ metadata:
     type: zookeeper
     version: {{ .Chart.AppVersion | quote }}
 data:
-  parameters.json: |
+  etcd: |
 {{ .Files.Get "files/zookeeperParametersDetail.json" | indent 4 }}
