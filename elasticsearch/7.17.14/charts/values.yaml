@@ -18,8 +18,8 @@ agent:
 
 metrics:
   image:
-    registry: quay.io
-    repository: upmio/elasticsearch-exporter
+    registry: docker.io
+    repository: prometheuscommunity/elasticsearch-exporter
     tag: "v1.6.0"
     pullPolicy: IfNotPresent
   resources:
