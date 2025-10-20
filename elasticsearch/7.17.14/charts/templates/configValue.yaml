@@ -8,5 +8,5 @@ metadata:
     type: elasticsearch
     version: {{ .Chart.AppVersion | quote }}
 data:
-  kafka: |
+  elasticsearch: |
 {{ .Files.Get "files/elasticsearchValue.yaml" | indent 4 }}
