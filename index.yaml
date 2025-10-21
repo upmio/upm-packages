@@ -100,6 +100,29 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/kibana-7.17.14-1.1.0/kibana-7.17.14-1.1.0.tgz
     version: 1.1.0
+  milvus-2.6.2:
+  - apiVersion: v2
+    appVersion: 2.6.2
+    created: "2025-10-21T09:26:26.643536479Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: Milvus software packages, including configuration templates and pod
+      templates.
+    digest: 314c61777da04cfea923a1ad16f2c06ad8dc4c6e2bb29ad99476adfba71fcd3b
+    keywords:
+    - milvus
+    - vector database
+    - AI
+    - machine learning
+    name: milvus-2.6.2
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/milvus-2.6.2-1.1.0/milvus-2.6.2-1.1.0.tgz
+    version: 1.1.0
   minio-20250907161309.0.0:
   - apiVersion: v2
     appVersion: 20250907161309.0.0
@@ -571,4 +594,4 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/zookeeper-3.8.4-1.1.0/zookeeper-3.8.4-1.1.0.tgz
     version: 1.1.0
-generated: "2025-10-20T13:42:48.994127452Z"
+generated: "2025-10-21T09:26:26.643551447Z"
