@@ -121,7 +121,7 @@ template:
               - "service-ctl.sh health"
           failureThreshold: 3
           initialDelaySeconds: 12
-          periodSeconds: 12
+          periodSeconds: 30
           timeoutSeconds: 4
           successThreshold: 1
         startupProbe:
@@ -176,6 +176,11 @@ template:
               secretKeyRef:
                 key: AES_SECRET_KEY
                 name: aes-secret-key
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.namespace"
         resources:
           requests:
             cpu: 100m

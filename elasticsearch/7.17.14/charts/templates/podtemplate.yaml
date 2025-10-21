@@ -181,8 +181,6 @@ template:
           - containerPort: 2214
             name: unit-agent
         env:
-          - name: ES_PATH_CONF
-            value: $(DATA_MOUNT)/config
           - name: POD_NAME
             valueFrom:
               fieldRef:

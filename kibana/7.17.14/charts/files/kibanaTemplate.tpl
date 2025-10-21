@@ -1,7 +1,7 @@
 server.port: {{ getenv "KIBANA_PORT" "5601" }}
 server.host: 0.0.0.0
 elasticsearch.hosts:
-{{- range jsonArray (getenv "/MASTER_MEMBER_LIST") }}
+{{- range jsonArray (getenv "MASTER_MEMBER_LIST") }}
 - "https://{{.}}:{{ getenv "ELASTICSEARCH_PORT" "9200" }}"
 {{- end }}
 elasticsearch.ssl.certificate: "{{ getenv "CONF_DIR" }}/tls.crt"

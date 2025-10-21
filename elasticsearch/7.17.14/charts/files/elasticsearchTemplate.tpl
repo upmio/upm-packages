@@ -12,11 +12,11 @@ xpack.monitoring.collection.enabled: true
 xpack.security.enabled: true
 xpack.security.transport.ssl.enabled: true
 xpack.security.transport.ssl.verification_mode: certificate
-xpack.security.transport.ssl.key: {{ getenv "ES_PATH_CONF" }}/tls.key
-xpack.security.transport.ssl.certificate: {{ getenv "ES_PATH_CONF" }}/tls.crt
-xpack.security.transport.ssl.certificate_authorities: ["{{ getenv "ES_PATH_CONF" }}/ca.crt"]
+xpack.security.transport.ssl.key: {{ getenv "CONF_DIR" }}/tls.key
+xpack.security.transport.ssl.certificate: {{ getenv "CONF_DIR" }}/tls.crt
+xpack.security.transport.ssl.certificate_authorities: ["{{ getenv "CONF_DIR" }}/ca.crt"]
 xpack.security.http.ssl.enabled: true
 xpack.security.http.ssl.verification_mode: certificate
-xpack.security.http.ssl.key: {{ getenv "ES_PATH_CONF" }}/tls.key
-xpack.security.http.ssl.certificate: {{ getenv "ES_PATH_CONF" }}/tls.crt
-xpack.security.http.ssl.certificate_authorities: ["{{ getenv "ES_PATH_CONF" }}/ca.crt"]
+xpack.security.http.ssl.key: {{ getenv "CONF_DIR" }}/tls.key
+xpack.security.http.ssl.certificate: {{ getenv "CONF_DIR" }}/tls.crt
+xpack.security.http.ssl.certificate_authorities: ["{{ getenv "CONF_DIR" }}/ca.crt"]
