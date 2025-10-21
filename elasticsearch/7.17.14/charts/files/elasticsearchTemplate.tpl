@@ -3,7 +3,17 @@ path.logs: "{{ getenv "LOG_MOUNT" }}"
 cluster.name: "{{ getenv "SERVICE_GROUP_NAME" }}"
 node.name: "{{ getenv "POD_NAME" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}.svc.cluster.local"
 network.host: "{{ getv "/defaults/network_host" }}"
-node.roles: {{ getenv "NODE_ROLES" }}
+{{- if contains (getenv "ARCH_MODE") "master" }}
+node.roles: ["master","ingest","remote_cluster_client"]
+{{- elif contains (getenv "ARCH_MODE") "data" }}
+node.roles: ["master","data","ingest","remote_cluster_client"]
+{{- elif contains (getenv "ARCH_MODE") "data_warm" }}
+node.roles: ["data_warm","data_content","ingest","remote_cluster_client"]
+{{- elif contains (getenv "ARCH_MODE") "data_hot" }}
+node.roles: ["data_hot","ingest","remote_cluster_client"]
+{{- elif contains (getenv "ARCH_MODE") "coordinate" }}
+node.roles: []
+{{- end }}
 http.port: {{ getenv "ELASTICSEARCH_PORT" "9200" }}
 transport.port: {{ getenv "TRANSPORT_PORT" "9300" }}
 discovery.seed_hosts: {{ getenv "ALL_MEMBER_LIST" }}

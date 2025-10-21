@@ -108,7 +108,7 @@ template:
               - "</dev/tcp/localhost/9001"
           failureThreshold: 3
           initialDelaySeconds: 12
-          periodSeconds: 12
+          periodSeconds: 30
           timeoutSeconds: 4
           successThreshold: 1
         readinessProbe:
@@ -134,7 +134,7 @@ template:
               - "</dev/tcp/localhost/9001"
           failureThreshold: 3
           initialDelaySeconds: 12
-          periodSeconds: 12
+          periodSeconds: 30
           timeoutSeconds: 4
           successThreshold: 1
       - name: unit-agent

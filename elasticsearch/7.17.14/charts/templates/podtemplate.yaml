@@ -102,7 +102,7 @@ template:
               - "</dev/tcp/localhost/9001"
           failureThreshold: 3
           initialDelaySeconds: 12
-          periodSeconds: 12
+          periodSeconds: 30
           timeoutSeconds: 4
           successThreshold: 1
         readinessProbe:
@@ -128,7 +128,7 @@ template:
               - "</dev/tcp/localhost/9001"
           failureThreshold: 3
           initialDelaySeconds: 12
-          periodSeconds: 12
+          periodSeconds: 30
           timeoutSeconds: 4
           successThreshold: 1
       - name: metrics
@@ -186,6 +186,11 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.name"
+          - name: ARCH_MODE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['upm.api/service.arch.mode']"
           - name: UNIT_TYPE
             valueFrom:
               fieldRef:
