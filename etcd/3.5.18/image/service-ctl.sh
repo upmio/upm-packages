@@ -182,11 +182,7 @@ initialize() {
 
     # Create required directories
     mkdir -p "${DATA_DIR}" "${CONF_DIR}" || {
-      die 42 "${func_name}" "mkdir dir failed!"
-    }
-
-    chown -R "1001.1001" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
-      die 43 "${func_name}" "chown dir failed!"
+      die "${EXIT_DIR_CREATION_FAILED}" "mkdir ${DATA_DIR} ${CONF_DIR} failed!"
     }
 
     info "${func_name}" "Initialize etcd done !"
