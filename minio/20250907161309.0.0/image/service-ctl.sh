@@ -79,7 +79,7 @@ initialize() {
   info "${func_instance}" "Starting run ${func_instance} ..."
 
   # Validate required environment variables
-  [[ -n "${ETCD_BASE_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env ETCD_BASE_DIR failed !"
+  [[ -n "${MINIO_BASE_DIR:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "get env MINIO_BASE_DIR failed !"
 
   # Check if already initialized
   if [[ ! -f "${INIT_FLAG_FILE}" ]]; then
@@ -92,14 +92,10 @@ initialize() {
 
     # Create required directories
     mkdir -p "${DATA_DIR}" "${CONF_DIR}" || {
-      die 42 "${func_name}" "mkdir dir failed!"
+      die "${EXIT_DIR_CREATION_FAILED}" "mkdir ${DATA_DIR} ${CONF_DIR} failed!"
     }
 
-    chown -R "1001.1001" "${DATA_MOUNT}" "${LOG_MOUNT}" || {
-      die 43 "${func_name}" "chown dir failed!"
-    }
-
-    info "${func_name}" "Initialize etcd done !"
+    info "${func_name}" "Initialize minio done !"
     touch "${INIT_FLAG_FILE}"
     [[ -f ${INIT_FLAG_FILE} ]] || die "${EXIT_FLAG_FILE_CREATION_FAILED}" "${func_name}" "create ${INIT_FLAG_FILE} failed!"
   fi
