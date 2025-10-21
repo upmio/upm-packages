@@ -142,7 +142,7 @@ rpl_semi_sync_source_wait_for_replica_count=1
 rpl_semi_sync_replica_trace_level = 32
 {{- end }}
 
-{{- if contains (getenv "ARCH_MODE") "group_replication" }}
+{{- if eq (getenv "ARCH_MODE") "group_replication" }}
 group_replication_group_name={{ getenv "MGR_NAME_UUID" "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }}
 group_replication_start_on_boot=OFF
 group_replication_local_address="{{ getenv "POD_NAME" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}:33061"

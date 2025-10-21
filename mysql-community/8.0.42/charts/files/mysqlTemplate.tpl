@@ -127,7 +127,7 @@ innodb_sync_spin_loops={{ getv "/mysqld/innodb_sync_spin_loops" }}
 innodb_thread_concurrency={{ getv "/mysqld/innodb_thread_concurrency" }}
 innodb_undo_log_truncate={{ getv "/mysqld/innodb_undo_log_truncate" }}
 
-{{- if contains (getenv "ARCH_MODE") "rpl_semi_sync" }}
+{{- if eq (getenv "ARCH_MODE") "rpl_semi_sync" }}
 rpl_semi_sync_source_timeout = 2147483647
 rpl_semi_sync_source_trace_level = 32
 rpl_semi_sync_source_wait_no_replica = ON
@@ -135,7 +135,7 @@ rpl_semi_sync_source_wait_for_replica_count=1
 rpl_semi_sync_replica_trace_level = 32
 {{- end }}
 
-{{- if contains (getenv "ARCH_MODE") "group_replication" }}
+{{- if eq (getenv "ARCH_MODE") "group_replication" }}
 group_replication_group_name={{ getenv "MGR_NAME_UUID" "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }}
 group_replication_start_on_boot=OFF
 group_replication_local_address="{{ getenv "POD_NAME" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}:33061"

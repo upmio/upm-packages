@@ -37,7 +37,7 @@ auto-aof-rewrite-min-size {{ getv "/defaults/auto-aof-rewrite-min-size" }}
 aof-load-truncated {{ getv "/defaults/aof-load-truncated" }}
 aof-use-rdb-preamble {{ getv "/defaults/aof-use-rdb-preamble" }}
 lua-time-limit {{ getv "/defaults/lua-time-limit" }}
-{{- if contains (getenv "ARCH_MODE") "cluster" }}
+{{- if eq (getenv "ARCH_MODE") "cluster" }}
 min-replicas-to-write {{ getv "/defaults/min-replicas-to-write" }}
 min-replicas-max-lag {{ getv "/defaults/min-replicas-max-lag" }}
 replica-lazy-flush {{ getv "/defaults/replica-lazy-flush" }}
@@ -48,7 +48,7 @@ cluster-config-file "{{ getenv "DATA_MOUNT" }}/conf/nodes.conf"
 cluster-node-timeout {{ getv "/defaults/cluster-node-timeout" }}
 cluster-require-full-coverage {{ getv "/defaults/cluster-require-full-coverage" }}
 cluster-preferred-endpoint-type ip
-{{- if contains (getenv "UNIT_SERVICE_TYPE") "ClusterIP" }}
+{{- if eq (getenv "UNIT_SERVICE_TYPE") "ClusterIP" }}
 {{- $podname := getenv "POD_NAME" -}}
 {{- $namespace := getenv "NAMESPACE" -}}
 {{- $svrname := printf "%s-svc.%s.svc" $podname $namespace }}
@@ -56,7 +56,7 @@ cluster-announce-ip {{index (lookupIP $svrname) 0}}
 cluster-announce-port {{ getenv "REDIS_PORT" "6379" }}
 cluster-announce-bus-port {{ add (atoi (getenv "REDIS_PORT" "6379")) 10000 }}
 {{- end }}
-{{- if contains (getenv "UNIT_SERVICE_TYPE") "NodePort" }}
+{{- if eq (getenv "UNIT_SERVICE_TYPE") "NodePort" }}
 cluster-announce-ip {{ getenv "NODEPORT_IP" }}
 {{- $pod := getenv "POD_NAME" -}}
 {{- $m := json (getenv "UNIT_SERVICE_REDIS_NODEPORT_MAP") -}}
@@ -69,7 +69,7 @@ cluster-announce-port {{ . }}
 cluster-announce-bus-port {{ . }}
 {{- end }}
 {{- end }}
-{{- if contains (getenv "UNIT_SERVICE_TYPE") "LoadBalancer" }}
+{{- if eq (getenv "UNIT_SERVICE_TYPE") "LoadBalancer" }}
 {{- $pod := getenv "POD_NAME" -}}
 {{- $m := json (getenv "UNIT_SERVICE_LOADBALANCER_IP_MAP") -}}
 {{- with index $m $pod }}
@@ -79,9 +79,9 @@ cluster-announce-bus-port {{ add (atoi (getenv "REDIS_PORT" "6379")) 10000 }}
 {{- end }}
 {{- end }}
 {{- end }}
-{{- if contains (getenv "ARCH_MODE") "replication" }}
+{{- if eq (getenv "ARCH_MODE") "replication" }}
 {{- if ( checkLabelExists (getenv "POD_NAME") (getenv "NAMESPACE") "compose-operator/redis-replication.readonly" ) }}
-{{- if contains ( getPodLabelValueByKey (getenv "POD_NAME") (getenv "NAMESPACE") "compose-operator/redis-replication.readonly" ) "true" }}
+{{- if eq ( getPodLabelValueByKey (getenv "POD_NAME") (getenv "NAMESPACE") "compose-operator/redis-replication.readonly" ) "true" }}
 replicaof {{ getPodLabelValueByKey (getenv "POD_NAME") (getenv "NAMESPACE") "compose-operator/redis-replication.source.host" }} {{ getPodLabelValueByKey (getenv "POD_NAME") (getenv "NAMESPACE") "compose-operator/redis-replication.source.port" }}
 {{- end }}
 {{- end }}
@@ -89,11 +89,11 @@ masterauth "{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPA
 min-replicas-to-write {{ getv "/defaults/min-replicas-to-write" }}
 min-replicas-max-lag {{ getv "/defaults/min-replicas-max-lag" }}
 replica-lazy-flush {{ getv "/defaults/replica-lazy-flush" }}
-{{- if contains (getenv "UNIT_SERVICE_TYPE") "ClusterIP" }}
+{{- if eq (getenv "UNIT_SERVICE_TYPE") "ClusterIP" }}
 replica-announce-ip {{ getenv "POD_NAME" }}-svc.{{ getenv "NAMESPACE" }}.svc
 replica-announce-port {{ getenv "REDIS_PORT" "6379" }}
 {{- end }}
-{{- if contains (getenv "UNIT_SERVICE_TYPE") "NodePort" }}
+{{- if eq (getenv "UNIT_SERVICE_TYPE") "NodePort" }}
 {{- $pod := getenv "POD_NAME" -}}
 {{- $m := json (getenv "UNIT_SERVICE_REDIS_NODEPORT_MAP") -}}
 {{- with index $m $pod }}
@@ -101,7 +101,7 @@ replica-announce-ip {{ getenv "NODEPORT_IP" }}
 replica-announce-port {{ . }}
 {{- end }}
 {{- end }}
-{{- if contains (getenv "UNIT_SERVICE_TYPE") "LoadBalancer" }}
+{{- if eq (getenv "UNIT_SERVICE_TYPE") "LoadBalancer" }}
 {{- $pod := getenv "POD_NAME" -}}
 {{- $m := json (getenv "UNIT_SERVICE_LOADBALANCER_IP_MAP") -}}
 {{- with index $m $pod }}

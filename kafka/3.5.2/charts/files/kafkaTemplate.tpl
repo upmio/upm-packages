@@ -2,7 +2,7 @@ node.id={{ getenv "UNIT_SN" }}
 broker.id={{ getenv "UNIT_SN" }}
 log.dirs={{ getenv "DATA_DIR" }}
 
-{{- if contains (getenv "UNIT_SERVICE_TYPE") "NodePort" }}
+{{- if eq (getenv "UNIT_SERVICE_TYPE") "NodePort" }}
 listener.security.protocol.map=EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
 listeners=EXTERNAL://0.0.0.0:{{ getenv "KAFKA_PORT" "9094" }},INTERNAL://0.0.0.0:9092
 {{- $pod := getenv "POD_NAME" -}}
@@ -13,7 +13,7 @@ advertised.listeners=EXTERNAL://{{ getenv "NODEPORT_IP" }}:{{ . }},INTERNAL://{{
 inter.broker.listener.name=INTERNAL
 {{- end }}
 
-{{- if contains (getenv "UNIT_SERVICE_TYPE") "LoadBalancer" }}
+{{- if eq (getenv "UNIT_SERVICE_TYPE") "LoadBalancer" }}
 listener.security.protocol.map=EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
 listeners=EXTERNAL://0.0.0.0:{{ getenv "KAFKA_PORT" "9094" }},INTERNAL://0.0.0.0:9092
 {{- $pod := getenv "POD_NAME" -}}
@@ -24,7 +24,7 @@ advertised.listeners=EXTERNAL://{{ . }}:{{ getenv "KAFKA_PORT" "9094" }},INTERNA
 inter.broker.listener.name=INTERNAL
 {{- end }}
 
-{{- if contains (getenv "UNIT_SERVICE_TYPE") "ClusterIP" }}
+{{- if eq (getenv "UNIT_SERVICE_TYPE") "ClusterIP" }}
 listener.security.protocol.map=EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
 listeners=EXTERNAL://0.0.0.0:{{ getenv "KAFKA_PORT" "9094" }},INTERNAL://0.0.0.0:9092
 advertised.listeners=EXTERNAL://{{ getenv "POD_NAME" }}.{{ getenv "NAMESPACE" }}:{{ getenv "KAFKA_PORT" "9094" }},INTERNAL://{{ getenv "POD_NAME" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}:9092
