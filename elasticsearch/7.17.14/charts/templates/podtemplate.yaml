@@ -115,7 +115,7 @@ template:
               - "service-ctl.sh health"
           failureThreshold: 3
           initialDelaySeconds: 12
-          periodSeconds: 12
+          periodSeconds: 30
           timeoutSeconds: 4
           successThreshold: 1
         startupProbe:
@@ -181,6 +181,8 @@ template:
           - containerPort: 2214
             name: unit-agent
         env:
+          - name: ES_PATH_CONF
+            value: $(DATA_MOUNT)/config
           - name: POD_NAME
             valueFrom:
               fieldRef:
@@ -214,11 +216,21 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.labels['upm.api/service-group.name']"
+          - name: SERVICE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['unit-operator/unitset.name']"
           - name: AES_SECRET_KEY
             valueFrom:
               secretKeyRef:
                 key: AES_SECRET_KEY
                 name: aes-secret-key
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.namespace"
         resources:
           requests:
             cpu: 100m

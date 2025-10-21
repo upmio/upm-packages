@@ -1,7 +1,7 @@
 path.data: "{{ getenv "DATA_DIR" }}"
 path.logs: "{{ getenv "LOG_MOUNT" }}"
 cluster.name: "{{ getenv "SERVICE_GROUP_NAME" }}"
-node.name: "{{ getenv "POD_NAME" }}"
+node.name: "{{ getenv "POD_NAME" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}.svc.cluster.local"
 network.host: "{{ getv "/defaults/network_host" }}"
 node.roles: {{ getenv "NODE_ROLES" }}
 http.port: {{ getenv "ELASTICSEARCH_PORT" "9200" }}
