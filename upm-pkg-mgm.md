@@ -7,7 +7,7 @@ The `upm-pkg-mgm.sh` script is a unified management tool for UPM (Unified Platfo
 ## Features
 
 - **Unified Management**: Single script for all UPM package operations
-- **Multiple Package Types**: Support for MySQL, MySQL Router, PostgreSQL, ProxySQL, PgBouncer, Elasticsearch, Kibana, Kafka, Redis, Zookeeper, etcd, and MinIO
+- **Multiple Package Types**: Support for MySQL, MySQL Router, PostgreSQL, ProxySQL, PgBouncer, Elasticsearch, Kibana, Kafka, Redis, Zookeeper, etcd, Milvus, and MinIO
 - **Idempotent Operations**: Install/upgrade/uninstall are safe to run repeatedly; installs skip when already deployed and reconcile non-deployed states
 - **Flexible Targeting**: Install individual packages, component groups, multiple targets in one command, or all packages
 - **Dry Run Mode**: Test operations without making actual changes
@@ -83,6 +83,7 @@ The `upm-pkg-mgm.sh` script is a unified management tool for UPM (Unified Platfo
 | `redis`                  | Redis                                               |
 | `zookeeper`              | Zookeeper                                           |
 | `etcd`                   | etcd key-value store                                |
+| `milvus`                 | Milvus vector database                              |
 | `minio`                  | MinIO object storage                                |
 | `<chart-name>`           | Specific chart name (e.g., `mysql-community-8.4.5`) |
 

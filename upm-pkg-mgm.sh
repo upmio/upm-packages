@@ -404,6 +404,7 @@ get_component_categories() {
   local kafka=""
   local etcd=""
   local minio=""
+  local milvus=""
   local redis=""
   local zookeeper=""
   local other=""
@@ -478,6 +479,13 @@ get_component_categories() {
         minio="$package"
       else
         minio="$minio $package"
+      fi
+      ;;
+    milvus-*)
+      if [[ -z "$milvus" ]]; then
+        milvus="$package"
+      else
+        milvus="$milvus $package"
       fi
       ;;
     redis-*)
@@ -569,6 +577,13 @@ get_component_categories() {
       components="$components|minio:$minio"
     else
       components="minio:$minio"
+    fi
+  fi
+  if [[ -n "$milvus" ]]; then
+    if [[ -n "$components" ]]; then
+      components="$components|milvus:$milvus"
+    else
+      components="milvus:$milvus"
     fi
   fi
   if [[ -n "$redis" ]]; then
@@ -772,6 +787,9 @@ show_available_components() {
       ;;
     minio)
       echo "  minio: MinIO object storage"
+      ;;
+    milvus)
+      echo "  milvus: Milvus vector database"
       ;;
     redis)
       echo "  redis: Redis"
