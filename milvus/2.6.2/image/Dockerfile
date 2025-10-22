@@ -40,7 +40,7 @@ RUN set -eux; \
 
 ENV SUMMARY="High Performance Vector Database" \
     DESCRIPTION="Milvus is an open-source vector database built for scalable similarity search and AI applications." \
-    UNIT_APP_VERSION="2.6.2"
+    UNIT_APP_VERSION="v2.6.2"
 
 LABEL summary="${SUMMARY}" \
   description="${DESCRIPTION}" \
