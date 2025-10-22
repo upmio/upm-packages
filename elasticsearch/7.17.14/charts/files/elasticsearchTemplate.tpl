@@ -10,10 +10,10 @@ node.roles: ["master","ingest","remote_cluster_client"]
 node.roles: ["master","data","ingest","remote_cluster_client"]
 {{- end }}
 {{- if eq (getenv "ARCH_MODE") "data_warm" }}
-node.roles: ["data_warm","data_content","ingest","remote_cluster_client"]
+node.roles: ["data_warm","ingest","remote_cluster_client"]
 {{- end }}
 {{- if eq (getenv "ARCH_MODE") "data_hot" }}
-node.roles: ["data_hot","ingest","remote_cluster_client"]
+node.roles: ["data_hot","data_content","ingest","remote_cluster_client"]
 {{- end }}
 {{- if eq (getenv "ARCH_MODE") "coordinate" }}
 node.roles: []
