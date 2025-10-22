@@ -46,7 +46,7 @@ common:
   retentionDuration: {{ getv "/defaults/common_retention_duration" }}
   security:
     authorizationEnabled: true
-    defaultRootPassword: {{ AESCBCDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "MILVUS_USER")) }}
+    defaultRootPassword: {{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "MILVUS_USER")) }}
     enablePublicPrivilege: true
     internaltlsEnabled: false
     rbac:
@@ -441,7 +441,7 @@ minio:
   region: null
   requestTimeoutMs: 10000
   rootPath: files
-  secretAccessKey: {{ AESCBCDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "MINIO_USER")) }}
+  secretAccessKey: {{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "MINIO_USER")) }}
   ssl:
     tlsCACert: {{ getenv "CERT_MOUNT" }}/ca.crt
   useIAM: false

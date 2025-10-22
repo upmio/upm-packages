@@ -41,6 +41,8 @@ template:
         env:
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/conf"
           - name: AES_SECRET_KEY
             valueFrom:
               secretKeyRef:
@@ -62,6 +64,8 @@ template:
         env:
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/conf"
           - name: MILVUS_PORT
             value: "19530"
           - name: AES_SECRET_KEY
@@ -127,9 +131,9 @@ template:
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
-            value: "$(DATA_MOUNT)/config"
+            value: "$(DATA_MOUNT)/conf"
           - name: CONFIG_PATH
-            value: "$(DATA_MOUNT)/config/milvus.yml"
+            value: "$(DATA_MOUNT)/conf/milvus.yml"
           - name: MILVUS_PORT
             value: "19530"
           - name: ETCD_MEMBER_LIST
