@@ -5,17 +5,13 @@ node.name: "{{ getenv "POD_NAME" }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ 
 network.host: "{{ getv "/defaults/network_host" }}"
 {{- if eq (getenv "ARCH_MODE") "master" }}
 node.roles: ["master","ingest","remote_cluster_client"]
-{{- end }}
-{{- if eq (getenv "ARCH_MODE") "data" }}
+{{- else if eq (getenv "ARCH_MODE") "data" }}
 node.roles: ["master","data","ingest","remote_cluster_client"]
-{{- end }}
-{{- if eq (getenv "ARCH_MODE") "data_warm" }}
+{{- else if eq (getenv "ARCH_MODE") "data_warm" }}
 node.roles: ["data_warm","ingest","remote_cluster_client"]
-{{- end }}
-{{- if eq (getenv "ARCH_MODE") "data_hot" }}
+{{- else if eq (getenv "ARCH_MODE") "data_hot" }}
 node.roles: ["data_hot","data_content","ingest","remote_cluster_client"]
-{{- end }}
-{{- if eq (getenv "ARCH_MODE") "coordinate" }}
+{{- else if eq (getenv "ARCH_MODE") "coordinate" }}
 node.roles: []
 {{- end }}
 http.port: {{ getenv "ELASTICSEARCH_PORT" "9200" }}
