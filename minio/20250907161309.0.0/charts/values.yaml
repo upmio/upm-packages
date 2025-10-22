@@ -5,7 +5,7 @@ global:
 image:
   registry: quay.io
   repository: upmio/minio
-  tag: "20250907T161309.0.0"
+  tag: "20250907161309.0.0"
   digest: ""
   pullPolicy: IfNotPresent
 

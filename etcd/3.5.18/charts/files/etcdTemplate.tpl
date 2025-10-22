@@ -13,12 +13,7 @@ initial-advertise-peer-urls: https://{{ getenv "POD_NAME" }}.{{ getenv "SERVICE_
 {{- $namespace := getenv "NAMESPACE" }}
 {{- $peerPort := getenv "PEER_PORT" "2380" }}
 {{- $unitCount := atoi (getenv "UNIT_COUNT" "1") }}
-{{- $members := list }}
-{{- range $i, $_ := until $unitCount }}
-{{- $member := printf "%s-%d=https://%s-%d.%s-headless-svc.%s.svc.cluster.local:%s" $serviceName $i $serviceName $i $serviceName $namespace $peerPort }}
-{{- $members = append $members $member }}
-{{- end }}
-initial-cluster: {{ join "," $members }}
+initial-cluster: {{- range := seq 0 (sub $unitCount 1) -}}{{- if gt $i 0 -}},{{- end -}}{{- printf "%s-%d=https://%s-%d.%s-headless-svc.%s.svc.cluster.local:%s" $serviceName $i $serviceName $i $serviceName $namespace $peerPort -}}{{- end -}}
 
 initial-cluster-token: {{ getenv "SERVICE_GROUP_NAME" }}
 initial-cluster-state: new

@@ -39,11 +39,10 @@ template:
           - "-c"
           - "service-ctl.sh initialize"
         env:
-          - name: UNIT_SN
-            valueFrom:
-              fieldRef:
-                apiVersion: "v1"
-                fieldPath: "metadata.labels['unit-operator/unit.sn']"
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/conf"
     containers:
       - name: etcd
         image: {{ include "etcd.image" . }}
@@ -56,6 +55,15 @@ template:
           - containerPort: 2379
             name: etcd
         env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.name"
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/conf"
           - name: NAMESPACE
             valueFrom:
               fieldRef:
@@ -128,6 +136,8 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.annotations['kubectl.kubernetes.io/default-container']"
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
           - name: CONFIG_PATH

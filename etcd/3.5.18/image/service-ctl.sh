@@ -69,96 +69,20 @@ info() {
 health() {
   local func_name="health"
 
-  # Ensure the instance finished initialization
-  if [[ ! -f "${INIT_FLAG_FILE}" ]]; then
-    die "${EXIT_GENERAL_FAILURE}" "${func_name}" "Initialization flag ${INIT_FLAG_FILE} not found"
+  local endpoints="${POD_NAME}.${SERVICE_NAME}-headless-svc.${NAMESPACE}.svc.cluster.local"
+  local etcd_port="${ETCD_PORT:-2379}"
+
+  etcdctl endpoint health --endpoints="${endpoints}:${etcd_port}" \
+    --cacert="${CERT_MOUNT}/ca.crt" \
+    --cert="${CERT_MOUNT}/tls.crt" \
+    --key="${CERT_MOUNT}/tls.key"
+
+  local rc=$?
+  if [[ ${rc} -ne 0 ]]; then
+    die 41 "${func_name}" "etcdctl endpoint health failed with RC ${rc}"
   fi
 
-  # Make sure the etcd process is running before probing
-  if ! pgrep -f "/usr/local/etcd/etcd" >/dev/null 2>&1; then
-    die "${EXIT_GENERAL_FAILURE}" "${func_name}" "etcd process is not running"
-  fi
-
-  # Resolve etcdctl binary
-  local etcdctl_bin="${ETCDCTL_BIN:-}"
-  if [[ -z "${etcdctl_bin}" ]]; then
-    if ! etcdctl_bin="$(command -v etcdctl 2>/dev/null)"; then
-      die "${EXIT_GENERAL_FAILURE}" "${func_name}" "etcdctl binary not found in PATH"
-    fi
-  fi
-
-  # Determine the endpoints list used for the readiness probe
-  local client_scheme="${ETCD_CLIENT_SCHEME:-https}"
-  local default_port="${ETCD_PORT:-2379}"
-  local default_host="${ETCD_HEALTH_HOST}"
-  if [[ -z "${default_host}" ]]; then
-    local pod_hostname="${POD_NAME:-${HOSTNAME:-}}"
-    if [[ -n "${SERVICE_NAME:-}" && -n "${NAMESPACE:-}" && -n "${pod_hostname}" ]]; then
-      default_host="${pod_hostname}.${SERVICE_NAME}-headless-svc.${NAMESPACE}.svc.cluster.local"
-    fi
-  fi
-  if [[ -z "${default_host}" ]]; then
-    default_host="127.0.0.1"
-  fi
-  local endpoints="${ETCDCTL_ENDPOINTS:-${client_scheme}://${default_host}:${default_port}}"
-
-  # Detect whether TLS arguments are required (based on the first endpoint)
-  local first_endpoint="${endpoints%%,*}"
-  local need_tls="false"
-  if [[ "${first_endpoint}" == https://* ]]; then
-    need_tls="true"
-  elif [[ "${first_endpoint}" == http://* ]]; then
-    need_tls="false"
-  elif [[ "${client_scheme}" == "https" ]]; then
-    need_tls="true"
-  fi
-
-  # Compose etcdctl arguments
-  local -a etcdctl_args
-  etcdctl_args+=("--endpoints=${endpoints}")
-
-  if [[ "${need_tls}" == "true" ]]; then
-    local cert_file="${ETCD_CLIENT_CERT:-}"
-    local key_file="${ETCD_CLIENT_KEY:-}"
-    local ca_file="${ETCD_CLIENT_CA:-}"
-
-    if [[ -z "${cert_file}" || -z "${key_file}" || -z "${ca_file}" ]]; then
-      [[ -n "${CERT_MOUNT:-}" ]] || die "${EXIT_MISSING_ENV_VAR}" "${func_name}" "CERT_MOUNT environment variable not set for TLS probe"
-      cert_file="${cert_file:-${CERT_MOUNT}/tls.crt}"
-      key_file="${key_file:-${CERT_MOUNT}/tls.key}"
-      ca_file="${ca_file:-${CERT_MOUNT}/ca.crt}"
-    fi
-
-    [[ -f "${cert_file}" ]] || die "${EXIT_GENERAL_FAILURE}" "${func_name}" "TLS certificate file ${cert_file} does not exist"
-    [[ -f "${key_file}" ]] || die "${EXIT_GENERAL_FAILURE}" "${func_name}" "TLS private key file ${key_file} does not exist"
-    [[ -f "${ca_file}" ]] || die "${EXIT_GENERAL_FAILURE}" "${func_name}" "TLS CA file ${ca_file} does not exist"
-
-    etcdctl_args+=("--cert=${cert_file}" "--key=${key_file}" "--cacert=${ca_file}")
-  fi
-
-  # Apply timeout guard and execute the readiness probe
-  local timeout_seconds="${ETCD_HEALTH_TIMEOUT:-5}"
-  if ! [[ "${timeout_seconds}" =~ ^[0-9]+$ ]] || [[ "${timeout_seconds}" -le 0 ]]; then
-    timeout_seconds=5
-  fi
-
-  local health_output
-  set +e
-  health_output=$(timeout "${timeout_seconds}" "${etcdctl_bin}" "${etcdctl_args[@]}" endpoint health 2>&1)
-  local probe_status=$?
-  set -e
-
-  if [[ ${probe_status} -ne 0 ]]; then
-    error "${func_name}" "etcdctl endpoint health failed: ${health_output}"
-    die "${EXIT_GENERAL_FAILURE}" "${func_name}" "Readiness probe failed"
-  fi
-
-  if [[ "${health_output}" != *"is healthy"* ]]; then
-    error "${func_name}" "Unexpected health response: ${health_output}"
-    die "${EXIT_GENERAL_FAILURE}" "${func_name}" "Readiness probe failed"
-  fi
-
-  info "${func_name}" "Readiness probe succeeded: ${health_output}"
+  info "${func_name}" "Readiness check passed."
 }
 
 initialize() {
