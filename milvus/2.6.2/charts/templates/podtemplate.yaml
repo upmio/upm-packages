@@ -43,11 +43,6 @@ template:
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
-          - name: ARCH_MODE
-            valueFrom:
-              fieldRef:
-                apiVersion: "v1"
-                fieldPath: "metadata.labels['upm.api/service.arch.mode']"
     containers:
       - name: milvus
         image: {{ include "milvus.image" . }}
@@ -139,6 +134,11 @@ template:
                 fieldPath: "metadata.namespace"
           - name: MILVUS_PORT
             value: "19530"
+          - name: ARCH_MODE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['upm.api/service.arch.mode']"
           - name: ETCD_MEMBER_LIST
             valueFrom:
               fieldRef:
