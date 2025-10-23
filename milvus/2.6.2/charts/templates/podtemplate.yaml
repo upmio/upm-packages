@@ -43,11 +43,11 @@ template:
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
-          - name: AES_SECRET_KEY
+          - name: ARCH_MODE
             valueFrom:
-              secretKeyRef:
-                key: AES_SECRET_KEY
-                name: aes-secret-key
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['upm.api/service.arch.mode']"
     containers:
       - name: milvus
         image: {{ include "milvus.image" . }}
@@ -68,6 +68,8 @@ template:
             value: "$(DATA_MOUNT)/conf"
           - name: MILVUS_PORT
             value: "19530"
+          - name: METRICS_PORT
+            value: "9091"
           - name: AES_SECRET_KEY
             valueFrom:
               secretKeyRef:
@@ -87,13 +89,9 @@ template:
           timeoutSeconds: 4
           successThreshold: 1
         readinessProbe:
-          exec:
-            command:
-              - "timeout"
-              - "3"
-              - "bash"
-              - "-c"
-              - "service-ctl.sh health"
+          httpGet:
+            port: metrics
+            path: /healthz
           failureThreshold: 3
           initialDelaySeconds: 12
           periodSeconds: 12
@@ -134,6 +132,11 @@ template:
             value: "$(DATA_MOUNT)/conf"
           - name: CONFIG_PATH
             value: "$(DATA_MOUNT)/conf/milvus.yml"
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.namespace"
           - name: MILVUS_PORT
             value: "19530"
           - name: ETCD_MEMBER_LIST

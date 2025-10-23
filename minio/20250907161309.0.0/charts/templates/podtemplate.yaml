@@ -50,9 +50,9 @@ template:
         securityContext:
           allowPrivilegeEscalation: false
         ports:
-          - containerPort: 2381
-            name: metrics
-          - containerPort: 2379
+          - containerPort: 9001
+            name: console
+          - containerPort: 9000
             name: minio
         env:
           - name: NAMESPACE
@@ -68,9 +68,9 @@ template:
                 apiVersion: "v1"
                 fieldPath: "metadata.labels['unit-operator/unitset.name']"
           - name: MINIO_PORT
-            value: "2379"
-          - name: METRICS_PORT
-            value: "2381"
+            value: "9000"
+          - name: CONSOLE_PORT
+            value: "9001"
         livenessProbe:
           exec:
             command:

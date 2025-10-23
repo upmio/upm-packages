@@ -437,7 +437,7 @@ minio:
   iamEndpoint: null
   listObjectsMaxKeys: 0
   logLevel: fatal
-  port: {{ getenv "MINIO_PORT"}}
+  port: {{ getenv "MINIO_PORT" "9000" }}
   region: null
   requestTimeoutMs: 10000
   rootPath: files
@@ -542,7 +542,7 @@ proxy:
       bufSize: 512
   mustUsePartitionKey: false
   partialResultRequiredDataRatio: 1
-  port: {{ getenv "MILVUS_PORT" 19530 }}
+  port: {{ getenv "MILVUS_PORT" "19530" }}
   queryNodePooling:
     size: 10
   slowQuerySpanInSeconds: 5
