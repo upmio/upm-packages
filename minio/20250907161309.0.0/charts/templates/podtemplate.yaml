@@ -85,11 +85,8 @@ template:
           timeoutSeconds: 4
           successThreshold: 1
         readinessProbe:
-          exec:
-            command:
-              - "bash"
-              - "-c"
-              - "service-ctl.sh health"
+          tcpSocket:
+            port: minio
           failureThreshold: 3
           initialDelaySeconds: 12
           periodSeconds: 12

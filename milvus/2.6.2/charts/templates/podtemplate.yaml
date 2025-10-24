@@ -42,7 +42,7 @@ template:
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
-            value: "$(DATA_MOUNT)/conf"
+            value: "$(DATA_MOUNT)/configs"
     containers:
       - name: milvus
         image: {{ include "milvus.image" . }}
@@ -60,7 +60,7 @@ template:
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
-            value: "$(DATA_MOUNT)/conf"
+            value: "$(DATA_MOUNT)/configs"
           - name: MILVUS_PORT
             value: "19530"
           - name: METRICS_PORT
@@ -129,9 +129,9 @@ template:
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
-            value: "$(DATA_MOUNT)/conf"
+            value: "$(DATA_MOUNT)/configs"
           - name: CONFIG_PATH
-            value: "$(DATA_MOUNT)/conf/milvus.yml"
+            value: "$(DATA_MOUNT)/configs/milvus.yaml"
           - name: NAMESPACE
             valueFrom:
               fieldRef:

@@ -66,11 +66,6 @@ info() {
   echo "[${timestamp}] INFO| (${SCRIPT_VERSION})[${function_name}]: $* ;"
 }
 
-health() {
-  local func_name="health"
-
-}
-
 initialize() {
   local func_name="initialize"
   local random_id="$RANDOM"
@@ -136,9 +131,6 @@ main() {
     ;;
   "start")
     start
-    ;;
-  "health")
-    health
     ;;
   *)
     die "${EXIT_UNSUPPORTED_ACTION}" "${func_name}" "service action(${action}) nonsupport"

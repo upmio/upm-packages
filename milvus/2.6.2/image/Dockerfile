@@ -58,8 +58,9 @@ RUN set -eux; \
 COPY service-ctl.sh /usr/local/bin/
 RUN chown 1001:1001 /usr/local/bin/service-ctl.sh && chmod +x /usr/local/bin/service-ctl.sh
 
+ENV MILVUS_BASE_DIR="/usr/local/milvus"
 ENV PATH="${MILVUS_BASE_DIR}/bin:${PATH}" \
-    LD_LIBRARY_PATH=/usr/local/milvus/lib
+    LD_LIBRARY_PATH="${MILVUS_BASE_DIR}/lib"
 
 COPY --from=builder /milvus/bin /usr/local/milvus/bin
 COPY --from=builder /milvus/lib /usr/local/milvus/lib
