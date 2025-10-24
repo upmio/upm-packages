@@ -52,7 +52,7 @@ LABEL summary="${SUMMARY}" \
 
 RUN set -eux; \
   groupadd --system --gid 1001 "milvus"; \
-  useradd --system --uid 1001 --gid 1001 --no-create-home -s /bin/bash -c "Default Application User" "milvus"
+  useradd --system --uid 1001 --gid 1001 --no-create-home -s /bin/bash -c "Default Application User" "milvus"; \
   dnf install -y openblas-serial libaio;
 
 COPY service-ctl.sh /usr/local/bin/
