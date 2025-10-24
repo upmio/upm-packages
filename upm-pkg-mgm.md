@@ -175,6 +175,12 @@ You can pass user-friendly aliases. The script normalizes them to canonical comp
 ./upm-pkg-mgm.sh install etcd
 ```
 
+**Install Milvus**:
+
+```bash
+./upm-pkg-mgm.sh install milvus
+```
+
 **Install MinIO**:
 
 ```bash
@@ -277,6 +283,10 @@ You can pass user-friendly aliases. The script normalizes them to canonical comp
 
 - `etcd-3.5.18`
 
+### Milvus
+
+- `milvus-2.6.2`
+
 ### MinIO
 
 - `minio-20250907161309.0.0`
@@ -309,6 +319,7 @@ Installed releases follow this naming examples:
 - `upm-packages-postgresql-15.13`
 - `upm-packages-elasticsearch-7.17.14`
 - `upm-packages-etcd-3.5.18`
+- `upm-packages-milvus-2.6.2`
 - `upm-packages-minio-20250907161309.0.0`
 
 ## Error Handling
