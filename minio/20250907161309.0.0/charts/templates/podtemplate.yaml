@@ -50,7 +50,7 @@ template:
         securityContext:
           allowPrivilegeEscalation: false
         ports:
-          - containerPort: 9001
+          - containerPort: 9090
             name: console
           - containerPort: 9000
             name: minio
@@ -74,7 +74,7 @@ template:
           - name: MINIO_PORT
             value: "9000"
           - name: CONSOLE_PORT
-            value: "9001"
+            value: "9090"
         livenessProbe:
           exec:
             command:
