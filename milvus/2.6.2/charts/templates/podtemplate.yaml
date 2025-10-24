@@ -65,6 +65,11 @@ template:
             value: "19530"
           - name: METRICS_PORT
             value: "9091"
+          - name: ARCH_MODE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['upm.api/service.arch.mode']"
           - name: AES_SECRET_KEY
             valueFrom:
               secretKeyRef:
@@ -134,11 +139,6 @@ template:
                 fieldPath: "metadata.namespace"
           - name: MILVUS_PORT
             value: "19530"
-          - name: ARCH_MODE
-            valueFrom:
-              fieldRef:
-                apiVersion: "v1"
-                fieldPath: "metadata.labels['upm.api/service.arch.mode']"
           - name: ETCD_MEMBER_LIST
             valueFrom:
               fieldRef:
