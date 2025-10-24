@@ -1,5 +1,5 @@
 FROM milvusdb/milvus:v2.6.2 AS builder
-FROM rockylinux/rockylinux:9.6.20250531
+FROM rockylinux/rockylinux:10.0.20250606
 
 # install common tools
 # hadolint ignore=DL3041
