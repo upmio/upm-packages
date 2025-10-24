@@ -55,6 +55,10 @@ template:
           - containerPort: 9000
             name: minio
         env:
+          - name: CONF_DIR
+            value: $(DATA_MOUNT)/conf
+          - name: CONFIG_PATH
+            value: "$(DATA_MOUNT)/conf/minio.conf.yml"
           - name: NAMESPACE
             valueFrom:
               fieldRef:

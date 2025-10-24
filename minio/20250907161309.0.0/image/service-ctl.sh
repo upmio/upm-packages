@@ -104,15 +104,13 @@ start() {
 	local func_name="${func_name}(${random})"
 	info "${func_name}" "Starting run ${func_name} ..."
 
-	# 加载环境变量
-	local config="${CONF_DIR}/minio.env"
-	if [ -f "${config}" ]; then
+	if [ -f "${CONFIG_PATH}" ]; then
 		set -a
 		# shellcheck source=/dev/null
-		source "${config}"
+		source "${CONFIG_PATH}"
 		set +a
 	else
-		die 40 "${func_name}" "config file ${config} not exists !"
+		die 40 "${func_name}" "config file ${CONFIG_PATH} not exists !"
 	fi
 
 	exec /usr/local/bin/minio server "${DATA_DIR}"
