@@ -71,9 +71,13 @@ RUN set -euxo pipefail; \
 ENV PATH="${MINIO_BASE_DIR}:${PATH}"
 
 COPY service-ctl.sh /usr/local/bin/
-RUN chown 1001:1001 /usr/local/bin/service-ctl.sh && chmod +x /usr/local/bin/service-ctl.sh
-
 COPY supervisord.conf /etc/supervisord.conf
+
+RUN set -eux; \
+  chown 1001:1001 /usr/local/bin/service-ctl.sh; \
+  chmod +x /usr/local/bin/service-ctl.sh; \
+  chown 1001:1001 /etc/supervisord.conf
+
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
 
 USER 1001
