@@ -81,10 +81,12 @@ The `upm-pkg-mgm.sh` script is a unified management tool for UPM (Unified Platfo
 | `kibana`                 | Kibana                                              |
 | `kafka`                  | Kafka                                               |
 | `redis`                  | Redis                                               |
+| `redis-sentinel`         | Redis Sentinel                                      |
 | `zookeeper`              | Zookeeper                                           |
 | `etcd`                   | etcd key-value store                                |
 | `milvus`                 | Milvus vector database                              |
 | `minio`                  | MinIO object storage                                |
+| `mongodb`                | MongoDB document database                           |
 | `<chart-name>`           | Specific chart name (e.g., `mysql-community-8.4.5`) |
 
 #### Aliases
@@ -187,6 +189,12 @@ You can pass user-friendly aliases. The script normalizes them to canonical comp
 ./upm-pkg-mgm.sh install minio
 ```
 
+**Install MongoDB**:
+
+```bash
+./upm-pkg-mgm.sh install mongodb
+```
+
 **Dry run installation**:
 
 ```bash
@@ -275,6 +283,11 @@ You can pass user-friendly aliases. The script normalizes them to canonical comp
 - `redis-7.0.15`
 - `redis-7.0.14`
 
+### Redis Sentinel
+
+- `redis-sentinel-7.0.15`
+- `redis-sentinel-7.0.14`
+
 ### Zookeeper
 
 - `zookeeper-3.8.4`
@@ -290,6 +303,10 @@ You can pass user-friendly aliases. The script normalizes them to canonical comp
 ### MinIO
 
 - `minio-20250907161309.0.0`
+
+### MongoDB
+
+- `mongodb-8.0.15`
 
 ## Configuration
 
@@ -318,9 +335,12 @@ Installed releases follow this naming examples:
 - `upm-packages-mysql-community-8.4.5`
 - `upm-packages-postgresql-15.13`
 - `upm-packages-elasticsearch-7.17.14`
+- `upm-packages-redis-7.0.15`
+- `upm-packages-redis-sentinel-7.0.15`
 - `upm-packages-etcd-3.5.18`
 - `upm-packages-milvus-2.6.2`
 - `upm-packages-minio-20250907161309.0.0`
+- `upm-packages-mongodb-8.0.15`
 
 ## Error Handling
 

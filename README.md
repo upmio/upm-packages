@@ -198,8 +198,9 @@ Recent focus areas:
 
 | Component           | Versions                             | Description                                   | Status    |
 | ------------------- | ------------------------------------ | --------------------------------------------- | --------- |
-| **MySQL Community** | 8.0.41, 8.0.42, 8.4.4, 8.4.5 | Production-ready MySQL with monitoring agents | ✅ Stable |
+| **MySQL Community** | 8.0.41, 8.0.42, 8.4.4, 8.4.5         | Production-ready MySQL with monitoring agents | ✅ Stable |
 | **PostgreSQL**      | 15.12, 15.13                         | Advanced PostgreSQL with enterprise features  | ✅ Stable |
+| **MongoDB**         | 8.0.15                               | Document-oriented NoSQL database              | ✅ Stable |
 
 ### 🔗 Database Proxies & Connection Pooling
 
@@ -218,10 +219,10 @@ Recent focus areas:
 
 ### ⚡ In-memory Data Stores
 
-| Component | Versions | Description                                | Status    |
-| --------- | -------- | ------------------------------------------ | --------- |
-| **Redis** | 7.0.15, 7.0.14 | High-performance in-memory key-value store | ✅ Stable |
-| **Redis Sentinel** | 7.0.15, 7.0.14 | High-availability monitoring and automatic failover for Redis | ✅ Stable |
+| Component          | Versions       | Description                                                                  | Status    |
+| ------------------ | -------------- | ---------------------------------------------------------------------------- | --------- |
+| **Redis**          | 7.0.15, 7.0.14 | High-performance in-memory key-value store                                   | ✅ Stable |
+| **Redis Sentinel** | 7.0.15, 7.0.14 | High-availability monitoring and automatic failover for Redis                | ✅ Stable |
 
 ### 📨 Message Queue
 
@@ -234,12 +235,20 @@ Recent focus areas:
 | Component     | Versions | Description                      | Status    |
 | ------------- | -------- | -------------------------------- | --------- |
 | **ZooKeeper** | 3.8.4    | Distributed coordination service | ✅ Stable |
+| **etcd**      | 3.5.18   | Distributed key-value store      | ✅ Stable |
+
+### 🎯 Vector Database & Object Storage
+
+| Component  | Versions            | Description                      | Status    |
+| ---------- | ------------------- | -------------------------------- | --------- |
+| **Milvus** | 2.6.2               | Vector database for AI/ML        | ✅ Stable |
+| **MinIO**  | 20250907161309.0.0  | High-performance object storage  | ✅ Stable |
 
 ### 🎯 Supported Targets (for upm-pkg-mgm.sh)
 
 Use hyphenated component names or specific chart names:
 
-- Components: `mysql-community`, `mysql-router-community`, `postgresql`, `proxysql`, `pgbouncer`, `elasticsearch`, `kibana`, `kafka`, `redis`, `zookeeper`
+- Components: `mysql-community`, `mysql-router-community`, `postgresql`, `proxysql`, `pgbouncer`, `elasticsearch`, `kibana`, `kafka`, `redis`, `redis-sentinel`, `zookeeper`, `etcd`, `milvus`, `minio`, `mongodb`
 - Specific chart example: `mysql-community-8.4.5`
 
 Notes:

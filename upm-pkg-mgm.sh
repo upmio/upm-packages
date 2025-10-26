@@ -405,7 +405,9 @@ get_component_categories() {
   local etcd=""
   local minio=""
   local milvus=""
+  local mongodb=""
   local redis=""
+  local redis_sentinel=""
   local zookeeper=""
   local other=""
 
@@ -486,6 +488,20 @@ get_component_categories() {
         milvus="$package"
       else
         milvus="$milvus $package"
+      fi
+      ;;
+    mongodb-*)
+      if [[ -z "$mongodb" ]]; then
+        mongodb="$package"
+      else
+        mongodb="$mongodb $package"
+      fi
+      ;;
+    redis-sentinel-*)
+      if [[ -z "$redis_sentinel" ]]; then
+        redis_sentinel="$package"
+      else
+        redis_sentinel="$redis_sentinel $package"
       fi
       ;;
     redis-*)
@@ -584,6 +600,20 @@ get_component_categories() {
       components="$components|milvus:$milvus"
     else
       components="milvus:$milvus"
+    fi
+  fi
+  if [[ -n "$mongodb" ]]; then
+    if [[ -n "$components" ]]; then
+      components="$components|mongodb:$mongodb"
+    else
+      components="mongodb:$mongodb"
+    fi
+  fi
+  if [[ -n "$redis_sentinel" ]]; then
+    if [[ -n "$components" ]]; then
+      components="$components|redis-sentinel:$redis_sentinel"
+    else
+      components="redis-sentinel:$redis_sentinel"
     fi
   fi
   if [[ -n "$redis" ]]; then
