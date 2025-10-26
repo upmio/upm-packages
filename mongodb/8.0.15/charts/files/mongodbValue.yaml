@@ -1,0 +1,7 @@
+mongodb:
+  max_incoming_connections: "10000"
+  block_compressor: "zstd"
+  journal_compressor: "zlib"
+  oplog_size_mb: "10240"
+  slow_op_threshold_ms: "100"
+  cursor_timeout_millis: "600000"

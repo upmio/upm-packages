@@ -1,0 +1,68 @@
+[
+  {
+    "key": "max_incoming_connections",
+    "scope": "",
+    "section": "defaults",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "1-1000000",
+    "default": "65536",
+    "desc_en": "The maximum number of simultaneous connections that mongod will accept. This setting has a hard limit of 1 million connections. If the limit is exceeded, mongod will refuse new connections.",
+    "desc_zh": "mongod 将接受的最大同时连接数。此设置的硬限制为 100 万个连接。如果超过限制，mongod 将拒绝新连接。"
+  },
+  {
+    "key": "block_compressor",
+    "scope": "wiredTiger",
+    "section": "storage",
+    "type": "Enumeration",
+    "dynamic": false,
+    "range": "[\"none\",\"snappy\",\"zlib\",\"zstd\"]",
+    "default": "snappy",
+    "desc_en": "Specifies the default compression algorithm for collection data. Available compressors are: none (no compression), snappy (default, good balance), zlib (better compression), and zstd (best compression, MongoDB 4.2+).",
+    "desc_zh": "指定集合数据的默认压缩算法。可用的压缩器包括：none（无压缩）、snappy（默认，良好平衡）、zlib（更好的压缩）和 zstd（最佳压缩，MongoDB 4.2+）。"
+  },
+  {
+    "key": "journal_compressor",
+    "scope": "wiredTiger",
+    "section": "storage",
+    "type": "Enumeration",
+    "dynamic": false,
+    "range": "[\"none\",\"snappy\",\"zlib\",\"zstd\"]",
+    "default": "snappy",
+    "desc_en": "Specifies the compression algorithm for journal data. Journal compression reduces disk I/O but increases CPU usage. Available options: none, snappy (default), zlib, zstd.",
+    "desc_zh": "指定日志数据的压缩算法。日志压缩可减少磁盘 I/O 但会增加 CPU 使用率。可用选项：none、snappy（默认）、zlib、zstd。"
+  },
+  {
+    "key": "oplog_size_mb",
+    "scope": "replication",
+    "section": "replication",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "990-1048576",
+    "default": "auto",
+    "desc_en": "Specifies the maximum size in megabytes for the replication operation log (oplog). MongoDB automatically sizes the oplog to 5% of available disk space, but you can configure this setting. Minimum is 990 MB for 64-bit systems.",
+    "desc_zh": "指定复制操作日志（oplog）的最大大小（MB）。MongoDB 会自动将 oplog 大小设置为可用磁盘空间的 5%，但您可以配置此设置。64 位系统的最小值为 990 MB。"
+  },
+  {
+    "key": "slow_op_threshold_ms",
+    "scope": "operationProfiling",
+    "section": "performance",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "0-36000000",
+    "default": "100",
+    "desc_en": "The threshold in milliseconds at which the database profiler considers a query slow. Operations that take longer than this threshold are logged to the diagnostic log at the INFO level. Default is 100ms.",
+    "desc_zh": "数据库分析器认为查询缓慢的阈值（毫秒）。执行时间超过此阈值的操作将以 INFO 级别记录到诊断日志中。默认值为 100 毫秒。"
+  },
+  {
+    "key": "cursor_timeout_millis",
+    "scope": "",
+    "section": "defaults",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "1-2147483647",
+    "default": "600000",
+    "desc_en": "The number of milliseconds that a session remains active after its most recent use before being timed out. Cursors attached to timed-out sessions are closed. Default is 600000ms (10 minutes).",
+    "desc_zh": "会话在最近一次使用后保持活动状态的毫秒数，超过此时间将超时。附加到超时会话的游标将被关闭。默认值为 600000 毫秒（10 分钟）。"
+  }
+]
