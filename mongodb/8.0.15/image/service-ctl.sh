@@ -191,7 +191,7 @@ EOF
     }
 
     info "${func_name}" "Shutting down MongoDB after user creation !"
-		mongosh admin --eval "db.shutdownServer()"
+		mongosh admin --eval "db.shutdownServer()" || true
 
 		sleep 2
 
