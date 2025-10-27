@@ -131,7 +131,7 @@ admin_user_login() {
   adm_pwd=$(decrypt_pwd "${ADM_USER}")
   [[ -n "${adm_pwd}" ]] || die "${EXIT_GENERAL_FAILURE}" "${func_name}" "get ${ADM_USER} password failed!"
 
-  mongosh '-u'"${ADM_USER}"'' '-p'"${adm_pwd}"''
+  mongosh --username "${ADM_USER}" --password "${adm_pwd}"
 }
 
 health() {
