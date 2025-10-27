@@ -38,7 +38,7 @@ LABEL summary="${SUMMARY}" \
 
 RUN set -eux; \
   groupadd --system --gid 1001 "mongod"; \
-  useradd --system --uid 1001 --gid 1001 -c "Default Application User" "mongod"
+  useradd --system --uid 1001 --gid 1001 --create-home -c "Default Application User" "mongod"
 
 # Configure MongoDB repository and install MongoDB server
 RUN set -eux; \
