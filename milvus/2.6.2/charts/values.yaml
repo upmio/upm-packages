@@ -12,6 +12,6 @@ image:
 agent:
   image:
     registry: quay.io
-    repository: upmio/unit-agent
-    tag: "v1.1.0"
+    repository: upmio/milvus-agent
+    tag: "2.6"
     pullPolicy: IfNotPresent
