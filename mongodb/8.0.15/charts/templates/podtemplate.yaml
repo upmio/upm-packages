@@ -39,6 +39,21 @@ template:
           - "-c"
           - "service-ctl.sh initialize"
         env:
+          - name: DATA_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.data.mountPath']"
+          - name: LOG_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.log.mountPath']"
+          - name: SECRET_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/extraVolume.volume.unit-secret.volumeMountPath']"
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
@@ -74,6 +89,21 @@ template:
           - containerPort: 27017
             name: mongodb
         env:
+          - name: DATA_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.data.mountPath']"
+          - name: LOG_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.log.mountPath']"
+          - name: SECRET_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/extraVolume.volume.unit-secret.volumeMountPath']"
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
@@ -141,6 +171,16 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.labels['upm.api/service.arch.mode']"
+          - name: DATA_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.data.mountPath']"
+          - name: LOG_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.log.mountPath']"
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR

@@ -44,6 +44,21 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.labels['unit-operator/unit.sn']"
+          - name: DATA_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.data.mountPath']"
+          - name: LOG_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.log.mountPath']"
+          - name: SECRET_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/extraVolume.volume.unit-secret.volumeMountPath']"
           - name: ZOO_DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: ZOO_DATA_LOG_DIR
@@ -79,6 +94,21 @@ template:
           - containerPort: 2181
             name: zookeeper
         env:
+          - name: DATA_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.data.mountPath']"
+          - name: LOG_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.log.mountPath']"
+          - name: SECRET_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/extraVolume.volume.unit-secret.volumeMountPath']"
           - name: ZOOCFGDIR
             value: "$(DATA_MOUNT)/conf"
           - name: ZOO_DATA_DIR
@@ -154,6 +184,16 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.annotations['kubectl.kubernetes.io/default-container']"
+          - name: DATA_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.data.mountPath']"
+          - name: LOG_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.log.mountPath']"
           - name: ZOOCFGDIR
             value: "$(DATA_MOUNT)/conf"
           - name: ZOO_DATA_DIR

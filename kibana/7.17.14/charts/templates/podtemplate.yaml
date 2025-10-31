@@ -44,18 +44,38 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.name"
-          - name: KBN_MEMORY_LIMIT
+          - name: DATA_MOUNT
             valueFrom:
-              resourceFieldRef:
-                containerName: kibana
-                resource: limits.memory
-                divisor: "1Mi"
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.data.mountPath']"
+          - name: LOG_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.log.mountPath']"
+          - name: SECRET_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/extraVolume.volume.unit-secret.volumeMountPath']"
+          - name: CERT_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/certificate.volume.certMount']"
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: KBN_PATH_CONF
             value: "$(DATA_MOUNT)/conf"
           - name: KIBANA_PORT
             value: "5601"
+          - name: KBN_MEMORY_LIMIT
+            valueFrom:
+              resourceFieldRef:
+                containerName: kibana
+                resource: limits.memory
+                divisor: "1Mi"
           - name: AES_SECRET_KEY
             valueFrom:
               secretKeyRef:
@@ -87,6 +107,21 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.name"
+          - name: DATA_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.data.mountPath']"
+          - name: LOG_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.log.mountPath']"
+          - name: SECRET_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/extraVolume.volume.unit-secret.volumeMountPath']"
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: KBN_PATH_CONF
@@ -158,6 +193,16 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.annotations['kubectl.kubernetes.io/default-container']"
+          - name: DATA_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.data.mountPath']"
+          - name: LOG_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.log.mountPath']"
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
