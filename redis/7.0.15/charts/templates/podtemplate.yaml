@@ -39,12 +39,6 @@ template:
           - "-c"
           - "service-ctl.sh initialize"
         env:
-          - name: DATA_DIR
-            value: "$(DATA_MOUNT)/data"
-          - name: CONF_DIR
-            value: "$(DATA_MOUNT)/conf"
-          - name: REDIS_PORT
-            value: "6379"
           - name: DATA_MOUNT
             valueFrom:
               fieldRef:
@@ -60,6 +54,12 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.annotations['unit-operator/extraVolume.volume.unit-secret.volumeMountPath']"
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/conf"
+          - name: REDIS_PORT
+            value: "6379"
           - name: AES_SECRET_KEY
             valueFrom:
               secretKeyRef:
