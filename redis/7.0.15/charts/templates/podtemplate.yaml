@@ -45,6 +45,21 @@ template:
             value: "$(DATA_MOUNT)/conf"
           - name: REDIS_PORT
             value: "6379"
+          - name: DATA_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.data.mountPath']"
+          - name: LOG_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.log.mountPath']"
+          - name: SECRET_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/extraVolume.volume.unit-secret.volumeMountPath']"
           - name: AES_SECRET_KEY
             valueFrom:
               secretKeyRef:
@@ -73,6 +88,21 @@ template:
           - containerPort: 16379  # for redis cluster bus, port=base + 10000
             name: cluster-bus
         env:
+          - name: DATA_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.data.mountPath']"
+          - name: LOG_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.log.mountPath']"
+          - name: SECRET_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/extraVolume.volume.unit-secret.volumeMountPath']"
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
@@ -127,13 +157,26 @@ template:
         image: {{ include "redis.agent.image" . }}
         imagePullPolicy: {{ .Values.agent.image.pullPolicy | quote }}
         securityContext:
-          runAsUser: 1001
-          runAsGroup: 1001
           allowPrivilegeEscalation: false
         ports:
           - containerPort: 2214
             name: unit-agent
         env:
+          - name: DATA_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.data.mountPath']"
+          - name: LOG_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.log.mountPath']"
+          - name: SECRET_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/extraVolume.volume.unit-secret.secretName']"
           - name: POD_NAME
             valueFrom:
               fieldRef:
@@ -236,6 +279,11 @@ template:
             value: "9121"
           - name: REDIS_PORT
             value: "6379"
+          - name: DATA_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.data.mountPath']"
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
           - name: ARCH_MODE
