@@ -21,7 +21,7 @@ dbfilename dump.rdb
 dir "{{ getenv "DATA_MOUNT" }}/data"
 user default on sanitize-payload #{{ sha256sum (AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER"))) }}  ~* &* +@all
 maxclients {{ getv "/defaults/maxclients" }}
-maxmemory {{ mul (div (atoi (getenv "REDIS_MEMORY_LIMIT")) 4) 3 }}mb
+maxmemory {{ mul (div (atoi (getenv "REDIS_MEMORY_LIMIT")) 100) 48 }}mb
 maxmemory-policy {{ getv "/defaults/maxmemory-policy" }}
 maxmemory-samples {{ getv "/defaults/maxmemory-samples" }}
 repl-diskless-sync {{ getv "/defaults/repl-diskless-sync" }}
