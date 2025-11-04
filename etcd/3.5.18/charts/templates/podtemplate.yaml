@@ -49,11 +49,6 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.annotations['unit-operator/storage.volume.log.mountPath']"
-          - name: CERT_MOUNT
-            valueFrom:
-              fieldRef:
-                apiVersion: "v1"
-                fieldPath: "metadata.annotations['unit-operator/certificate.volume.certMount']"
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
@@ -89,6 +84,11 @@ template:
             value: "$(DATA_MOUNT)/data"
           - name: CONF_DIR
             value: "$(DATA_MOUNT)/conf"
+          - name: CERT_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/certificate.volume.certMount']"
           - name: NAMESPACE
             valueFrom:
               fieldRef:
@@ -177,6 +177,11 @@ template:
             value: "$(DATA_MOUNT)/conf"
           - name: CONFIG_PATH
             value: "$(DATA_MOUNT)/conf/etcd.conf.yml"
+          - name: CERT_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/certificate.volume.certMount']"
           - name: NAMESPACE
             valueFrom:
               fieldRef:
