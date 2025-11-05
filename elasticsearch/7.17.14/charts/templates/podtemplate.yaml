@@ -116,6 +116,11 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.annotations['unit-operator/extraVolume.volume.unit-secret.volumeMountPath']"
+          - name: CERT_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/certificate.volume.certMount']"
           - name: DATA_DIR
             value: "$(DATA_MOUNT)/data"
           - name: ES_PATH_CONF
