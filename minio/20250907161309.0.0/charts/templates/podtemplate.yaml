@@ -58,6 +58,8 @@ template:
         image: {{ include "minio.image" . }}
         imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
         securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
           allowPrivilegeEscalation: false
         ports:
           - containerPort: 9090
