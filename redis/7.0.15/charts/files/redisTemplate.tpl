@@ -132,3 +132,27 @@ hz {{ getv "/defaults/hz" }}
 dynamic-hz {{ getv "/defaults/dynamic-hz" }}
 aof-rewrite-incremental-fsync {{ getv "/defaults/aof-rewrite-incremental-fsync" }}
 rdb-save-incremental-fsync {{ getv "/defaults/rdb-save-incremental-fsync" }}
+
+{{ $certMount := getenv "CERT_MOUNT" }}
+{{ if eq $certMount "" }}
+tls-port {{ getenv "REDIS_TLS_PORT" "6381" }}
+tls-auth-clients optional
+tls-cert-file {{ getenv "CERT_MOUNT" }}/tls.crt
+tls-key-file {{ getenv "CERT_MOUNT" }}/tls.key
+tls-ca-cert-file {{ getenv "CERT_MOUNT" }}/ca.crt
+tls-protocols "TLSv1.2"
+tls-cluster yes
+tls-replication yes
+{{ end }}
+
+{{ $certMount := getenv "CERT_SECRET_MOUNT" }}
+{{ if eq $certMount "" }}
+tls-port {{ getenv "REDIS_TLS_PORT" "6381" }}
+tls-auth-clients optional
+tls-cert-file {{ getenv "CERT_SECRET_MOUNT" }}/tls.crt
+tls-key-file {{ getenv "CERT_SECRET_MOUNT" }}/tls.key
+tls-ca-cert-file {{ getenv "CERT_SECRET_MOUNT" }}/ca.crt
+tls-protocols "TLSv1.2"
+tls-cluster yes
+tls-replication yes
+{{ end }}

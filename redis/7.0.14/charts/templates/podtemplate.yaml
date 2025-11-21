@@ -85,8 +85,10 @@ template:
         ports:
           - containerPort: 6379
             name: redis
-          - containerPort: 16379  # for redis cluster bus, port=base + 10000
+          - containerPort: 16379 # for redis cluster bus, port=base + 10000
             name: cluster-bus
+          - containerPort: 6381  # for redis tls
+            name: redis-tls
         env:
           - name: DATA_MOUNT
             valueFrom:
@@ -109,6 +111,8 @@ template:
             value: "$(DATA_MOUNT)/conf"
           - name: REDIS_PORT
             value: "6379"
+          - name: REDIS_TLS_PORT
+            value: "6381"
           - name: AES_SECRET_KEY
             valueFrom:
               secretKeyRef:
@@ -177,6 +181,16 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.annotations['unit-operator/extraVolume.volume.unit-secret.secretName']"
+          - name: CERT_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/certificate.volume.certMount']"
+          - name: CERT_SECRET_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/extraVolume.volume.cert-secret.volumeMountPath']"
           - name: POD_NAME
             valueFrom:
               fieldRef:
@@ -241,6 +255,8 @@ template:
                 fieldPath: "metadata.annotations['unit-operator/unit-service.loadbalancer-ip.map']"
           - name: REDIS_PORT
             value: "6379"
+          - name: REDIS_TLS_PORT
+            value: "6381"
           - name: AES_SECRET_KEY
             valueFrom:
               secretKeyRef:
