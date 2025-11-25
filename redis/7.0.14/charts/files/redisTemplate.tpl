@@ -142,7 +142,19 @@ tls-ca-cert-file {{ getenv "CERT_MOUNT" }}/ca.crt
 tls-protocols "TLSv1.2"
 tls-cluster yes
 tls-replication yes
+{{- if eq (getenv "UNIT_SERVICE_TYPE") "NodePort" }}
+{{- $pod := getenv "POD_NAME" -}}
+{{- $m := json (getenv "UNIT_SERVICE_REDIS_TLS_NODEPORT_MAP") -}}
+{{- with index $m $pod }}
+cluster-announce-tls-port {{ . }}
+{{- end }}
+{{- end }}
+{{- if eq (getenv "UNIT_SERVICE_TYPE") "LoadBalancer" }}
 cluster-announce-tls-port {{ getenv "REDIS_TLS_PORT" "6381" }}
+{{- end }}
+{{- if eq (getenv "UNIT_SERVICE_TYPE") "ClusterIP" }}
+cluster-announce-tls-port {{ getenv "REDIS_TLS_PORT" "6381" }}
+{{- end }}
 {{- end }}
 
 {{- if not (eq (getenv "CERT_SECRET_MOUNT") "") }}
@@ -154,5 +166,17 @@ tls-ca-cert-file {{ getenv "CERT_SECRET_MOUNT" }}/ca.crt
 tls-protocols "TLSv1.2"
 tls-cluster yes
 tls-replication yes
+{{- if eq (getenv "UNIT_SERVICE_TYPE") "NodePort" }}
+{{- $pod := getenv "POD_NAME" -}}
+{{- $m := json (getenv "UNIT_SERVICE_REDIS_TLS_NODEPORT_MAP") -}}
+{{- with index $m $pod }}
+cluster-announce-tls-port {{ . }}
+{{- end }}
+{{- end }}
+{{- if eq (getenv "UNIT_SERVICE_TYPE") "LoadBalancer" }}
 cluster-announce-tls-port {{ getenv "REDIS_TLS_PORT" "6381" }}
+{{- end }}
+{{- if eq (getenv "UNIT_SERVICE_TYPE") "ClusterIP" }}
+cluster-announce-tls-port {{ getenv "REDIS_TLS_PORT" "6381" }}
+{{- end }}
 {{- end }}
