@@ -4,12 +4,14 @@ FROM rockylinux/rockylinux:9.6.20250531
 
 ARG BUILD_DATE
 ARG VCS_REF
+ARG AGENT_VERSION="v1.1.0"
 
 LABEL org.opencontainers.image.source="https://github.com/upmio/upm-packages" \
       org.opencontainers.image.created="$BUILD_DATE" \
       org.opencontainers.image.revision="$VCS_REF" \
       org.opencontainers.image.title="postgresql-agent" \
-      org.opencontainers.image.description="UPM PostgreSQL Agent image"
+      org.opencontainers.image.description="UPM PostgreSQL Agent image" \
+      org.opencontainers.image.agent.version="$AGENT_VERSION"
 
 # Ensure robust shell behavior for all RUN instructions
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
