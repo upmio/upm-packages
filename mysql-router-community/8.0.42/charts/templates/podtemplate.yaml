@@ -174,6 +174,11 @@ template:
           - containerPort: 2214
             name: unit-agent
         env:
+          - name: UNIT_TYPE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['kubectl.kubernetes.io/default-container']"
           - name: DATA_MOUNT
             valueFrom:
               fieldRef:
