@@ -14,13 +14,12 @@ storage:
   dbPath: {{ getenv "DATA_DIR" }}
   wiredTiger:
     engineConfig:
-      cacheSizeGB: {{ div (atoi (getenv "MONGODB_MEMORY_LIMIT")) 2 }}
+      cacheSizeGB: {{ $mem := atoi (getenv "MONGODB_MEMORY_LIMIT") -}}{{ $cacheMi := div $mem 2 -}}{{- if ge $mem 4096 -}}{{ $cacheMi = div (sub $mem 1024) 2 -}}{{- end -}}{{ $centiGb := div (add (mul $cacheMi 100) 512) 1024 -}}{{ printf "%d.%02d" (div $centiGb 100) (sub $centiGb (mul (div $centiGb 100) 100)) }}
       journalCompressor: {{ getv "/mongodb/journal_compressor" }}
     collectionConfig:
       blockCompressor: {{ getv "/mongodb/block_compressor" }}
 replication:
   replSetName: {{ getenv "SERVICE_GROUP_NAME" }}
-  oplogSizeMB: {{ getv "/mongodb/oplog_size_mb" }}
 operationProfiling:
   mode: slowOp
   slowOpThresholdMs: {{ getv "/mongodb/slow_op_threshold_ms" }}

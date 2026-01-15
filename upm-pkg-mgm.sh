@@ -59,6 +59,9 @@ normalize_target() {
   mysql-router)
     echo "mysql-router-community"
     ;;
+  mongo)
+    echo "mongodb"
+    ;;
   postgres)
     echo "postgresql"
     ;;
@@ -164,7 +167,7 @@ EXAMPLES:
 NOTE:
   - You can pass multiple component names in one command, e.g.:
       $0 install mysql mysql-router proxysql
-    Aliases are supported: mysql -> mysql-community, mysql-router -> mysql-router-community, postgres -> postgresql, elastic -> elasticsearch, zk -> zookeeper.
+    Aliases are supported: mysql -> mysql-community, mysql-router -> mysql-router-community, mongo -> mongodb, postgres -> postgresql, elastic -> elasticsearch, zk -> zookeeper.
   - These are UPM packages that require UPM CRDs to function.
 
 EOF
@@ -820,6 +823,12 @@ show_available_components() {
       ;;
     milvus)
       echo "  milvus: Milvus vector database"
+      ;;
+    mongodb)
+      echo "  mongodb: MongoDB"
+      ;;
+    redis-sentinel)
+      echo "  redis-sentinel: Redis Sentinel"
       ;;
     redis)
       echo "  redis: Redis"

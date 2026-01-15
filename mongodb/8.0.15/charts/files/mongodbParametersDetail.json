@@ -33,17 +33,6 @@
     "desc_zh": "指定日志数据的压缩算法。日志压缩可减少磁盘 I/O 但会增加 CPU 使用率。可用选项：none、snappy（默认）、zlib、zstd。"
   },
   {
-    "key": "oplog_size_mb",
-    "scope": "replication",
-    "section": "replication",
-    "type": "Integer",
-    "dynamic": false,
-    "range": "990-1048576",
-    "default": "auto",
-    "desc_en": "Specifies the maximum size in megabytes for the replication operation log (oplog). MongoDB automatically sizes the oplog to 5% of available disk space, but you can configure this setting. Minimum is 990 MB for 64-bit systems.",
-    "desc_zh": "指定复制操作日志（oplog）的最大大小（MB）。MongoDB 会自动将 oplog 大小设置为可用磁盘空间的 5%，但您可以配置此设置。64 位系统的最小值为 990 MB。"
-  },
-  {
     "key": "slow_op_threshold_ms",
     "scope": "operationProfiling",
     "section": "performance",

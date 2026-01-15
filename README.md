@@ -30,6 +30,7 @@ UPM Packages is a comprehensive, production-ready containerization and Kubernete
 ### 🏢 Production Use Cases
 
 - **Database Clusters**: MySQL, PostgreSQL with automated failover
+- **NoSQL Databases**: MongoDB for document storage workloads
 - **Connection Pooling**: PgBouncer, ProxySQL, MySQL Router for high-performance access
 - **Search Platforms**: Elasticsearch, Kibana for log analytics
 - **Message Queues**: Kafka for event-driven architectures
@@ -89,6 +90,13 @@ helm install --namespace=upm-system upm-packages-mysql-community-8.4.5 \
 
 # Verify deployment
 helm status upm-packages-mysql-community-8.4.5 --namespace=upm-system
+
+# Install MongoDB
+helm install --namespace=upm-system upm-packages-mongodb-8.0.15 \
+  upm-packages/mongodb-8.0.15
+
+# Verify deployment
+helm status upm-packages-mongodb-8.0.15 --namespace=upm-system
 ```
 
 > **📖 Documentation**: For detailed configuration options and advanced usage, see the [Architecture](#architecture), [Available Packages](#available-packages), and [UPM Package Management Documentation](upm-pkg-mgm.md) sections.
@@ -249,7 +257,7 @@ Recent focus areas:
 Use hyphenated component names or specific chart names:
 
 - Components: `mysql-community`, `mysql-router-community`, `postgresql`, `proxysql`, `pgbouncer`, `elasticsearch`, `kibana`, `kafka`, `redis`, `redis-sentinel`, `zookeeper`, `etcd`, `milvus`, `minio`, `mongodb`
-- Specific chart example: `mysql-community-8.4.5`
+- Specific chart example: `mysql-community-8.4.5`, `mongodb-8.0.15`
 
 Notes:
 
@@ -272,11 +280,18 @@ docker buildx build --platform linux/amd64,linux/arm64 \
   -t quay.io/upmio/mysql-community:8.4.5 \
   mysql-community/8.4.5/image/
 
+# Build MongoDB image
+docker buildx build --platform linux/amd64,linux/arm64 \
+  -t quay.io/upmio/mongodb:8.0.15 \
+  mongodb/8.0.15/image/
+
 # Validate Helm chart
 helm lint mysql-community/8.4.5/charts/
+helm lint mongodb/8.0.15/charts/
 
 # Test installation locally
 helm install --dry-run --debug test-release mysql-community/8.4.5/charts/
+helm install --dry-run --debug test-mongodb mongodb/8.0.15/charts/
 ```
 
 ### 🧪 Quality Assurance
