@@ -1,6 +1,9 @@
-mongodb:
+net:
   max_incoming_connections: "10000"
-  block_compressor: "zstd"
+storage:
   journal_compressor: "zlib"
+  block_compressor: "zstd"
+operationProfiling:
   slow_op_threshold_ms: "100"
+setParameter:
   cursor_timeout_millis: "600000"
