@@ -9,23 +9,23 @@ processManagement:
 net:
   port: {{ getenv "MONGODB_PORT"}}
   bindIp: 0.0.0.0
-  maxIncomingConnections: {{ getv "/mongodb/max_incoming_connections" }}
+  maxIncomingConnections: {{ getv "/net/max_incoming_connections" }}
 storage:
   dbPath: {{ getenv "DATA_DIR" }}
   wiredTiger:
     engineConfig:
       cacheSizeGB: {{ $mem := atoi (getenv "MONGODB_MEMORY_LIMIT") -}}{{ $cacheMi := div $mem 2 -}}{{- if ge $mem 4096 -}}{{ $cacheMi = div (sub $mem 1024) 2 -}}{{- end -}}{{ $centiGb := div (add (mul $cacheMi 100) 512) 1024 -}}{{ printf "%d.%02d" (div $centiGb 100) (sub $centiGb (mul (div $centiGb 100) 100)) }}
-      journalCompressor: {{ getv "/mongodb/journal_compressor" }}
+      journalCompressor: {{ getv "/storage/journal_compressor" }}
     collectionConfig:
-      blockCompressor: {{ getv "/mongodb/block_compressor" }}
+      blockCompressor: {{ getv "/storage/block_compressor" }}
 replication:
   replSetName: {{ getenv "SERVICE_GROUP_NAME" }}
 operationProfiling:
   mode: slowOp
-  slowOpThresholdMs: {{ getv "/mongodb/slow_op_threshold_ms" }}
+  slowOpThresholdMs: {{ getv "/operationProfiling/slow_op_threshold_ms" }}
 setParameter:
   enableLocalhostAuthBypass: false
-  cursorTimeoutMillis: {{ getv "/mongodb/cursor_timeout_millis" }}
+  cursorTimeoutMillis: {{ getv "/setParameter/cursor_timeout_millis" }}
 security:
   authorization: enabled
   keyFile: {{ getenv "DATA_MOUNT" }}/mongod.key

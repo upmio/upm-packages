@@ -2,7 +2,7 @@
   {
     "key": "max_incoming_connections",
     "scope": "",
-    "section": "defaults",
+    "section": "net",
     "type": "Integer",
     "dynamic": true,
     "range": "1-1000000",
@@ -12,7 +12,7 @@
   },
   {
     "key": "block_compressor",
-    "scope": "wiredTiger",
+    "scope": "",
     "section": "storage",
     "type": "Enumeration",
     "dynamic": false,
@@ -23,7 +23,7 @@
   },
   {
     "key": "journal_compressor",
-    "scope": "wiredTiger",
+    "scope": "",
     "section": "storage",
     "type": "Enumeration",
     "dynamic": false,
@@ -34,8 +34,8 @@
   },
   {
     "key": "slow_op_threshold_ms",
-    "scope": "operationProfiling",
-    "section": "performance",
+    "scope": "",
+    "section": "operationProfiling",
     "type": "Integer",
     "dynamic": true,
     "range": "0-36000000",
@@ -46,7 +46,7 @@
   {
     "key": "cursor_timeout_millis",
     "scope": "",
-    "section": "defaults",
+    "section": "setParameter",
     "type": "Integer",
     "dynamic": true,
     "range": "1-2147483647",
