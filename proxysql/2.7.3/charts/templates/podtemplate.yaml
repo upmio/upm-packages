@@ -81,8 +81,6 @@ template:
           runAsGroup: 1001
           allowPrivilegeEscalation: false
         env:
-          - name: METRICS_PORT
-            value: "6070"
           - name: POD_NAME
             valueFrom:
               fieldRef:
@@ -109,6 +107,8 @@ template:
             value: "$(DATA_MOUNT)/conf"
           - name: PROXYSQL_PORT
             value: "6033"
+          - name: ADMIN_PORT
+            value: "6032"
           - name: AES_SECRET_KEY
             valueFrom:
               secretKeyRef:
@@ -128,10 +128,12 @@ template:
           timeoutSeconds: 4
           successThreshold: 1
         ports:
-          - containerPort: 6070
-            name: metrics
           - containerPort: 6033
             name: proxysql
+          - containerPort: 6080
+            name: web
+          - containerPort: 6070
+            name: metrics
         readinessProbe:
           exec:
             command:
@@ -174,8 +176,6 @@ template:
               fieldRef:
                 apiVersion: "v1"
                 fieldPath: "metadata.annotations['kubectl.kubernetes.io/default-container']"
-          - name: METRICS_PORT
-            value: "6070"
           - name: DATA_MOUNT
             valueFrom:
               fieldRef:
@@ -210,6 +210,12 @@ template:
                 divisor: "1"
           - name: PROXYSQL_PORT
             value: "6033"
+          - name: WEB_PORT
+            value: "6080"
+          - name: METRICS_PORT
+            value: "6070"
+          - name: ADMIN_PORT
+            value: "6032"
           - name: AES_SECRET_KEY
             valueFrom:
               secretKeyRef:
