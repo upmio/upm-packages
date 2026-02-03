@@ -294,7 +294,7 @@ etcd:
     path: stdout
   metaSubPath: meta
   requestTimeout: 10000
-  rootPath: milvus-local
+  rootPath: {{ getenv "SERVICE_GROUP_NAME" "milvus-local" }}
   ssl:
     enabled: true
     tlsCACert: {{ getenv "CERT_MOUNT" }}/ca.crt
@@ -462,7 +462,7 @@ mq:
   type: woodpecker
 msgChannel:
   chanNamePrefix:
-    cluster: milvus-local
+    cluster: {{ getenv "SERVICE_GROUP_NAME" "milvus-local" }}
     dataCoordSegmentInfo: segment-info-channel
     dataCoordTimeTick: datacoord-timetick-channel
     queryTimeTick: queryTimeTick
