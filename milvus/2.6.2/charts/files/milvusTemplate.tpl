@@ -130,7 +130,7 @@ dataCoord:
       preferSegmentSizeRatio: 0.8
       triggerInterval: 600
     dropTolerance: 86400
-    enableAutoCompaction: true
+    enableAutoCompaction: {{ getv "/dataCoord/compaction/enableAutoCompaction" }}
     expiry:
       tolerance: -1
     gcInterval: 1800
@@ -201,7 +201,7 @@ dataCoord:
     allocLatestExpireAttempt: 200
     assignmentExpiration: 2000
     compactableProportion: 0.85
-    diskSegmentMaxSize: 2048
+    diskSegmentMaxSize: {{ getv "/dataCoord/segment/diskSegmentMaxSize" }}
     expansionRate: 1.25
     maxBinlogFileNumber: 32
     maxIdleTime: 600
@@ -474,6 +474,15 @@ msgChannel:
     dataCoordSubNamePrefix: dataCoord
     dataNodeSubNamePrefix: dataNode
 proxy:
+  maxRoleNum: {{ getv "/queryNode/maxRoleNum" }}
+  maxUserNum: {{ getv "/queryNode/maxUserNum" }}
+  maxDimension: {{ getv "/queryNode/maxDimension" }}
+  maxShardNum: {{ getv "/queryNode/maxShardNum" }}
+  maxFieldNum: {{ getv "/queryNode/maxFieldNum" }}
+  maxPasswordLength: {{ getv "/queryNode/maxPasswordLength" }}
+  minPasswordLength: {{ getv "/queryNode/minPasswordLength" }}
+  maxUsernameLength: {{ getv "/queryNode/maxUsernameLength" }}
+  maxNameLength: {{ getv "/queryNode/maxNameLength" }}
   accessLog:
     cacheFlushInterval: 3
     cacheSize: 0
@@ -530,11 +539,7 @@ proxy:
   internalPort: 19529
   ip: null
   maxConnectionNum: 10000
-  maxDimension: 32768
-  maxFieldNum: 64
-  maxNameLength: 255
   maxResultEntries: -1
-  maxShardNum: 16
   maxTaskNum: 1024
   maxVectorFieldNum: 4
   msgStream:
@@ -615,7 +620,7 @@ queryNode:
     flowGraph:
       maxParallelism: 1024
       maxQueueLength: 16
-  enableDisk: false
+  enableDisk: {{ getv "/queryNode/enableDisk" }}
   enableSegmentPrune: false
   exprCache:
     capacityBytes: 268435456
@@ -707,7 +712,7 @@ quotaAndLimits:
   compactionRate:
     db:
       max: -1
-    enabled: false
+    enabled: {{ getv "/quotaAndLimits/compactionRate/enabled" }}
     max: -1
   dbRate:
     enabled: false
@@ -717,7 +722,7 @@ quotaAndLimits:
     db:
       collectionRate: -1
       partitionRate: -1
-    enabled: false
+    enabled: {{ getv "/quotaAndLimits/ddl/enabled" }}
     partitionRate: -1
   dml:
     bulkLoadRate:
@@ -736,7 +741,7 @@ quotaAndLimits:
       max: -1
       partition:
         max: -1
-    enabled: false
+    enabled: {{ getv "/quotaAndLimits/dml/enabled" }}
     insertRate:
       collection:
         max: -1
@@ -754,7 +759,7 @@ quotaAndLimits:
       partition:
         max: -1
   dql:
-    enabled: false
+    enabled: {{ getv "/quotaAndLimits/dql/enabled" }}
     queryRate:
       collection:
         max: -1
@@ -777,16 +782,24 @@ quotaAndLimits:
       max: 0.1
     db:
       max: -1
-    enabled: true
+    enabled: {{ getv "/quotaAndLimits/flushRate/enabled" }}
     max: -1
   forceDenyAllDDL: false
   indexRate:
     db:
       max: -1
-    enabled: false
+    enabled: {{ getv "/quotaAndLimits/indexRate/enabled" }}
     max: -1
   limitReading:
-    forceDeny: false
+    forceDeny: {{ getv "/quotaAndLimits/limitReading/forceDeny" }}
+    queueProtection:
+      enabled: {{ getv "/quotaAndLimits/limitReading/queueProtection/enabled" }}
+      nqInQueueThreshold: {{ getv "/quotaAndLimits/limitReading/queueProtection/nqInQueueThreshold" }}
+      queueLatencyThreshold: {{ getv "/quotaAndLimits/limitReading/queueProtection/queueLatencyThreshold" }}
+    resultProtection:
+      enabled: {{ getv "/quotaAndLimits/limitReading/resultProtection/enabled" }}
+      maxReadResultRate: {{ getv "/quotaAndLimits/limitReading/resultProtection/maxReadResultRate" }}
+    coolOffSpeed: {{ getv "/quotaAndLimits/limitReading/coolOffSpeed" }}
   limitWriting:
     deleteBufferRowCountProtection:
       enabled: false
@@ -797,12 +810,12 @@ quotaAndLimits:
       highWaterLevel: 268435456
       lowWaterLevel: 134217728
     diskProtection:
-      diskQuota: -1
+      diskQuota: {{ getv "/quotaAndLimits/limitWriting/diskProtection/diskQuota" }}
       diskQuotaPerCollection: -1
       diskQuotaPerDB: -1
       diskQuotaPerPartition: -1
-      enabled: true
-    forceDeny: false
+      enabled: {{ getv "/quotaAndLimits/limitWriting/diskProtection/enabled" }}
+    forceDeny: {{ getv "/quotaAndLimits/limitWriting/forceDeny" }}
     growingSegmentsSizeProtection:
       enabled: false
       highWaterLevel: 0.4
@@ -813,15 +826,17 @@ quotaAndLimits:
       highWaterLevel: 50000000
       lowWaterLevel: 30000000
     memProtection:
-      dataNodeMemoryHighWaterLevel: 0.95
-      dataNodeMemoryLowWaterLevel: 0.85
-      enabled: true
-      queryNodeMemoryHighWaterLevel: 0.95
-      queryNodeMemoryLowWaterLevel: 0.85
+      dataNodeMemoryHighWaterLevel: {{ getv "/quotaAndLimits/limitWriting/memProtection/dataNodeMemoryHighWaterLevel" }}
+      dataNodeMemoryLowWaterLevel: {{ getv "/quotaAndLimits/limitWriting/memProtection/dataNodeMemoryLowWaterLevel" }}
+      enabled: {{ getv "/quotaAndLimits/limitWriting/memProtection/enabled" }}
+      queryNodeMemoryHighWaterLevel: {{ getv "/quotaAndLimits/limitWriting/memProtection/queryNodeMemoryHighWaterLevel" }}
+      queryNodeMemoryLowWaterLevel: {{ getv "/quotaAndLimits/limitWriting/memProtection/queryNodeMemoryLowWaterLevel" }}
     ttProtection:
-      enabled: false
-      maxTimeTickDelay: 1200
+      enabled: {{ getv "/quotaAndLimits/limitWriting/ttProtection/enabled" }}
+      maxTimeTickDelay: {{ getv "/quotaAndLimits/limitWriting/ttProtection/maxTimeTickDelay" }}
   limits:
+    collection:
+      maxNum: {{ getv "/quotaAndLimits/limits/collection/maxNum" }}
     allocRetryTimes: 15
     allocWaitInterval: 1000
     complexDeleteLimitEnable: false
@@ -959,3 +974,9 @@ woodpecker:
   storage:
     rootPath: {{ getenv "DATA_DIR" }}/woodpecker
     type: minio
+autoIndex:
+  enable: {{ getv "/autoIndex/enable" }}
+  params:
+    build: {{ getv "/autoIndex/build" }}
+    extra: {{ getv "/autoIndex/extra" }}
+    search: {{ getv "/autoIndex/search" }}

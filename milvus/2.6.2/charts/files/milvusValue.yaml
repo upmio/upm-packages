@@ -1,3 +1,77 @@
 ---
-defaults:
-  common_retention_duration: "24h"
+pulsar:
+  maxMessageSize: "5242880"
+
+common:
+  retentionDuration: "86400"
+  entityExpiration: "-1"
+  gracefulTime: "5000"
+  gracefulStopTimeout: "30"
+
+quotaAndLimits:
+  ddl:
+    enabled: "false"
+  indexRate:
+    enabled: "false"
+  flushRate:
+    enabled: "false"
+  compactionRate:
+    enabled: "false"
+  dml:
+    enabled: "false"
+  dql:
+    enabled: "false"
+  limits:
+    collection:
+      maxNum: "64"
+  limitWriting:
+    forceDeny: "false"
+    ttProtection:
+      enabled: "false"
+      maxTimeTickDelay: "9223372036854775807"
+    memProtection:
+      enabled: "true"
+      dataNodeMemoryLowWaterLevel: "0.85"
+      dataNodeMemoryHighWaterLevel: "0.95"
+      queryNodeMemoryLowWaterLevel: "0.85"
+      queryNodeMemoryHighWaterLevel: "0.95"
+    diskProtection:
+      enabled: "true"
+      diskQuota: "+INF"
+  limitReading:
+    forceDeny: "false"
+    queueProtection:
+      enabled: "false"
+      nqInQueueThreshold: "9223372036854775807"
+      queueLatencyThreshold: "+INF"
+    resultProtection:
+      enabled: "false"
+      maxReadResultRate: "+INF"
+    coolOffSpeed: "0.9"
+
+autoIndex:
+  enable: "false"
+  params:
+    build: ""
+    extra: ""
+    search: ""
+
+proxy:
+  maxNameLength: "255"
+  maxUsernameLength: "32"
+  minPasswordLength: "6"
+  maxPasswordLength: "256"
+  maxFieldNum: "64"
+  maxShardNum: "256"
+  maxDimension: "32768"
+  maxUserNum: "100"
+  maxRoleNum: "10"
+
+queryNode:
+  enableDisk: "true"
+
+dataCoord:
+  segment:
+    diskSegmentMaxSize: "2048"
+  compaction:
+    enableAutoCompaction: "true"

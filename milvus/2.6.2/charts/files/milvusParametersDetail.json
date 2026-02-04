@@ -1,0 +1,493 @@
+[
+  {
+    "key": "common.retentionDuration",
+    "scope": "",
+    "section": "common",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "",
+    "default": "86400",
+    "desc_en": "Retention duration (seconds) for internal metadata/history cleanup.",
+    "desc_zh": "内部元数据/历史清理的保留时长（秒）。"
+  },
+  {
+    "key": "common.entityExpiration",
+    "scope": "",
+    "section": "common",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "",
+    "default": "-1",
+    "desc_en": "Entity expiration time (seconds). Use -1 to disable expiration.",
+    "desc_zh": "实体过期时间（秒），-1 表示不启用过期。"
+  },
+  {
+    "key": "common.gracefulTime",
+    "scope": "",
+    "section": "common",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "",
+    "default": "5000",
+    "desc_en": "Grace period (ms) used by components for graceful behaviors (e.g., stop/search timing tolerance).",
+    "desc_zh": "组件使用的优雅时间窗口（毫秒），用于优雅行为控制（如停止/查询时间容忍）。"
+  },
+  {
+    "key": "common.gracefulStopTimeout",
+    "scope": "",
+    "section": "common",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "",
+    "default": "30",
+    "desc_en": "Timeout (seconds) before forcing stop when graceful stop cannot finish.",
+    "desc_zh": "优雅停止超时（秒），超过后将强制停止。"
+  },
+
+  {
+    "key": "quotaAndLimits.ddl.enabled",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Boolean",
+    "dynamic": true,
+    "range": "[\"false\",\"true\"]",
+    "default": "FALSE",
+    "desc_en": "Enable/disable DDL rate limiting.",
+    "desc_zh": "是否启用 DDL 限流。"
+  },
+  {
+    "key": "quotaAndLimits.indexRate.enabled",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Boolean",
+    "dynamic": true,
+    "range": "[\"false\",\"true\"]",
+    "default": "FALSE",
+    "desc_en": "Enable/disable index building rate limiting.",
+    "desc_zh": "是否启用索引构建限流。"
+  },
+  {
+    "key": "quotaAndLimits.flushRate.enabled",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Boolean",
+    "dynamic": true,
+    "range": "[\"false\",\"true\"]",
+    "default": "FALSE",
+    "desc_en": "Enable/disable flush rate limiting.",
+    "desc_zh": "是否启用 Flush 限流。"
+  },
+  {
+    "key": "quotaAndLimits.compactionRate.enabled",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Boolean",
+    "dynamic": true,
+    "range": "[\"false\",\"true\"]",
+    "default": "FALSE",
+    "desc_en": "Enable/disable compaction rate limiting.",
+    "desc_zh": "是否启用 Compaction 限流。"
+  },
+  {
+    "key": "quotaAndLimits.dml.enabled",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Boolean",
+    "dynamic": true,
+    "range": "[\"false\",\"true\"]",
+    "default": "FALSE",
+    "desc_en": "Enable/disable DML (write) rate limiting.",
+    "desc_zh": "是否启用 DML（写入）限流。"
+  },
+  {
+    "key": "quotaAndLimits.dql.enabled",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Boolean",
+    "dynamic": true,
+    "range": "[\"false\",\"true\"]",
+    "default": "FALSE",
+    "desc_en": "Enable/disable DQL (query/search) rate limiting.",
+    "desc_zh": "是否启用 DQL（查询/检索）限流。"
+  },
+  {
+    "key": "quotaAndLimits.limits.collection.maxNum",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "",
+    "default": "64",
+    "desc_en": "Maximum number of collections allowed.",
+    "desc_zh": "允许创建的 Collection 最大数量。"
+  },
+
+  {
+    "key": "quotaAndLimits.limitWriting.forceDeny",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Boolean",
+    "dynamic": true,
+    "range": "[\"false\",\"true\"]",
+    "default": "FALSE",
+    "desc_en": "Force deny all write operations when set to true.",
+    "desc_zh": "为 true 时强制拒绝所有写入操作。"
+  },
+  {
+    "key": "quotaAndLimits.limitWriting.ttProtection.enabled",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Boolean",
+    "dynamic": true,
+    "range": "[\"false\",\"true\"]",
+    "default": "FALSE",
+    "desc_en": "Enable/disable time-tick (TT) protection for writes.",
+    "desc_zh": "是否启用写入的 TimeTick（TT）保护。"
+  },
+  {
+    "key": "quotaAndLimits.limitWriting.ttProtection.maxTimeTickDelay",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "",
+    "default": "300",
+    "desc_en": "Max allowed time-tick delay before write protection triggers.",
+    "desc_zh": "触发写入保护的最大 TimeTick 延迟阈值。"
+  },
+  {
+    "key": "quotaAndLimits.limitWriting.memProtection.enabled",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Boolean",
+    "dynamic": true,
+    "range": "[\"false\",\"true\"]",
+    "default": "TRUE",
+    "desc_en": "Enable/disable memory watermark protection for writes.",
+    "desc_zh": "是否启用写入的内存水位保护。"
+  },
+  {
+    "key": "quotaAndLimits.limitWriting.memProtection.dataNodeMemoryLowWaterLevel",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Float",
+    "dynamic": true,
+    "range": "",
+    "default": "0.85",
+    "desc_en": "Low watermark (ratio) for DataNode memory; write limiting may start near this level.",
+    "desc_zh": "DataNode 内存低水位（比例），接近该值可能开始限写。"
+  },
+  {
+    "key": "quotaAndLimits.limitWriting.memProtection.dataNodeMemoryHighWaterLevel",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Float",
+    "dynamic": true,
+    "range": "",
+    "default": "0.95",
+    "desc_en": "High watermark (ratio) for DataNode memory; stronger write limiting near this level.",
+    "desc_zh": "DataNode 内存高水位（比例），接近该值将更强限写。"
+  },
+  {
+    "key": "quotaAndLimits.limitWriting.memProtection.queryNodeMemoryLowWaterLevel",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Float",
+    "dynamic": true,
+    "range": "",
+    "default": "0.85",
+    "desc_en": "Low watermark (ratio) for QueryNode memory; write limiting may start near this level.",
+    "desc_zh": "QueryNode 内存低水位（比例），接近该值可能开始限写。"
+  },
+  {
+    "key": "quotaAndLimits.limitWriting.memProtection.queryNodeMemoryHighWaterLevel",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Float",
+    "dynamic": true,
+    "range": "",
+    "default": "0.95",
+    "desc_en": "High watermark (ratio) for QueryNode memory; stronger write limiting near this level.",
+    "desc_zh": "QueryNode 内存高水位（比例），接近该值将更强限写。"
+  },
+  {
+    "key": "quotaAndLimits.limitWriting.diskProtection.enabled",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Boolean",
+    "dynamic": true,
+    "range": "[\"false\",\"true\"]",
+    "default": "TRUE",
+    "desc_en": "Enable/disable disk quota protection for writes.",
+    "desc_zh": "是否启用写入的磁盘配额保护。"
+  },
+  {
+    "key": "quotaAndLimits.limitWriting.diskProtection.diskQuota",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "String",
+    "dynamic": true,
+    "range": "",
+    "default": "+INF",
+    "desc_en": "Disk quota threshold for write protection; +INF means effectively unlimited.",
+    "desc_zh": "写入保护的磁盘配额阈值；+INF 表示基本不限制。"
+  },
+
+  {
+    "key": "quotaAndLimits.limitReading.forceDeny",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Boolean",
+    "dynamic": true,
+    "range": "[\"false\",\"true\"]",
+    "default": "FALSE",
+    "desc_en": "Force deny all read operations when set to true.",
+    "desc_zh": "为 true 时强制拒绝所有读取/查询操作。"
+  },
+  {
+    "key": "quotaAndLimits.limitReading.queueProtection.enabled",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Boolean",
+    "dynamic": true,
+    "range": "[\"false\",\"true\"]",
+    "default": "FALSE",
+    "desc_en": "Enable/disable queue-based protection for reads.",
+    "desc_zh": "是否启用读取的队列保护。"
+  },
+  {
+    "key": "quotaAndLimits.limitReading.queueProtection.nqInQueueThreshold",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "",
+    "default": "9223372036854775807",
+    "desc_en": "Threshold of NQ requests in queue before read limiting triggers (int64 max disables effectively).",
+    "desc_zh": "触发读限流的队列 NQ 阈值（int64 最大值基本等价于不触发）。"
+  },
+  {
+    "key": "quotaAndLimits.limitReading.queueProtection.queueLatencyThreshold",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "String",
+    "dynamic": true,
+    "range": "",
+    "default": "+INF",
+    "desc_en": "Queue latency threshold for read protection; +INF means no latency-triggered limiting.",
+    "desc_zh": "读取队列延迟阈值；+INF 表示不因延迟触发限制。"
+  },
+  {
+    "key": "quotaAndLimits.limitReading.resultProtection.enabled",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Boolean",
+    "dynamic": true,
+    "range": "[\"false\",\"true\"]",
+    "default": "FALSE",
+    "desc_en": "Enable/disable result-based protection for reads.",
+    "desc_zh": "是否启用读取结果量/速率保护。"
+  },
+  {
+    "key": "quotaAndLimits.limitReading.resultProtection.maxReadResultRate",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "String",
+    "dynamic": true,
+    "range": "",
+    "default": "+INF",
+    "desc_en": "Maximum read result rate; +INF means unlimited.",
+    "desc_zh": "最大读取结果速率；+INF 表示不限制。"
+  },
+  {
+    "key": "quotaAndLimits.limitReading.coolOffSpeed",
+    "scope": "",
+    "section": "quotaAndLimits",
+    "type": "Float",
+    "dynamic": true,
+    "range": "",
+    "default": "0.9",
+    "desc_en": "Cool-off factor used when read limiting is triggered (lower => more aggressive throttling).",
+    "desc_zh": "读限流触发后的降速系数（越低越“狠”）。"
+  },
+
+  {
+    "key": "autoIndex.enable",
+    "scope": "",
+    "section": "autoIndex",
+    "type": "Boolean",
+    "dynamic": true,
+    "range": "[\"false\",\"true\"]",
+    "default": "FALSE",
+    "desc_en": "Enable/disable AutoIndex behavior (AUTOINDEX-related runtime config).",
+    "desc_zh": "是否启用 AutoIndex 行为（与 AUTOINDEX 相关的运行时配置）。"
+  },
+  {
+    "key": "autoIndex.params.build",
+    "scope": "",
+    "section": "autoIndex",
+    "type": "String",
+    "dynamic": true,
+    "range": "",
+    "default": "",
+    "desc_en": "JSON string for AutoIndex build parameters/template.",
+    "desc_zh": "AutoIndex 构建参数/模板（JSON 字符串）。"
+  },
+  {
+    "key": "autoIndex.params.extra",
+    "scope": "",
+    "section": "autoIndex",
+    "type": "String",
+    "dynamic": true,
+    "range": "",
+    "default": "",
+    "desc_en": "JSON string for AutoIndex extra parameters/template.",
+    "desc_zh": "AutoIndex 额外参数/模板（JSON 字符串）。"
+  },
+  {
+    "key": "autoIndex.params.search",
+    "scope": "",
+    "section": "autoIndex",
+    "type": "String",
+    "dynamic": true,
+    "range": "",
+    "default": "",
+    "desc_en": "JSON string for AutoIndex search parameters/template.",
+    "desc_zh": "AutoIndex 查询参数/模板（JSON 字符串）。"
+  },
+
+  {
+    "key": "proxy.maxNameLength",
+    "scope": "",
+    "section": "proxy",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "",
+    "default": "255",
+    "desc_en": "Max length of resource names/aliases (collection, partition, field, etc.).",
+    "desc_zh": "资源名称/别名最大长度（collection/partition/field 等）。"
+  },
+  {
+    "key": "proxy.maxUsernameLength",
+    "scope": "",
+    "section": "proxy",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "",
+    "default": "32",
+    "desc_en": "Max length of a username (RBAC/authorization).",
+    "desc_zh": "用户名最大长度（权限/RBAC 相关）。"
+  },
+  {
+    "key": "proxy.minPasswordLength",
+    "scope": "",
+    "section": "proxy",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "",
+    "default": "6",
+    "desc_en": "Minimum password length (RBAC/authorization).",
+    "desc_zh": "密码最小长度（权限/RBAC 相关）。"
+  },
+  {
+    "key": "proxy.maxPasswordLength",
+    "scope": "",
+    "section": "proxy",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "",
+    "default": "256",
+    "desc_en": "Maximum password length (RBAC/authorization).",
+    "desc_zh": "密码最大长度（权限/RBAC 相关）。"
+  },
+  {
+    "key": "proxy.maxFieldNum",
+    "scope": "",
+    "section": "proxy",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "",
+    "default": "64",
+    "desc_en": "Max number of fields in a collection schema.",
+    "desc_zh": "Collection Schema 允许的最大字段数。"
+  },
+  {
+    "key": "proxy.maxShardNum",
+    "scope": "",
+    "section": "proxy",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "",
+    "default": "256",
+    "desc_en": "Max number of shards when creating a collection.",
+    "desc_zh": "创建 Collection 时允许的最大 shard 数。"
+  },
+  {
+    "key": "proxy.maxDimension",
+    "scope": "",
+    "section": "proxy",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "",
+    "default": "32768",
+    "desc_en": "Max vector dimension allowed for vector fields.",
+    "desc_zh": "向量字段允许的最大维度。"
+  },
+  {
+    "key": "proxy.maxUserNum",
+    "scope": "",
+    "section": "proxy",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "",
+    "default": "100",
+    "desc_en": "Max number of users allowed (RBAC/authorization).",
+    "desc_zh": "允许创建的最大用户数（权限/RBAC 相关）。"
+  },
+  {
+    "key": "proxy.maxRoleNum",
+    "scope": "",
+    "section": "proxy",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "",
+    "default": "10",
+    "desc_en": "Max number of roles allowed (RBAC/authorization).",
+    "desc_zh": "允许创建的最大角色数（权限/RBAC 相关）。"
+  },
+
+  {
+    "key": "queryNode.enableDisk",
+    "scope": "",
+    "section": "queryNode",
+    "type": "Boolean",
+    "dynamic": true,
+    "range": "[\"false\",\"true\"]",
+    "default": "TRUE",
+    "desc_en": "Enable/disable QueryNode local-disk usage for disk-based indexes (DiskANN).",
+    "desc_zh": "是否启用 QueryNode 使用本地磁盘来支持磁盘索引（DiskANN）。"
+  },
+
+  {
+    "key": "dataCoord.segment.diskSegmentMaxSize",
+    "scope": "",
+    "section": "dataCoord",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "",
+    "default": "2048",
+    "desc_en": "Max size (MB) of a segment stored on disk (disk segment size cap).",
+    "desc_zh": "磁盘段的最大大小（MB，上限）。"
+  },
+  {
+    "key": "dataCoord.compaction.enableAutoCompaction",
+    "scope": "",
+    "section": "dataCoord",
+    "type": "Boolean",
+    "dynamic": true,
+    "range": "[\"false\",\"true\"]",
+    "default": "TRUE",
+    "desc_en": "Enable/disable automatic compaction.",
+    "desc_zh": "是否启用自动 Compaction。"
+  }
+]
