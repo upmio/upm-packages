@@ -43,7 +43,7 @@ common:
       info: 500
       warn: 1000
   maxBloomFalsePositive: 0.001
-  retentionDuration: {{ getv "/defaults/common_retention_duration" }}
+  retentionDuration: {{ getv "/common/retentionDuration" }}
   security:
     authorizationEnabled: true
     defaultRootPassword: "{{ AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "MILVUS_USER")) }}"
