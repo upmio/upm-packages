@@ -49,13 +49,6 @@ quotaAndLimits:
       maxReadResultRate: "+INF"
     coolOffSpeed: "0.9"
 
-autoIndex:
-  enable: "false"
-  params:
-    build: ""
-    extra: ""
-    search: ""
-
 proxy:
   maxNameLength: "255"
   maxUsernameLength: "32"

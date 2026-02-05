@@ -473,16 +473,16 @@ msgChannel:
   subNamePrefix:
     dataCoordSubNamePrefix: dataCoord
     dataNodeSubNamePrefix: dataNode
-proxy:
-  maxRoleNum: {{ getv "/queryNode/maxRoleNum" }}
-  maxUserNum: {{ getv "/queryNode/maxUserNum" }}
-  maxDimension: {{ getv "/queryNode/maxDimension" }}
-  maxShardNum: {{ getv "/queryNode/maxShardNum" }}
-  maxFieldNum: {{ getv "/queryNode/maxFieldNum" }}
-  maxPasswordLength: {{ getv "/queryNode/maxPasswordLength" }}
-  minPasswordLength: {{ getv "/queryNode/minPasswordLength" }}
-  maxUsernameLength: {{ getv "/queryNode/maxUsernameLength" }}
-  maxNameLength: {{ getv "/queryNode/maxNameLength" }}
+proxy:retentionDuration
+  maxRoleNum: {{ getv "/proxy/maxRoleNum" }}
+  maxUserNum: {{ getv "/proxy/maxUserNum" }}
+  maxDimension: {{ getv "/proxy/maxDimension" }}
+  maxShardNum: {{ getv "/proxy/maxShardNum" }}
+  maxFieldNum: {{ getv "/proxy/maxFieldNum" }}
+  maxPasswordLength: {{ getv "/proxy/maxPasswordLength" }}
+  minPasswordLength: {{ getv "/proxy/minPasswordLength" }}
+  maxUsernameLength: {{ getv "/proxy/maxUsernameLength" }}
+  maxNameLength: {{ getv "/proxy/maxNameLength" }}
   accessLog:
     cacheFlushInterval: 3
     cacheSize: 0
@@ -974,9 +974,3 @@ woodpecker:
   storage:
     rootPath: {{ getenv "DATA_DIR" }}/woodpecker
     type: minio
-autoIndex:
-  enable: {{ getv "/autoIndex/enable" }}
-  params:
-    build: {{ getv "/autoIndex/build" }}
-    extra: {{ getv "/autoIndex/extra" }}
-    search: {{ getv "/autoIndex/search" }}
