@@ -219,3 +219,37 @@ template:
           requests:
             cpu: 200m
             memory: 256Mi
+      - name: metrics
+        image: {{ include "mongodb.metrics.image" . }}
+        imagePullPolicy: {{ .Values.metrics.image.pullPolicy | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
+        ports:
+          - containerPort: 9216
+            name: metrics
+        env:
+         - name: DATA_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.data.mountPath']"
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+        {{- if .Values.metrics.resources }}
+        resources: {{ toYaml .Values.metrics.resources | nindent 10 }}
+        {{- end }}
+        livenessProbe:
+          httpGet:
+            path: /metrics
+            port: metrics
+          failureThreshold: 4
+          periodSeconds: 12
+          timeoutSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: metrics
+          failureThreshold: 4
+          periodSeconds: 12
+          timeoutSeconds: 3
+
