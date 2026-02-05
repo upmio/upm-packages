@@ -192,6 +192,11 @@ template:
                 fieldPath: "metadata.namespace"
           - name: CONFIG_PATH
             value: "$(DATA_MOUNT)/conf/mongod.conf"
+          - name: SERVICE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['unit-operator/unitset.name']"
           - name: SERVICE_GROUP_NAME
             valueFrom:
               fieldRef:

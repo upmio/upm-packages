@@ -9,8 +9,8 @@ ARG AGENT_VERSION="v1.1.0"
 LABEL org.opencontainers.image.source="https://github.com/upmio/upm-packages" \
       org.opencontainers.image.created="$BUILD_DATE" \
       org.opencontainers.image.revision="$VCS_REF" \
-      org.opencontainers.image.title="milvus-agent" \
-      org.opencontainers.image.description="UPM Milvus Agent image" \
+      org.opencontainers.image.title="mongodb-agent" \
+      org.opencontainers.image.description="UPM MongoDB Agent image" \
       org.opencontainers.image.agent.version="$AGENT_VERSION"
 
 # Ensure robust shell behavior for all RUN instructions
@@ -51,18 +51,22 @@ ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETPLATFORM
 
-ENV MILVUS_BACKUP_VERSION="0.5.8"
-ENV AGENT_VERSION="v1.2.4"
+ENV MONGODB_TOOL_VERSION="100.14.0"
 
-# install milvus backup
-RUN set -ex \
-  && case ${TARGETPLATFORM} in \
-       "linux/amd64")  TINI_ARCH=x86_64  ;; \
-       "linux/arm64")  TINI_ARCH=arm64  ;; \
-     esac \
-  && curl -L https://github.com/zilliztech/milvus-backup/releases/download/v${MILVUS_BACKUP_VERSION}/milvus-backup_${MILVUS_BACKUP_VERSION}_Linux_${TINI_ARCH}.tar.gz -o /tmp/milvus-backup.tar.gz \
-  && tar -zxf "/tmp/milvus-backup.tar.gz" -C "/usr/local/bin" \
-  && rm -rf /tmp/milvus-backup.tar.gz
+# Download mongodb database tools
+RUN set -eux; \
+  printf '%s\n' \
+    '[mongodb-org-8.0]' \
+    'name=MongoDB Repository' \
+    'baseurl=https://repo.mongodb.org/yum/redhat/9/mongodb-org/8.0/$basearch/' \
+    'gpgcheck=1' \
+    'enabled=1' \
+    'gpgkey=https://pgp.mongodb.com/server-8.0.asc' \
+    > /etc/yum.repos.d/mongodb-org-8.0.repo; \
+  dnf -y install --setopt=install_weak_deps=False --setopt=tsflags=nodocs \
+    mongodb-database-tools-${MONGODB_TOOL_VERSION}-1; \
+  dnf clean all; \
+  rm -rf /var/cache/dnf
 
 # add user and group
 RUN set -eux; \

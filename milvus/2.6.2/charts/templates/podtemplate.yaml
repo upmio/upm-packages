@@ -141,6 +141,11 @@ template:
           - containerPort: 2214
             name: unit-agent
         env:
+          - name: SERVICE_GROUP_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['upm.api/service-group.name']"
           - name: UNIT_TYPE
             valueFrom:
               fieldRef:
