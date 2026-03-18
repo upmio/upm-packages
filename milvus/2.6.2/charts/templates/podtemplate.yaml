@@ -189,6 +189,13 @@ template:
               secretKeyRef:
                 key: AES_SECRET_KEY
                 name: aes-secret-key
+          - name: SECRET_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/extraVolume.volume.unit-secret.volumeMountPath']"
+          - name: MINIO_PORT
+            value: "9000"
         resources:
           requests:
             cpu: 100m
