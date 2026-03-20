@@ -1,5 +1,7 @@
 FROM quay.io/upmio/unit-agent:v1.1.0 AS agent
 
+# Shared agent binary and config.
+
 FROM rockylinux/rockylinux:9.6.20250531
 
 ARG BUILD_DATE
