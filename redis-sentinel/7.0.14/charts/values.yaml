@@ -9,6 +9,21 @@ image:
   digest: ""
   pullPolicy: IfNotPresent
 
+metrics:
+  image:
+    registry: quay.io
+    repository: panquest/bitnami-redis-exporter
+    tag: "1.69.0-debian-12-r1-1.9.3"
+    digest: ""
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: 100m
+    limits:
+      memory: 128Mi
+      cpu: 200m
+
 agent:
   image:
     registry: quay.io

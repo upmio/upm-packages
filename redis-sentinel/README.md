@@ -12,6 +12,7 @@ This component delivers Redis Sentinel to supervise Redis masters and replicas, 
 - Helm Chart deployment with bitnami-common helpers
 - Dynamic configuration via template system (`kafkaTemplate.tpl`-style equivalents for Redis Sentinel under this package)
 - Health checks via `service-ctl.sh`
+- Prometheus metrics export via a Redis exporter sidecar on port `9121`
 - Security hardening (non-root user, read-only FS, encrypted credential consumption)
 - Simple integration with standalone Redis or replication setups
 
@@ -103,6 +104,7 @@ redis-sentinel/7.0.15/charts/
 service-ctl.sh health
 supervisorctl status
 redis-cli -h localhost -p 26379 PING
+curl -fsSL http://localhost:9121/metrics | head
 ```
 
 ### Log Files
@@ -150,5 +152,4 @@ helm lint redis-sentinel/7.0.15/charts/
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.
-
 
