@@ -473,7 +473,7 @@ msgChannel:
   subNamePrefix:
     dataCoordSubNamePrefix: dataCoord
     dataNodeSubNamePrefix: dataNode
-proxy:retentionDuration
+proxy:
   maxRoleNum: {{ getv "/proxy/maxRoleNum" }}
   maxUserNum: {{ getv "/proxy/maxUserNum" }}
   maxDimension: {{ getv "/proxy/maxDimension" }}
