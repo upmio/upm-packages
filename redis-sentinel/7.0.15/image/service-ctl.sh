@@ -255,7 +255,7 @@ initialize() {
   } >"${password_config}" || die 44 "${func_name}" "create ${password_config} failed!"
 
   local exporter_password_config="${CONF_DIR}/.exporter.pwd.json"
-  printf '{"127.0.0.1:%s":"%s"}\n' \
+  printf '{"redis://127.0.0.1:%s":"%s"}\n' \
     "${REDIS_SENTINEL_PORT}" "${adm_pwd}" \
     >"${exporter_password_config}" || die 44 "${func_name}" "create ${exporter_password_config} failed!"
 
