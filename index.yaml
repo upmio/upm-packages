@@ -591,6 +591,29 @@ entries:
   redis-sentinel-7.0.15:
   - apiVersion: v2
     appVersion: 7.0.15
+    created: "2026-03-23T05:39:36.96868375Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: Redis Sentinel software packages, including configuration templates
+      and pod templates.
+    digest: 5d65049394cfaeec499189aa717552d07b8b85d21fef6f5a0c235f6204150f4b
+    keywords:
+    - redis
+    - sentinel
+    - key-value
+    - replication
+    - high-availability
+    name: redis-sentinel-7.0.15
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/redis-sentinel-7.0.15-1.2.0/redis-sentinel-7.0.15-1.2.0.tgz
+    version: 1.2.0
+  - apiVersion: v2
+    appVersion: 7.0.15
     created: "2025-09-04T07:12:46.290221828Z"
     dependencies:
     - name: common
@@ -640,4 +663,4 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/zookeeper-3.8.4-1.1.0/zookeeper-3.8.4-1.1.0.tgz
     version: 1.1.0
-generated: "2026-03-23T05:39:25.50683931Z"
+generated: "2026-03-23T05:39:36.968704438Z"
