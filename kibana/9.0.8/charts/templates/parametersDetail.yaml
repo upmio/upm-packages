@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-parameters-detail
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    upm.io/owner: upm
+    type: kibana
+    version: {{ .Chart.AppVersion | quote }}
+data:
+  kibana: |
+{{ .Files.Get "files/kibanaParametersDetail.json" | indent 4 }}

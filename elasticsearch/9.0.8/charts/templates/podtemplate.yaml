@@ -1,0 +1,307 @@
+apiVersion: v1
+kind: PodTemplate
+metadata:
+  name: {{ .Chart.Name }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    upm.io/owner: upm
+    type: elasticsearch
+    version: {{ .Chart.AppVersion | quote }}
+template:
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/default-container: elasticsearch
+    labels:
+      type: elasticsearch
+      version: {{ .Chart.AppVersion | quote }}
+  spec:
+    tolerations:
+      - key: "key"
+        operator: "Equal"
+        value: "value"
+        effect: "NoSchedule"
+    dnsPolicy: ClusterFirst
+    restartPolicy: Always
+    terminationGracePeriodSeconds: 30
+    securityContext:
+      fsGroup: 1001
+      fsGroupChangePolicy: OnRootMismatch
+    initContainers:
+      - name: init-container
+        image: {{ include "elasticsearch.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+        command:
+          - "bash"
+          - "-c"
+          - "service-ctl.sh initialize"
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.name"
+          - name: DATA_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.data.mountPath']"
+          - name: LOG_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.log.mountPath']"
+          - name: SECRET_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/extraVolume.volume.unit-secret.volumeMountPath']"
+          - name: CERT_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/certificate.volume.certMount']"
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: ES_PATH_CONF
+            value: "$(DATA_MOUNT)/config"
+          - name: ELASTICSEARCH_PORT
+            value: "9200"
+          - name: OFFLINE_E5_ENABLED
+            value: {{ ternary "true" "false" .Values.ml.offlineE5.enabled | quote }}
+          - name: OFFLINE_E5_MODEL_ID
+            value: {{ .Values.ml.offlineE5.modelId | quote }}
+          - name: OFFLINE_E5_MODEL_DIR
+            value: {{ printf "/opt/upm/offline-models/%s" .Values.ml.offlineE5.bundle | quote }}
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
+      - name: sysctl
+        image: {{ include "elasticsearch.image" . }}
+        command:
+          - "sysctl"
+          - "-w"
+          - "vm.max_map_count=262144"
+        securityContext:
+          privileged: true
+          runAsUser: 0
+    containers:
+      - name: elasticsearch
+        image: {{ include "elasticsearch.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+        ports:
+          - containerPort: 9200
+            name: elasticsearch
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.name"
+          - name: DATA_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.data.mountPath']"
+          - name: LOG_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.log.mountPath']"
+          - name: SECRET_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/extraVolume.volume.unit-secret.volumeMountPath']"
+          - name: CERT_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/certificate.volume.certMount']"
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: ES_PATH_CONF
+            value: "$(DATA_MOUNT)/config"
+          - name: ELASTICSEARCH_PORT
+            value: "9200"
+          - name: OFFLINE_E5_ENABLED
+            value: {{ ternary "true" "false" .Values.ml.offlineE5.enabled | quote }}
+          - name: OFFLINE_E5_MODEL_ID
+            value: {{ .Values.ml.offlineE5.modelId | quote }}
+          - name: OFFLINE_E5_MODEL_DIR
+            value: {{ printf "/opt/upm/offline-models/%s" .Values.ml.offlineE5.bundle | quote }}
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
+        livenessProbe:
+          exec:
+            command:
+              - "timeout"
+              - "3"
+              - "bash"
+              - "-c"
+              - "</dev/tcp/localhost/9001"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 30
+          timeoutSeconds: 4
+          successThreshold: 1
+        readinessProbe:
+          exec:
+            command:
+              - "timeout"
+              - "3"
+              - "bash"
+              - "-c"
+              - "service-ctl.sh health"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 30
+          timeoutSeconds: 4
+          successThreshold: 1
+        startupProbe:
+          exec:
+            command:
+              - "timeout"
+              - "3"
+              - "bash"
+              - "-c"
+              - "</dev/tcp/localhost/9001"
+          failureThreshold: 3
+          initialDelaySeconds: 12
+          periodSeconds: 30
+          timeoutSeconds: 4
+          successThreshold: 1
+      - name: metrics
+        image: {{ include "elasticsearch.metrics.image" . }}
+        imagePullPolicy: {{ .Values.metrics.image.pullPolicy | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
+        command:
+          - "sh"
+          - "-c"
+          - "export ES_USERNAME=$(head -n 1 ${DATA_DIR}/kbn_user.txt) && export ES_PASSWORD=$(head -n 2 ${DATA_DIR}/kbn_user.txt | tail -n 1) && /bin/elasticsearch_exporter --es.all --es.indices --collector.clustersettings --collector.cluster-info --es.indices_settings --es.shards --es.snapshots --es.timeout=30s --es.ssl-skip-verify --es.uri=https://${POD_NAME}:${ELASTICSEARCH_PORT:-9200} --web.listen-address=:${METRICS_PORT} --web.telemetry-path=/metrics"
+        ports:
+          - containerPort: 9114
+            name: metrics
+        env:
+          - name: METRICS_PORT
+            value: "9114"
+          - name: DATA_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.data.mountPath']"
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.name"
+        {{- if .Values.metrics.resources }}
+        resources: {{ toYaml .Values.metrics.resources | nindent 10 }}
+        {{- end }}
+        livenessProbe:
+          httpGet:
+            path: /metrics
+            port: metrics
+          failureThreshold: 4
+          periodSeconds: 12
+          timeoutSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: metrics
+          failureThreshold: 4
+          periodSeconds: 12
+          timeoutSeconds: 3
+      - name: unit-agent
+        image: {{ include "elasticsearch.agent.image" . }}
+        imagePullPolicy: {{ .Values.agent.image.pullPolicy | quote }}
+        securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+        ports:
+          - containerPort: 2214
+            name: unit-agent
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.name"
+          - name: ARCH_MODE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['upm.api/service.arch.mode']"
+          - name: UNIT_TYPE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['kubectl.kubernetes.io/default-container']"
+          - name: DATA_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.data.mountPath']"
+          - name: LOG_MOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['unit-operator/storage.volume.log.mountPath']"
+          - name: DATA_DIR
+            value: "$(DATA_MOUNT)/data"
+          - name: CONF_DIR
+            value: "$(DATA_MOUNT)/config"
+          - name: CONFIG_PATH
+            value: "$(DATA_MOUNT)/config/elasticsearch.yml"
+          - name: ELASTICSEARCH_PORT
+            value: "9200"
+          - name: MASTER_MEMBER_LIST
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['upm.api/master-member-list']"
+          - name: ALL_MEMBER_LIST
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.annotations['upm.api/all-member-list']"
+          - name: SERVICE_GROUP_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['upm.api/service-group.name']"
+          - name: SERVICE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.labels['unit-operator/unitset.name']"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: "v1"
+                fieldPath: "metadata.namespace"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi

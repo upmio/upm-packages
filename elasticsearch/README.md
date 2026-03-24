@@ -21,6 +21,7 @@ This component provides containerized Elasticsearch Community Edition as part of
 
 | Version | Status    | Kubernetes | Notes          |
 | ------- | --------- | ---------- | -------------- |
+| 9.0.8   | ✅ Stable | 1.29+      | Offline E5 bundle included |
 | 7.17.14 | ✅ Stable | 1.29+      | Current stable |
 
 ## Quick Start
