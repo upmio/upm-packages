@@ -13,5 +13,6 @@ agent:
   image:
     registry: quay.io
     repository: upmio/milvus-agent
+    # tag: "2.6"
     tag: "v2.0-dev-chenxiinn-1d4fdc8"
     pullPolicy: IfNotPresent
