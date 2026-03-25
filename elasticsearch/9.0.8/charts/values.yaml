@@ -1,0 +1,35 @@
+---
+global:
+  imageRegistry: ""
+
+image:
+  registry: quay.io
+  repository: upmio/elasticsearch
+  tag: "9.0.8"
+  digest: ""
+  pullPolicy: IfNotPresent
+
+agent:
+  image:
+    registry: quay.io
+    repository: upmio/unit-agent
+    tag: "v1.1.0"
+    pullPolicy: IfNotPresent
+
+metrics:
+  image:
+    registry: quay.io
+    repository: upmio/elasticsearch-exporter
+    tag: "v1.6.0"
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+ml:
+  enabled: true
+  offlineE5:
+    enabled: true
+    modelId: ".multilingual-e5-small"
+    bundle: "multilingual-e5-small"
