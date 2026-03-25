@@ -21,7 +21,7 @@ transport.port: {{ getenv "TRANSPORT_PORT" "9300" }}
 discovery.seed_hosts: {{ getenv "ALL_MEMBER_LIST" }}
 cluster.initial_master_nodes: {{ getenv "MASTER_MEMBER_LIST" }}
 xpack.ml.enabled: true
-xpack.ml.model_repository: file://${path.home}/config/models/
+xpack.ml.model_repository: file://{{ getenv "CONF_DIR" }}/models/
 xpack.monitoring.collection.enabled: true
 xpack.security.enabled: true
 xpack.security.transport.ssl.enabled: true
