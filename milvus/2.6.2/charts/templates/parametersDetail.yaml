@@ -8,5 +8,5 @@ metadata:
     type: redis
     version: {{ .Chart.AppVersion | quote }}
 data:
-  redis: |
+  milvus: |
 {{ .Files.Get "files/milvusParametersDetail.json" | indent 4 }}
