@@ -153,12 +153,22 @@ validate_agent() {
 
 validate_helm() {
   command -v helm >/dev/null 2>&1 || fail "helm command is required"
-  helm lint "${ROOT_DIR}/clickhouse/26.3.9.8/charts" >/tmp/clickhouse-helm-lint.out
-  helm lint "${ROOT_DIR}/clickhouse-keeper/26.3.9.8/charts" >/tmp/clickhouse-keeper-helm-lint.out
-  helm template test-clickhouse "${ROOT_DIR}/clickhouse/26.3.9.8/charts" >/tmp/clickhouse-render.yaml
-  helm template test-clickhouse-keeper "${ROOT_DIR}/clickhouse-keeper/26.3.9.8/charts" >/tmp/clickhouse-keeper-render.yaml
-  grep -q 'name: clickhouse-26.3.9.8' /tmp/clickhouse-render.yaml || fail "ClickHouse chart did not render expected PodTemplate name"
-  grep -q 'name: clickhouse-keeper-26.3.9.8' /tmp/clickhouse-keeper-render.yaml || fail "Keeper chart did not render expected PodTemplate name"
+  local tmpdir
+  tmpdir="$(mktemp -d)"
+  trap 'rm -rf "${tmpdir}"' RETURN
+
+  helm lint "${ROOT_DIR}/clickhouse/26.3.9.8/charts" >"${tmpdir}/clickhouse-helm-lint.out" || return
+  helm lint "${ROOT_DIR}/clickhouse-keeper/26.3.9.8/charts" >"${tmpdir}/clickhouse-keeper-helm-lint.out" || return
+  helm template test-clickhouse "${ROOT_DIR}/clickhouse/26.3.9.8/charts" >"${tmpdir}/clickhouse-render.yaml" || return
+  helm template test-clickhouse-keeper "${ROOT_DIR}/clickhouse-keeper/26.3.9.8/charts" >"${tmpdir}/clickhouse-keeper-render.yaml" || return
+  if ! grep -q 'name: clickhouse-26.3.9.8' "${tmpdir}/clickhouse-render.yaml"; then
+    echo "[FAIL] ClickHouse chart did not render expected PodTemplate name" >&2
+    return 1
+  fi
+  if ! grep -q 'name: clickhouse-keeper-26.3.9.8' "${tmpdir}/clickhouse-keeper-render.yaml"; then
+    echo "[FAIL] Keeper chart did not render expected PodTemplate name" >&2
+    return 1
+  fi
   pass "helm lint and template succeeded"
 }
 
