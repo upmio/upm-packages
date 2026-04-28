@@ -405,6 +405,8 @@ get_component_categories() {
   local elasticsearch=""
   local kibana=""
   local kafka=""
+  local clickhouse=""
+  local clickhouse_keeper=""
   local etcd=""
   local minio=""
   local milvus=""
@@ -470,6 +472,20 @@ get_component_categories() {
         kafka="$package"
       else
         kafka="$kafka $package"
+      fi
+      ;;
+    clickhouse-keeper-*)
+      if [[ -z "$clickhouse_keeper" ]]; then
+        clickhouse_keeper="$package"
+      else
+        clickhouse_keeper="$clickhouse_keeper $package"
+      fi
+      ;;
+    clickhouse-*)
+      if [[ -z "$clickhouse" ]]; then
+        clickhouse="$package"
+      else
+        clickhouse="$clickhouse $package"
       fi
       ;;
     etcd-*)
@@ -582,6 +598,20 @@ get_component_categories() {
       components="$components|kafka:$kafka"
     else
       components="kafka:$kafka"
+    fi
+  fi
+  if [[ -n "$clickhouse" ]]; then
+    if [[ -n "$components" ]]; then
+      components="$components|clickhouse:$clickhouse"
+    else
+      components="clickhouse:$clickhouse"
+    fi
+  fi
+  if [[ -n "$clickhouse_keeper" ]]; then
+    if [[ -n "$components" ]]; then
+      components="$components|clickhouse-keeper:$clickhouse_keeper"
+    else
+      components="clickhouse-keeper:$clickhouse_keeper"
     fi
   fi
   if [[ -n "$etcd" ]]; then
@@ -835,6 +865,12 @@ show_available_components() {
       ;;
     zookeeper)
       echo "  zookeeper: Zookeeper"
+      ;;
+    clickhouse)
+      echo "  clickhouse: ClickHouse analytics database"
+      ;;
+    clickhouse-keeper)
+      echo "  clickhouse-keeper: ClickHouse Keeper coordination service"
       ;;
     other)
       echo "  other: Other packages"
