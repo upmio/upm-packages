@@ -24,7 +24,8 @@ RUN set -eux; \
     glibc-common \
     glibc-langpack-en \
     glibc-locale-source \
-    supervisor; \
+    epel-release; \
+  dnf install -y supervisor; \
   yum-config-manager --add-repo https://packages.clickhouse.com/rpm/clickhouse.repo; \
   dnf install -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs "clickhouse-keeper-${CLICKHOUSE_VERSION}"; \
   dnf clean all; \
