@@ -221,3 +221,41 @@ template:
           requests:
             cpu: 200m
             memory: 256Mi
+      - name: metrics
+        image: {{ include "postgresql.metrics.image" . }}
+        imagePullPolicy: {{ .Values.metrics.image.pullPolicy | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
+        command:
+          - "sh"
+          - "-c"
+          - |
+            export DATA_SOURCE_PASS="$(cat ${SECRET_MOUNT}/monitor_password)"
+            exec postgres_exporter \
+              --web.listen-address=:${METRICS_PORT}
+        ports:
+          - containerPort: 9187
+            name: metrics
+        env:
+          - name: METRICS_PORT
+            value: "9187"
+          - name: SECRET_MOUNT
+            valueFrom:
+              fieldRef:
+                fieldPath: "metadata.annotations['unit-operator/extraVolume.volume.unit-secret.volumeMountPath']"
+          - name: DATA_SOURCE_URI
+            value: "127.0.0.1:5432/{{ .Values.metrics.database }}?sslmode=disable"
+          - name: DATA_SOURCE_USER
+            value: "{{ .Values.metrics.user }}"
+        resources:
+{{ toYaml .Values.metrics.resources | indent 10 }}
+        livenessProbe:
+          httpGet:
+            path: /metrics
+            port: metrics
+          periodSeconds: 12
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: metrics
+          periodSeconds: 12
