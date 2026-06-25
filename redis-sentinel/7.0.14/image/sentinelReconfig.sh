@@ -58,9 +58,7 @@ update_redis_replication_source() {
   local new_master_ip="${1}"
   local new_master_port="${2}"
 
-  grpcurl -plaintext -d '{"redis_replication_name":"'"${REDIS_REPLICATION_NAME}"'","namespace":"'"${NAMESPACE}"'","self_unit_name":"'"${POD_NAME}"'","master_host":"'"${new_master_ip}"'","master_port":"'"${new_master_port}"'"}' "${UNIT_AGENT_ENDPOINT}" sentinel.SentinelOperation.UpdateRedisReplication
-
-  info "${func_name}" "update redis replication source success !"
+  grpcurl -plaintext -d '{"redis_replication_name":"'"${REDIS_REPLICATION_NAME}"'","namespace":"'"${NAMESPACE}"'","self_unit_name":"'"${POD_NAME}"'","source_host":"'"${new_master_ip}"'","source_port":"'"${new_master_port}"'"}' "${UNIT_AGENT_ENDPOINT}" sentinel.SentinelOperation.UpdateRedisReplication
 }
 
 # ##############################################################################
@@ -93,7 +91,7 @@ main() {
 
   update_redis_replication_source "${to_ip}" "${to_port}" || die 21 "${func_name}" "update redis replication source failed !"
 
-  info "${func_name}" "update shared configmap and redis replication source success !"
+  info "${func_name}" "update redis replication source success !"
 }
 
 [[ -d ${LOG_MOUNT} ]] || die 10 "Globals" "Not found LOG_MOUNT !"
