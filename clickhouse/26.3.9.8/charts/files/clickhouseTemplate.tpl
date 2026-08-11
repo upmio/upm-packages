@@ -10,6 +10,7 @@
   <tcp_port>{{ getenv "CLICKHOUSE_TCP_PORT" "9000" }}</tcp_port>
   <http_port>{{ getenv "CLICKHOUSE_HTTP_PORT" "8123" }}</http_port>
   <interserver_http_port>{{ getenv "CLICKHOUSE_INTERSERVER_PORT" "9009" }}</interserver_http_port>
+  <max_concurrent_queries>{{ getv "/settings/max_concurrent_queries" }}</max_concurrent_queries>
   <path>{{ getenv "CLICKHOUSE_DATA_DIR" }}/</path>
   <tmp_path>{{ getenv "CLICKHOUSE_DATA_DIR" }}/tmp/</tmp_path>
   <user_files_path>{{ getenv "CLICKHOUSE_DATA_DIR" }}/user_files/</user_files_path>
@@ -56,12 +57,12 @@
       <max_memory_usage>{{ getv "/settings/max_memory_usage" }}</max_memory_usage>
       <max_execution_time>{{ getv "/settings/max_execution_time" }}</max_execution_time>
       <log_queries>{{ getv "/settings/log_queries" }}</log_queries>
-      <max_concurrent_queries>{{ getv "/settings/max_concurrent_queries" }}</max_concurrent_queries>
     </default>
   </profiles>
 
   <users>
     <default>
+      <no_password>1</no_password>
       <profile>default</profile>
       <networks>
         <ip>::/0</ip>

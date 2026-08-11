@@ -129,6 +129,21 @@ validate_templates() {
   require_grep '<macros>' clickhouse/26.3.9.8/charts/files/clickhouseTemplate.tpl
   require_grep 'CLICKHOUSE_KEEPER_SERVICE_NAME' clickhouse/26.3.9.8/charts/files/clickhouseTemplate.tpl
   require_grep 'UNIT_COUNT' clickhouse/26.3.9.8/charts/files/clickhouseTemplate.tpl
+  require_grep '<no_password>1</no_password>' clickhouse/26.3.9.8/charts/files/clickhouseTemplate.tpl
+  python3 - <<'PY' "${ROOT_DIR}/clickhouse/26.3.9.8/charts/files/clickhouseTemplate.tpl"
+import pathlib
+import re
+import sys
+
+template = pathlib.Path(sys.argv[1]).read_text()
+profiles_match = re.search(r"<profiles>.*?</profiles>", template, re.S)
+if not profiles_match:
+    raise SystemExit("ClickHouse template must contain profiles")
+if "<max_concurrent_queries>" in profiles_match.group(0):
+    raise SystemExit("max_concurrent_queries is a server setting and must not be in profiles")
+if "<max_concurrent_queries>" not in template:
+    raise SystemExit("ClickHouse template must configure max_concurrent_queries")
+PY
   require_grep '<keeper_server>' clickhouse-keeper/26.3.9.8/charts/files/clickhouseKeeperTemplate.tpl
   require_grep '<raft_configuration>' clickhouse-keeper/26.3.9.8/charts/files/clickhouseKeeperTemplate.tpl
   require_grep 'UNIT_COUNT' clickhouse-keeper/26.3.9.8/charts/files/clickhouseKeeperTemplate.tpl

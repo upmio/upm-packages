@@ -58,6 +58,11 @@ template:
             value: "$(DATA_MOUNT)/data"
           - name: CLICKHOUSE_CONF_DIR
             value: "$(DATA_MOUNT)/conf"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
       - name: sysctl
         image: {{ include "clickhouse.image" . }}
         command:
@@ -139,6 +144,11 @@ template:
             value: "9181"
           - name: CLICKHOUSE_KEEPER_UNIT_COUNT
             value: "3"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
         livenessProbe:
           exec:
             command:
@@ -256,6 +266,11 @@ template:
             value: "127.0.0.1"
           - name: CLICKHOUSE_PORT
             value: "9000"
+          - name: AES_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: AES_SECRET_KEY
+                name: aes-secret-key
         resources:
           requests:
             cpu: 100m
