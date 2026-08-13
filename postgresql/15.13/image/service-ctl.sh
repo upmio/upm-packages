@@ -180,6 +180,21 @@ initialize() {
       die "${EXIT_POSTGRES_INIT_FAILED}" "${func_name}" "initdb failed!"
     }
 
+    # Create monitor role for postgres_exporter sidecar (Stage 0.5)
+    local monitor_password
+    if [[ "${MON_USER}" == "monitor" ]]; then
+      monitor_password="${mon_pwd}"
+    else
+      monitor_password="$(openssl rand -base64 48 | tr -d "/+=")"
+      monitor_password="${monitor_password:0:32}"
+    fi
+    echo "${monitor_password}" >"${SECRET_MOUNT}/monitor_password" || {
+      die "${EXIT_CONFIG_FILE_FAILED}" "${func_name}" "create monitor password failed!"
+    }
+    chmod 600 "${SECRET_MOUNT}/monitor_password" || {
+      die "${EXIT_CONFIG_FILE_FAILED}" "${func_name}" "chmod monitor password failed!"
+    }
+
     # Create PostgreSQL configuration
     cat <<EOF >"${CONF_DIR}/pg_hba.conf" || die "${EXIT_CONFIG_FILE_FAILED}" "${func_name}" "create pg_hba.conf failed!"
 host     all             all             0.0.0.0/0               md5
@@ -193,6 +208,14 @@ EOF
     postgres --single -D "${DATA_DIR}" postgres <<EOF || die "${EXIT_POSTGRES_INIT_FAILED}" "${func_name}" "create users failed!"
 CREATE ROLE ${REPL_USER} WITH REPLICATION PASSWORD '${repl_pwd}' LOGIN;
 CREATE ROLE ${MON_USER} WITH LOGIN PASSWORD '${mon_pwd}' CONNECTION LIMIT 5 IN ROLE pg_monitor;
+DO \$\$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'monitor') THEN
+    CREATE ROLE monitor LOGIN PASSWORD '${monitor_password}';
+    GRANT pg_monitor TO monitor;
+  END IF;
+END
+\$\$;
 EOF
 
     info "${func_name}" "Initialize postgresql done !"
