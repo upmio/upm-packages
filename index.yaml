@@ -72,7 +72,7 @@ entries:
   clickhouse-26.3.9.8:
   - apiVersion: v2
     appVersion: 26.3.9.8
-    created: "2026-04-28T07:24:34.013633127Z"
+    created: "2026-08-14T08:56:32Z"
     dependencies:
     - name: common
       repository: oci://registry-1.docker.io/bitnamicharts
@@ -81,7 +81,7 @@ entries:
       version: 2.31.3
     description: ClickHouse software packages, including configuration templates and
       pod templates.
-    digest: 1b5d9edf13662f28daff8a2ae6530f452f7fb1a72853a93b3554ef5df58749ab
+    digest: d16d779a0b5764d8f4921166ca92a8f8bcbe58dd7030f076e9257297950e6fc1
     keywords:
     - clickhouse
     - database
@@ -95,7 +95,7 @@ entries:
   clickhouse-keeper-26.3.9.8:
   - apiVersion: v2
     appVersion: 26.3.9.8
-    created: "2026-05-18T09:16:56.532964495Z"
+    created: "2026-08-14T08:56:14Z"
     dependencies:
     - name: common
       repository: oci://registry-1.docker.io/bitnamicharts
@@ -104,7 +104,7 @@ entries:
       version: 2.31.3
     description: ClickHouse Keeper software packages, including configuration templates
       and pod templates.
-    digest: fe48b563687fa9837700bbff26d32a3b2d0f04db77dbfb613bfc2dd402a88bd9
+    digest: 4ef49103e2a05b9d2214219a4455b9747d959835098c224bd6ff4c6baec6e68e
     keywords:
     - clickhouse
     - clickhouse-keeper
