@@ -1,0 +1,68 @@
+[
+  {
+    "key": "max_threads",
+    "scope": "Global",
+    "section": "settings",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "1-1024",
+    "default": "8",
+    "desc_en": "Maximum query processing threads available to a query.",
+    "desc_zh": "单个查询可使用的最大查询处理线程数。"
+  },
+  {
+    "key": "max_memory_usage",
+    "scope": "Global",
+    "section": "settings",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "0-9223372036854775807",
+    "default": "0",
+    "desc_en": "Maximum memory usage for a query in bytes. A value of 0 leaves the limit disabled.",
+    "desc_zh": "单个查询可使用的最大内存字节数。0 表示不启用该限制。"
+  },
+  {
+    "key": "max_execution_time",
+    "scope": "Global",
+    "section": "settings",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "0-86400",
+    "default": "0",
+    "desc_en": "Maximum query execution time in seconds. A value of 0 leaves the limit disabled.",
+    "desc_zh": "单个查询的最大执行时间，单位为秒。0 表示不启用该限制。"
+  },
+  {
+    "key": "log_queries",
+    "scope": "Global",
+    "section": "settings",
+    "type": "Boolean",
+    "dynamic": true,
+    "range": "[\"0\",\"1\"]",
+    "default": "1",
+    "desc_en": "Enable or disable query logging.",
+    "desc_zh": "启用或禁用查询日志。"
+  },
+  {
+    "key": "max_concurrent_queries",
+    "scope": "Global",
+    "section": "settings",
+    "type": "Integer",
+    "dynamic": true,
+    "range": "1-100000",
+    "default": "100",
+    "desc_en": "Maximum number of concurrently running queries.",
+    "desc_zh": "允许同时运行的最大查询数。"
+  },
+  {
+    "key": "mark_cache_size",
+    "scope": "Global",
+    "section": "settings",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "0-9223372036854775807",
+    "default": "5368709120",
+    "desc_en": "Maximum size in bytes of the cache for MergeTree index marks. ClickHouse 21.8 requires this server setting during startup.",
+    "desc_zh": "MergeTree 索引标记缓存的最大字节数。ClickHouse 21.8 启动时需要该服务端配置。"
+  }
+]
