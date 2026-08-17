@@ -13,6 +13,18 @@
     <endpoint>/metrics</endpoint>
     <port>9363</port>
   </prometheus>
+  <!-- Required by ClickHouse's built-in /dashboard endpoint. -->
+  <metric_log>
+    <database>system</database>
+    <table>metric_log</table>
+    <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+    <collect_interval_milliseconds>1000</collect_interval_milliseconds>
+  </metric_log>
+  <asynchronous_metric_log>
+    <database>system</database>
+    <table>asynchronous_metric_log</table>
+    <flush_interval_milliseconds>7000</flush_interval_milliseconds>
+  </asynchronous_metric_log>
   <interserver_http_port>{{ getenv "CLICKHOUSE_INTERSERVER_PORT" "9009" }}</interserver_http_port>
   <max_concurrent_queries>{{ getv "/settings/max_concurrent_queries" }}</max_concurrent_queries>
   <path>{{ getenv "CLICKHOUSE_DATA_DIR" }}/</path>
