@@ -40,7 +40,7 @@
   </remote_servers>
 
   <zookeeper>
-{{- $keeperServiceName := getenv "CLICKHOUSE_KEEPER_SERVICE_NAME" (printf "%s-keeper" (getenv "SERVICE_GROUP_NAME" $serviceName)) }}
+{{- $keeperServiceName := getenv "CLICKHOUSE_KEEPER_SERVICE_NAME" (getenv "KEEPER_SERVICE_NAME" (printf "%s-keeper" (getenv "SERVICE_GROUP_NAME" $serviceName))) }}
 {{- $keeperCount := atoi (getenv "CLICKHOUSE_KEEPER_UNIT_COUNT" "3") }}
 {{- $keeperPort := getenv "CLICKHOUSE_KEEPER_PORT" "9181" }}
 {{- range $i := seq 0 (sub $keeperCount 1) }}

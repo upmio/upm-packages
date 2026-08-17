@@ -42,8 +42,8 @@ decrypt_admin_password() {
   [[ -f "$secret_file" ]] || die "$EXIT_MISSING_ENV_VAR" "$function_name" "${secret_file} not found"
 
   local aes_key iv
-  aes_key="$(printf %s "$AES_SECRET_KEY" | od -t x1 -An -v | tr -d ' ')"
-  iv="$(head -c 16 "$secret_file" | od -t x1 -An -v | tr -d ' ')"
+  aes_key="$(printf %s "$AES_SECRET_KEY" | od -t x1 -An -v | tr -d ' \n')"
+  iv="$(head -c 16 "$secret_file" | od -t x1 -An -v | tr -d ' \n')"
   tail -c +17 "$secret_file" | openssl enc -d -aes-256-ctr -K "$aes_key" -iv "$iv" 2>/dev/null
 }
 
