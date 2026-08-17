@@ -23,6 +23,29 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/clickhouse-21.8-1.1.0/clickhouse-21.8-1.1.0.tgz
     version: 1.1.0
+  clickhouse-21.8.15.7:
+  - apiVersion: v2
+    appVersion: 21.8.15.7
+    created: "2026-08-17T06:45:35.755033756Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: ClickHouse software packages, including configuration templates and
+      pod templates.
+    digest: e7d26ba33b85b660208956b5a7567b47ed21b3ce850237309641f586e2624803
+    keywords:
+    - clickhouse
+    - database
+    - analytics
+    - olap
+    name: clickhouse-21.8.15.7
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/clickhouse-21.8.15.7-1.1.0/clickhouse-21.8.15.7-1.1.0.tgz
+    version: 1.1.0
   clickhouse-23.8:
   - apiVersion: v2
     appVersion: "23.8"
@@ -851,4 +874,4 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/zookeeper-3.8.4-1.1.0/zookeeper-3.8.4-1.1.0.tgz
     version: 1.1.0
-generated: "2026-08-17T06:45:21.832677265Z"
+generated: "2026-08-17T06:45:35.755048173Z"
