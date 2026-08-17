@@ -71,7 +71,14 @@ initialize() {
 health() {
   local password
   password="$(decrypt_admin_password)"
-  CLICKHOUSE_PASSWORD="$password" clickhouse-client --host 127.0.0.1 --port "${CLICKHOUSE_TCP_PORT:-9000}" --user "$ADM_USER" --query "SELECT 1" >/dev/null
+  # clickhouse-client 21.8 does not consume CLICKHOUSE_PASSWORD.  Feed the
+  # password through stdin so it is neither lost nor exposed in argv.
+  printf '%s\n' "$password" | clickhouse-client \
+    --host 127.0.0.1 \
+    --port "${CLICKHOUSE_TCP_PORT:-9000}" \
+    --user "$ADM_USER" \
+    --ask-password \
+    --query "SELECT 1" >/dev/null
 }
 
 login() {
