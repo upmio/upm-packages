@@ -60,7 +60,7 @@ jobs:
               fi
               platforms="linux/amd64,linux/arm64"
               case "$dir" in
-                clickhouse/21.8.15.7/image|clickhouse-keeper/21.8.15.7/image)
+                clickhouse/21.8.15.7/image|clickhouse/agent/21.8.15.7/image|clickhouse-keeper/21.8.15.7/image)
                   platforms="linux/amd64"
                   ;;
               esac
