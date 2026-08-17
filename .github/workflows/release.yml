@@ -58,7 +58,19 @@ jobs:
                 image_name="$comp"
                 image_tag="$seg2"
               fi
-              echo "{\"component\": \"$comp\", \"context\": \"$dir\", \"image_name\": \"$image_name\", \"tag\": \"$image_tag\"}"
+              platforms="linux/amd64,linux/arm64"
+              case "$dir" in
+                clickhouse/21.8.15.7/image|clickhouse-keeper/21.8.15.7/image)
+                  platforms="linux/amd64"
+                  ;;
+              esac
+              jq -nc \
+                --arg component "$comp" \
+                --arg context "$dir" \
+                --arg image_name "$image_name" \
+                --arg tag "$image_tag" \
+                --arg platforms "$platforms" \
+                '{component: $component, context: $context, image_name: $image_name, tag: $tag, platforms: $platforms}'
             fi
           done | sort | uniq | jq -sc .)"
 
@@ -107,7 +119,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.image_info.context }}
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ matrix.image_info.platforms }}
           push: true
           tags: |
             quay.io/upmio/${{ matrix.image_info.image_name }}:${{ matrix.image_info.tag }}
