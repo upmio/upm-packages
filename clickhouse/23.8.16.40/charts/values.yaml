@@ -13,5 +13,5 @@ agent:
   image:
     registry: quay.io
     repository: upmio/clickhouse-agent
-    tag: "26.3"
+    tag: "23.8"
     pullPolicy: IfNotPresent

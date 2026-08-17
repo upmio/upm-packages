@@ -8,6 +8,6 @@ It provides:
 - ClickHouse configuration templates
 - default ClickHouse parameter values
 - ClickHouse parameter metadata
-- a `unit-agent` sidecar using `quay.io/upmio/clickhouse-agent:26.3`
+- a `unit-agent` sidecar using `quay.io/upmio/clickhouse-agent:25.8`
 
 The chart supports one shard with two or three replicas.

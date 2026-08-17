@@ -1,11 +1,11 @@
 # ClickHouse Agent Image
 
-This image provides the ClickHouse `23.8.16.40`-specific runtime for the existing UPM `unit-agent`.
+This image provides the ClickHouse `23.8` runtime for the existing UPM `unit-agent`.
 
 It includes:
 
 - `unit-agent` from `quay.io/upmio/unit-agent:v1.1.0`
-- ClickHouse client `23.8.16.40`
+- ClickHouse client `23.8.16.40`, shared by ClickHouse 23.8 releases
 - S3-compatible command-line tooling
 
 The image is available for `linux/amd64` and `linux/arm64`.

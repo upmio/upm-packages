@@ -82,9 +82,9 @@ template:
           allowPrivilegeEscalation: false
         ports:
           - containerPort: 9000
-            name: tcp
+            name: clickhouse
           - containerPort: 8123
-            name: http
+            name: web
           - containerPort: 9009
             name: interserver
           - containerPort: 9363

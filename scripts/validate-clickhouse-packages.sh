@@ -90,17 +90,25 @@ validate_structure() {
     done
     require_dir "clickhouse/${version}/charts/templates"
     require_dir "clickhouse-keeper/${version}/charts/templates"
+    if [[ "$version" != "26.3.9.8" ]]; then
+      require_file "clickhouse/agent/${version%.*.*}/image/Dockerfile"
+      require_file "clickhouse/agent/${version%.*.*}/image/README.md"
+    fi
   done
   pass "ClickHouse package structure exists"
 }
 
 validate_versions() {
-  local version escaped_version
+  local version escaped_version agent_version
   for version in "${CLICKHOUSE_PACKAGE_VERSIONS[@]}"; do
     escaped_version="${version//./\\.}"
     require_grep "^name:[[:space:]]*clickhouse-${escaped_version}$" "clickhouse/${version}/charts/Chart.yaml"
     require_grep "^appVersion:[[:space:]]*\\\"?${escaped_version}\\\"?$" "clickhouse/${version}/charts/Chart.yaml"
     require_grep "^  tag:[[:space:]]*\\\"${escaped_version}\\\"$" "clickhouse/${version}/charts/values.yaml"
+    if [[ "$version" != "26.3.9.8" ]]; then
+      agent_version="${version%.*.*}"
+      require_grep "^    tag:[[:space:]]*\\\"${agent_version}\\\"$" "clickhouse/${version}/charts/values.yaml"
+    fi
     require_grep "^ARG CLICKHOUSE_VERSION=\\\"${escaped_version}\\\"$" "clickhouse/${version}/image/Dockerfile"
     require_grep "^name:[[:space:]]*clickhouse-keeper-${escaped_version}$" "clickhouse-keeper/${version}/charts/Chart.yaml"
     require_grep "^appVersion:[[:space:]]*\\\"?${escaped_version}\\\"?$" "clickhouse-keeper/${version}/charts/Chart.yaml"
@@ -199,15 +207,40 @@ validate_docs() {
 }
 
 validate_agent() {
+  local agent_version clickhouse_version escaped_version dockerfile
   require_grep 'FROM quay\.io/upmio/unit-agent:' clickhouse/agent/26.3/image/Dockerfile
   require_grep 'clickhouse-client-26\.3\.9\.8' clickhouse/agent/26.3/image/Dockerfile
   require_grep 'CMD \["unit-agent","daemon","-f","/opt/unit-agent/config.toml"\]' clickhouse/agent/26.3/image/Dockerfile
+
+  for agent_version in 21.8 23.8 25.8; do
+    case "$agent_version" in
+      21.8) clickhouse_version="21.8.15.7" ;;
+      23.8) clickhouse_version="23.8.16.40" ;;
+      25.8) clickhouse_version="25.8.29.51" ;;
+    esac
+    escaped_version="${clickhouse_version//./\\.}"
+    dockerfile="clickhouse/agent/${agent_version}/image/Dockerfile"
+    require_grep 'FROM quay\.io/upmio/unit-agent:v1\.1\.0 AS agent' "$dockerfile"
+    require_grep "^ARG CLICKHOUSE_VERSION=\\\"${escaped_version}\\\"$" "$dockerfile"
+    require_grep '^ARG CLICKHOUSE_REPOSITORY="https://packages\.clickhouse\.com/rpm/lts"$' "$dockerfile"
+    require_grep 'clickhouse-common-static' "$dockerfile"
+    require_grep 'clickhouse-client --version' "$dockerfile"
+    require_grep 'CMD \["unit-agent","daemon","-f","/opt/unit-agent/config.toml"\]' "$dockerfile"
+    require_grep "ClickHouse .*${agent_version}.*runtime" "clickhouse/agent/${agent_version}/image/README.md"
+    require_grep "${escaped_version}" "clickhouse/agent/${agent_version}/image/README.md"
+  done
+
+  require_grep '^ARG CLICKHOUSE_RELEASE="2"$' clickhouse/agent/21.8/image/Dockerfile
+  require_grep 'upstream arm64 RPM packages' clickhouse/agent/21.8/image/README.md
+  require_grep '^ARG TARGETARCH$' clickhouse/agent/23.8/image/Dockerfile
+  require_grep '^ARG TARGETARCH$' clickhouse/agent/25.8/image/Dockerfile
+  require_grep 'clickhouse/agent/21\.8/image' .github/workflows/release.yml
   pass "ClickHouse agent image Dockerfile contains unit-agent and client"
 }
 
 validate_helm() {
   command -v helm >/dev/null 2>&1 || fail "helm command is required"
-  local tmpdir version clickhouse_chart keeper_chart
+  local tmpdir version clickhouse_chart keeper_chart agent_tag
   tmpdir="$(mktemp -d)"
   trap 'rm -rf "${tmpdir}"' RETURN
 
@@ -224,6 +257,14 @@ validate_helm() {
     helm template "test-clickhouse-keeper-${version}" "${keeper_chart}" >"${tmpdir}/clickhouse-keeper-${version}-render.yaml" || return
     if ! grep -Fq "name: clickhouse-${version}" "${tmpdir}/clickhouse-${version}-render.yaml"; then
       echo "[FAIL] ClickHouse ${version} chart did not render expected PodTemplate name" >&2
+      return 1
+    fi
+    agent_tag="${version%.*.*}"
+    if [[ "$version" == "26.3.9.8" ]]; then
+      agent_tag="26.3"
+    fi
+    if ! grep -Fq "image: quay.io/upmio/clickhouse-agent:${agent_tag}" "${tmpdir}/clickhouse-${version}-render.yaml"; then
+      echo "[FAIL] ClickHouse ${version} chart did not render expected agent image tag" >&2
       return 1
     fi
     if ! grep -Fq "name: clickhouse-keeper-${version}" "${tmpdir}/clickhouse-keeper-${version}-render.yaml"; then
