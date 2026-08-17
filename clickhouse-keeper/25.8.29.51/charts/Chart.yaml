@@ -1,0 +1,18 @@
+apiVersion: v2
+appVersion: "25.8.29.51"
+dependencies:
+  - name: common
+    repository: oci://registry-1.docker.io/bitnamicharts
+    tags:
+      - bitnami-common
+    version: 2.31.3
+name: clickhouse-keeper-25.8.29.51
+version: 1.1.0
+description: ClickHouse Keeper software packages, including configuration templates and pod templates.
+type: application
+keywords:
+  - clickhouse
+  - clickhouse-keeper
+  - keeper
+  - coordination
+  - raft

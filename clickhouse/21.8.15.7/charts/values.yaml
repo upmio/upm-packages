@@ -1,0 +1,17 @@
+---
+global:
+  imageRegistry: ""
+
+image:
+  registry: quay.io
+  repository: upmio/clickhouse
+  tag: "21.8.15.7"
+  digest: ""
+  pullPolicy: IfNotPresent
+
+agent:
+  image:
+    registry: quay.io
+    repository: upmio/clickhouse-agent
+    tag: "26.3"
+    pullPolicy: IfNotPresent

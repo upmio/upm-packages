@@ -1,0 +1,4 @@
+defaults:
+  coordination_settings:
+    operation_timeout_ms: "10000"
+    session_timeout_ms: "30000"

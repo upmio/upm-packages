@@ -172,7 +172,7 @@ Every component follows the same enterprise-grade structure:
 
 ### ClickHouse Keeper Topology
 
-ClickHouse is packaged as two UPM components: `clickhouse` and `clickhouse-keeper`. Keeper is provisioned as a separate UnitSet in the same service group and is not an external ZooKeeper dependency. Both components use the UPM version value `26.3.9.8`.
+ClickHouse is packaged as two UPM components: `clickhouse` and `clickhouse-keeper`. Keeper is provisioned as a separate UnitSet in the same service group and is not an external ZooKeeper dependency. Both components use matching UPM version values: `21.8.15.7`, `23.8.16.40`, `25.8.29.51`, and `26.3.9.8`.
 
 ### 🧭 Design Decision: Supervisord in all services
 
@@ -212,8 +212,8 @@ Recent focus areas:
 | ------------------- | ------------------------------------ | --------------------------------------------- | --------- |
 | **MySQL Community** | 8.0.41, 8.0.42, 8.4.4, 8.4.5         | Production-ready MySQL with monitoring agents | ✅ Stable |
 | **PostgreSQL**      | 15.12, 15.13                         | Advanced PostgreSQL with enterprise features  | ✅ Stable |
-| **ClickHouse**      | 26.3.9.8                            | Analytics database with Keeper-backed replication | ✅ Stable |
-| **ClickHouse Keeper** | 26.3.9.8                          | Coordination service for ClickHouse UnitSets      | ✅ Stable |
+| **ClickHouse**      | 21.8.15.7, 23.8.16.40, 25.8.29.51, 26.3.9.8 | Analytics database with Keeper-backed replication | ✅ Stable |
+| **ClickHouse Keeper** | 21.8.15.7, 23.8.16.40, 25.8.29.51, 26.3.9.8 | Coordination service for ClickHouse UnitSets      | ✅ Stable |
 | **MongoDB**         | 8.0.15                               | Document-oriented NoSQL database              | ✅ Stable |
 
 ### 🔗 Database Proxies & Connection Pooling

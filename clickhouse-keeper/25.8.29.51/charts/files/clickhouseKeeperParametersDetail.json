@@ -1,0 +1,24 @@
+[
+  {
+    "key": "operation_timeout_ms",
+    "scope": "Global",
+    "section": "coordination_settings",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1000-120000",
+    "default": "10000",
+    "desc_en": "Timeout for Keeper coordination operations in milliseconds.",
+    "desc_zh": "Keeper 协调操作的超时时间，单位为毫秒。"
+  },
+  {
+    "key": "session_timeout_ms",
+    "scope": "Global",
+    "section": "coordination_settings",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "3000-300000",
+    "default": "30000",
+    "desc_en": "Keeper session timeout in milliseconds.",
+    "desc_zh": "Keeper 会话超时时间，单位为毫秒。"
+  }
+]
