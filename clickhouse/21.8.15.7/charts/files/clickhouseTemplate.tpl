@@ -9,6 +9,10 @@
   <listen_host>0.0.0.0</listen_host>
   <tcp_port>{{ getenv "CLICKHOUSE_TCP_PORT" "9000" }}</tcp_port>
   <http_port>{{ getenv "CLICKHOUSE_HTTP_PORT" "8123" }}</http_port>
+  <prometheus>
+    <endpoint>/metrics</endpoint>
+    <port>9363</port>
+  </prometheus>
   <interserver_http_port>{{ getenv "CLICKHOUSE_INTERSERVER_PORT" "9009" }}</interserver_http_port>
   <max_concurrent_queries>{{ getv "/settings/max_concurrent_queries" }}</max_concurrent_queries>
   <mark_cache_size>{{ getv "/settings/mark_cache_size" }}</mark_cache_size>
@@ -63,7 +67,7 @@
 
   <users>
     <default>
-      <no_password>1</no_password>
+      <password_sha256_hex>{{ sha256sum (AESCTRDecrypt (secretRead (getenv "SECRET_NAME") (getenv "NAMESPACE") (getenv "ADM_USER" "default"))) }}</password_sha256_hex>
       <profile>default</profile>
       <networks>
         <ip>::/0</ip>

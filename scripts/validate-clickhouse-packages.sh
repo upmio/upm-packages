@@ -169,7 +169,11 @@ validate_templates() {
     require_grep '<macros>' "$template_path"
     require_grep 'CLICKHOUSE_KEEPER_SERVICE_NAME' "$template_path"
     require_grep 'UNIT_COUNT' "$template_path"
-    require_grep '<no_password>1</no_password>' "$template_path"
+    require_grep '<password_sha256_hex>' "$template_path"
+    require_grep 'AESCTRDecrypt \(secretRead' "$template_path"
+    require_grep '<prometheus>' "$template_path"
+    require_grep '<endpoint>/metrics</endpoint>' "$template_path"
+    require_grep '<port>9363</port>' "$template_path"
     python3 - "${ROOT_DIR}/${template_path}" <<'PY'
 import pathlib
 import re
