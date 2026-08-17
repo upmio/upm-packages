@@ -12,6 +12,7 @@ ARG CLICKHOUSE_CLIENT_SHA256_ARM64="51a67c7085443cd92f0e17ce10613184f26d22669535
 ARG CLICKHOUSE_COMMON_STATIC_SHA256_ARM64="ab056040c6697353b375c35112b567cdbbcff222654fe6400ac17c5916e1cfdf"
 ARG CLICKHOUSE_SERVER_SHA256_ARM64="ef38b480bf91982bb3637db6d332c843de5aedea94395dea4a9cb86a45198bdc"
 
+# Upstream 23.8.16.40 RPM packages are available for linux/amd64 and linux/arm64.
 LABEL org.opencontainers.image.source="https://github.com/upmio/upm-packages" \
       org.opencontainers.image.created="$BUILD_DATE" \
       org.opencontainers.image.revision="$VCS_REF" \
