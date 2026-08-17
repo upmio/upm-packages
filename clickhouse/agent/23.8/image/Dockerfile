@@ -1,4 +1,5 @@
 FROM quay.io/upmio/unit-agent:main-546b491 AS agent
+# Rebuild against the business-backup agent.
 
 FROM rockylinux/rockylinux:9.6.20250531
 
