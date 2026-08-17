@@ -140,6 +140,30 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/clickhouse-keeper-23.8.16.40-1.1.0/clickhouse-keeper-23.8.16.40-1.1.0.tgz
     version: 1.1.0
+  clickhouse-keeper-25.8.29.51:
+  - apiVersion: v2
+    appVersion: 25.8.29.51
+    created: "2026-08-17T06:45:21.832659448Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: ClickHouse Keeper software packages, including configuration templates
+      and pod templates.
+    digest: 1abd8138a58eeefc5d336262383f5dd26bde63d98f4092a90112492e5e242055
+    keywords:
+    - clickhouse
+    - clickhouse-keeper
+    - keeper
+    - coordination
+    - raft
+    name: clickhouse-keeper-25.8.29.51
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/clickhouse-keeper-25.8.29.51-1.1.0/clickhouse-keeper-25.8.29.51-1.1.0.tgz
+    version: 1.1.0
   clickhouse-keeper-26.3.9.8:
   - apiVersion: v2
     appVersion: 26.3.9.8
@@ -827,4 +851,4 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/zookeeper-3.8.4-1.1.0/zookeeper-3.8.4-1.1.0.tgz
     version: 1.1.0
-generated: "2026-08-17T06:45:06.665799272Z"
+generated: "2026-08-17T06:45:21.832677265Z"
