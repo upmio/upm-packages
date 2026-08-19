@@ -188,6 +188,21 @@ import re
 import sys
 
 template = pathlib.Path(sys.argv[1]).read_text()
+remote_servers_match = re.search(r"<remote_servers>.*?</remote_servers>", template, re.S)
+if not remote_servers_match:
+    raise SystemExit("ClickHouse template must contain remote_servers")
+replicas = re.findall(r"<replica>.*?</replica>", remote_servers_match.group(0), re.S)
+if not replicas:
+    raise SystemExit("ClickHouse remote_servers must contain replicas")
+for replica in replicas:
+    if "<user>{{ $adminUser }}</user>" not in replica:
+        raise SystemExit("ClickHouse remote replica must configure the internal user")
+    if "<password><![CDATA[{{ $adminPassword }}]]></password>" not in replica:
+        raise SystemExit("ClickHouse remote replica must configure the internal password")
+if '{{- $adminUser := getenv "ADM_USER" "default" }}' not in template:
+    raise SystemExit("ClickHouse template must default the internal user to ADM_USER/default")
+if 'AESCTRDecrypt (secretRead (getenv "SECRET_NAME") $namespace $adminUser)' not in template:
+    raise SystemExit("ClickHouse template must decrypt the internal password from the service secret")
 profiles_match = re.search(r"<profiles>.*?</profiles>", template, re.S)
 if not profiles_match:
     raise SystemExit("ClickHouse template must contain profiles")
@@ -244,7 +259,7 @@ validate_agent() {
     esac
     escaped_version="${clickhouse_version//./\\.}"
     dockerfile="clickhouse/agent/${agent_version}/image/Dockerfile"
-    require_grep 'FROM quay\.io/upmio/unit-agent:v1\.1\.0 AS agent' "$dockerfile"
+    require_grep '^FROM quay\.io/upmio/unit-agent:main-[a-f0-9]+ AS agent$' "$dockerfile"
     require_grep "^ARG CLICKHOUSE_VERSION=\\\"${escaped_version}\\\"$" "$dockerfile"
     require_grep '^ARG CLICKHOUSE_REPOSITORY="https://packages\.clickhouse\.com/rpm/lts"$' "$dockerfile"
     require_grep 'clickhouse-common-static' "$dockerfile"
@@ -258,7 +273,7 @@ validate_agent() {
   require_grep 'upstream arm64 RPM packages' clickhouse/agent/21.8/image/README.md
   require_grep '^ARG TARGETARCH$' clickhouse/agent/23.8/image/Dockerfile
   require_grep '^ARG TARGETARCH$' clickhouse/agent/25.8/image/Dockerfile
-  require_grep 'clickhouse/agent/21\.8/image' .github/workflows/release.yml
+  require_grep 'clickhouse/agent/\*/image' .github/workflows/release.yml
   pass "ClickHouse agent image Dockerfile contains unit-agent and client"
 }
 

@@ -37,6 +37,8 @@
 {{- $serviceName := getenv "SERVICE_NAME" }}
 {{- $namespace := getenv "NAMESPACE" }}
 {{- $tcpPort := getenv "CLICKHOUSE_TCP_PORT" "9000" }}
+{{- $adminUser := getenv "ADM_USER" "default" }}
+{{- $adminPassword := AESCTRDecrypt (secretRead (getenv "SECRET_NAME") $namespace $adminUser) }}
 {{- $shards := jsonArray (getenv "CLICKHOUSE_SHARD_TOPOLOGY" "[]") }}
 {{- if $shards }}
 {{- range $shard := $shards }}
@@ -48,6 +50,8 @@
         <replica>
           <host>{{ $shardServiceName }}-{{ $i }}.{{ $shardServiceName }}-headless-svc.{{ $namespace }}.svc.cluster.local</host>
           <port>{{ $tcpPort }}</port>
+          <user>{{ $adminUser }}</user>
+          <password><![CDATA[{{ $adminPassword }}]]></password>
         </replica>
 {{- end }}
       </shard>
@@ -60,6 +64,8 @@
         <replica>
           <host>{{ $serviceName }}-{{ $i }}.{{ $serviceName }}-headless-svc.{{ $namespace }}.svc.cluster.local</host>
           <port>{{ $tcpPort }}</port>
+          <user>{{ $adminUser }}</user>
+          <password><![CDATA[{{ $adminPassword }}]]></password>
         </replica>
 {{- end }}
       </shard>
