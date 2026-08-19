@@ -90,6 +90,8 @@ template:
             name: keeper
           - containerPort: 9234
             name: raft
+          - containerPort: 9363
+            name: metrics
         env:
           - name: UNIT_SN
             valueFrom:

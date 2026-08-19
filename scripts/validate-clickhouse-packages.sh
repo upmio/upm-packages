@@ -114,7 +114,11 @@ validate_versions() {
     require_grep "^appVersion:[[:space:]]*\\\"?${escaped_version}\\\"?$" "clickhouse-keeper/${version}/charts/Chart.yaml"
     require_grep "^  tag:[[:space:]]*\\\"${escaped_version}\\\"$" "clickhouse-keeper/${version}/charts/values.yaml"
     require_grep "^ARG CLICKHOUSE_VERSION=\\\"${escaped_version}\\\"$" "clickhouse-keeper/${version}/image/Dockerfile"
-    require_grep '^EXPOSE 9181 9234$' "clickhouse-keeper/${version}/image/Dockerfile"
+    if [[ "$version" == "21.8.15.7" ]]; then
+      require_grep '^EXPOSE 9181 9234$' "clickhouse-keeper/${version}/image/Dockerfile"
+    else
+      require_grep '^EXPOSE 9181 9234 9363$' "clickhouse-keeper/${version}/image/Dockerfile"
+    fi
     if [[ "$version" != "26.3.9.8" ]]; then
       require_grep '^ARG CLICKHOUSE_REPOSITORY="https://packages\.clickhouse\.com/rpm/lts"$' "clickhouse-keeper/${version}/image/Dockerfile"
       if [[ "$version" == "21.8.15.7" ]]; then
@@ -191,6 +195,18 @@ PY
     require_grep '<keeper_server>' "clickhouse-keeper/${version}/charts/files/clickhouseKeeperTemplate.tpl"
     require_grep '<raft_configuration>' "clickhouse-keeper/${version}/charts/files/clickhouseKeeperTemplate.tpl"
     require_grep 'UNIT_COUNT' "clickhouse-keeper/${version}/charts/files/clickhouseKeeperTemplate.tpl"
+    if [[ "$version" == "21.8.15.7" ]]; then
+      if grep -Eq '<prometheus>|containerPort: 9363' \
+          "${ROOT_DIR}/clickhouse-keeper/${version}/charts/files/clickhouseKeeperTemplate.tpl" \
+          "${ROOT_DIR}/clickhouse-keeper/${version}/charts/templates/podtemplate.yaml"; then
+        fail "Keeper ${version} must not declare the unsupported built-in Prometheus endpoint"
+      fi
+    else
+      require_grep '<prometheus>' "clickhouse-keeper/${version}/charts/files/clickhouseKeeperTemplate.tpl"
+      require_grep '<endpoint>/metrics</endpoint>' "clickhouse-keeper/${version}/charts/files/clickhouseKeeperTemplate.tpl"
+      require_grep '<port>9363</port>' "clickhouse-keeper/${version}/charts/files/clickhouseKeeperTemplate.tpl"
+      require_grep 'containerPort: 9363' "clickhouse-keeper/${version}/charts/templates/podtemplate.yaml"
+    fi
   done
   pass "configuration templates contain topology sections"
 }
@@ -273,6 +289,17 @@ validate_helm() {
     fi
     if ! grep -Fq "name: clickhouse-keeper-${version}" "${tmpdir}/clickhouse-keeper-${version}-render.yaml"; then
       echo "[FAIL] Keeper ${version} chart did not render expected PodTemplate name" >&2
+      return 1
+    fi
+    if [[ "$version" == "21.8.15.7" ]]; then
+      if grep -Eq '<prometheus>|containerPort: 9363' "${tmpdir}/clickhouse-keeper-${version}-render.yaml"; then
+        echo "[FAIL] Keeper ${version} rendered the unsupported built-in Prometheus endpoint" >&2
+        return 1
+      fi
+    elif ! grep -Fq '<port>9363</port>' "${tmpdir}/clickhouse-keeper-${version}-render.yaml" \
+        || ! grep -Fq 'containerPort: 9363' "${tmpdir}/clickhouse-keeper-${version}-render.yaml" \
+        || ! grep -Fq 'name: metrics' "${tmpdir}/clickhouse-keeper-${version}-render.yaml"; then
+      echo "[FAIL] Keeper ${version} chart did not render its Prometheus endpoint and named metrics port" >&2
       return 1
     fi
   done

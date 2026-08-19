@@ -81,5 +81,5 @@ COPY supervisord.conf /etc/supervisord.conf
 RUN chmod +x /usr/local/bin/service-ctl.sh
 
 USER unit-app
-EXPOSE 9181 9234
+EXPOSE 9181 9234 9363
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]

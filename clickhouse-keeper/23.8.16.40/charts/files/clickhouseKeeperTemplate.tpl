@@ -6,6 +6,13 @@
     <size>1000M</size>
     <count>10</count>
   </logger>
+  <prometheus>
+    <endpoint>/metrics</endpoint>
+    <port>9363</port>
+    <metrics>true</metrics>
+    <events>true</events>
+    <asynchronous_metrics>true</asynchronous_metrics>
+  </prometheus>
   <keeper_server>
     <tcp_port>{{ getenv "CLICKHOUSE_KEEPER_PORT" "9181" }}</tcp_port>
     <server_id>{{ add (atoi (getenv "UNIT_SN" "0")) 1 }}</server_id>
