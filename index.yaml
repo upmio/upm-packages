@@ -26,6 +26,28 @@ entries:
   clickhouse-21.8.15.7:
   - apiVersion: v2
     appVersion: 21.8.15.7
+    created: "2026-08-19T17:08:41.934148+08:00"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: ClickHouse software packages, including configuration templates and
+      pod templates.
+    digest: 461e95af7f4517ff85317afc4c7f444322a79ffdd4425b390150c61f0c48e67c
+    keywords:
+    - clickhouse
+    - database
+    - analytics
+    - olap
+    name: clickhouse-21.8.15.7
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/clickhouse-21.8.15.7-1.1.2/clickhouse-21.8.15.7-1.1.2.tgz
+    version: 1.1.2
+  - apiVersion: v2
+    appVersion: 21.8.15.7
     created: "2026-08-17T06:45:35.755033756Z"
     dependencies:
     - name: common
@@ -70,6 +92,28 @@ entries:
     - https://github.com/upmio/upm-packages/releases/download/clickhouse-23.8-1.1.0/clickhouse-23.8-1.1.0.tgz
     version: 1.1.0
   clickhouse-23.8.16.40:
+  - apiVersion: v2
+    appVersion: 23.8.16.40
+    created: "2026-08-19T17:08:42.418132+08:00"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: ClickHouse software packages, including configuration templates and
+      pod templates.
+    digest: ffec5421bb914832d3938f10ef0b434e954f5409285b8f0c52f021f030d9a09c
+    keywords:
+    - clickhouse
+    - database
+    - analytics
+    - olap
+    name: clickhouse-23.8.16.40
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/clickhouse-23.8.16.40-1.1.2/clickhouse-23.8.16.40-1.1.2.tgz
+    version: 1.1.2
   - apiVersion: v2
     appVersion: 23.8.16.40
     created: "2026-08-17T06:45:49.198935027Z"
@@ -118,6 +162,28 @@ entries:
   clickhouse-25.8.29.51:
   - apiVersion: v2
     appVersion: 25.8.29.51
+    created: "2026-08-19T17:08:42.942827+08:00"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: ClickHouse software packages, including configuration templates and
+      pod templates.
+    digest: 6c82f93e9d11a4662cafed6152fe732823ee7e62732ba065f2dfe5dca40690d0
+    keywords:
+    - clickhouse
+    - database
+    - analytics
+    - olap
+    name: clickhouse-25.8.29.51
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/clickhouse-25.8.29.51-1.1.2/clickhouse-25.8.29.51-1.1.2.tgz
+    version: 1.1.2
+  - apiVersion: v2
+    appVersion: 25.8.29.51
     created: "2026-08-17T06:46:07.094266314Z"
     dependencies:
     - name: common
@@ -139,6 +205,28 @@ entries:
     - https://github.com/upmio/upm-packages/releases/download/clickhouse-25.8.29.51-1.1.0/clickhouse-25.8.29.51-1.1.0.tgz
     version: 1.1.0
   clickhouse-26.3.9.8:
+  - apiVersion: v2
+    appVersion: 26.3.9.8
+    created: "2026-08-19T17:08:43.465476+08:00"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: ClickHouse software packages, including configuration templates and
+      pod templates.
+    digest: e073aa71350f51e45a016c3408aa79ffc3e65a0a03523646b8757c8c2a08ac8e
+    keywords:
+    - clickhouse
+    - database
+    - analytics
+    - olap
+    name: clickhouse-26.3.9.8
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/clickhouse-26.3.9.8-1.1.2/clickhouse-26.3.9.8-1.1.2.tgz
+    version: 1.1.2
   - apiVersion: v2
     appVersion: 26.3.9.8
     created: "2026-08-14T08:56:32Z"
@@ -920,4 +1008,4 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/zookeeper-3.8.4-1.1.0/zookeeper-3.8.4-1.1.0.tgz
     version: 1.1.0
-generated: "2026-08-17T06:46:07.094287795Z"
+generated: "2026-08-19T17:08:43.465507+08:00"
