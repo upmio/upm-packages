@@ -34,11 +34,27 @@
 
   <remote_servers>
     <upm_cluster>
-      <shard>
-        <internal_replication>true</internal_replication>
 {{- $serviceName := getenv "SERVICE_NAME" }}
 {{- $namespace := getenv "NAMESPACE" }}
 {{- $tcpPort := getenv "CLICKHOUSE_TCP_PORT" "9000" }}
+{{- $shards := jsonArray (getenv "CLICKHOUSE_SHARD_TOPOLOGY" "[]") }}
+{{- if $shards }}
+{{- range $shard := $shards }}
+      <shard>
+        <internal_replication>true</internal_replication>
+{{- $shardServiceName := printf "%v" $shard.serviceName }}
+{{- $replicaCount := atoi (printf "%v" $shard.replicaCount) }}
+{{- range $i := seq 0 (sub $replicaCount 1) }}
+        <replica>
+          <host>{{ $shardServiceName }}-{{ $i }}.{{ $shardServiceName }}-headless-svc.{{ $namespace }}.svc.cluster.local</host>
+          <port>{{ $tcpPort }}</port>
+        </replica>
+{{- end }}
+      </shard>
+{{- end }}
+{{- else }}
+      <shard>
+        <internal_replication>true</internal_replication>
 {{- $unitCount := atoi (getenv "UNIT_COUNT" "3") }}
 {{- range $i := seq 0 (sub $unitCount 1) }}
         <replica>
@@ -47,6 +63,7 @@
         </replica>
 {{- end }}
       </shard>
+{{- end }}
     </upm_cluster>
   </remote_servers>
 
@@ -63,9 +80,13 @@
   </zookeeper>
 
   <macros>
-    <shard>01</shard>
+    <shard>{{ getenv "CLICKHOUSE_SHARD_ID" "01" }}</shard>
     <replica>{{ getenv "POD_NAME" }}</replica>
   </macros>
+
+  <distributed_ddl>
+    <path>/clickhouse/task_queue/ddl</path>
+  </distributed_ddl>
 
   <profiles>
     <default>
