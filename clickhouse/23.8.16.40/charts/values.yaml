@@ -14,4 +14,4 @@ agent:
     registry: quay.io
     repository: upmio/clickhouse-agent
     tag: "23.8"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always

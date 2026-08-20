@@ -1,5 +1,5 @@
-FROM quay.io/upmio/unit-agent:main-546b491 AS agent
-# Rebuild against the business-backup agent.
+FROM quay.io/upmio/unit-agent:main-6fdccdf AS agent
+# Keep all ClickHouse versions on the same agent implementation.
 
 FROM rockylinux/rockylinux:9.6.20250531
 
