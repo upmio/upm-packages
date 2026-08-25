@@ -1,4 +1,4 @@
-FROM quay.io/upmio/unit-agent:main-6fdccdf AS agent
+FROM quay.io/upmio/unit-agent:main-cf9eda9 AS agent
 # Keep all ClickHouse versions on the same agent implementation.
 
 FROM rockylinux/rockylinux:9.6.20250531
@@ -12,6 +12,8 @@ ARG CLICKHOUSE_RELEASE="2"
 ARG CLICKHOUSE_REPOSITORY="https://packages.clickhouse.com/rpm/lts"
 ARG CLICKHOUSE_CLIENT_SHA256="d449dd91a4ec33181bbf16205fe99b39ad6b1f1b4bafea3d63f597ed643485f7"
 ARG CLICKHOUSE_COMMON_STATIC_SHA256="6dc4786865520f9fcd64bcc74df2e63e3c08a3ed92809ee56bf81ea76ece8c57"
+ARG CLICKHOUSE_BACKUP_VERSION="2.6.11"
+ARG CLICKHOUSE_BACKUP_RPM_URL="https://github.com/Altinity/clickhouse-backup/releases/download/v2.6.11/clickhouse-backup-2.6.11-1.x86_64.rpm"
 
 # Upstream 21.8.15.7 RPM packages are available only for linux/amd64.
 LABEL org.opencontainers.image.source="https://github.com/upmio/upm-packages" \
@@ -52,7 +54,13 @@ RUN set -eux; \
   echo "${CLICKHOUSE_COMMON_STATIC_SHA256}  /tmp/${common_rpm}" | sha256sum --check --strict; \
   dnf install -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs \
     "/tmp/${common_rpm}" "/tmp/${client_rpm}"; \
+  # ClickHouse 21.8 does not implement native BACKUP/RESTORE SQL. Keep the
+  # helper version pinned so its S3 layout and restore semantics are stable.
+  backup_rpm="/tmp/clickhouse-backup-${CLICKHOUSE_BACKUP_VERSION}.rpm"; \
+  wget --https-only --tries=3 --output-document="${backup_rpm}" "${CLICKHOUSE_BACKUP_RPM_URL}"; \
+  dnf install -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs "${backup_rpm}"; \
   clickhouse-client --version | grep -F "${CLICKHOUSE_VERSION}"; \
+  clickhouse-backup --version | grep -F "${CLICKHOUSE_BACKUP_VERSION}"; \
   dnf clean all; \
   rm -rf /var/cache/dnf /var/cache/yum /var/tmp/* /tmp/*.rpm; \
   localedef -i en_US -f UTF-8 en_US.UTF-8

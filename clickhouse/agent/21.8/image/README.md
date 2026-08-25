@@ -4,8 +4,10 @@ This image provides the ClickHouse `21.8` runtime for the existing UPM `unit-age
 
 It includes:
 
-- `unit-agent` from `quay.io/upmio/unit-agent:v1.1.0`
+- `unit-agent` from `quay.io/upmio/unit-agent:main-cf9eda9`
 - ClickHouse client `21.8.15.7`, shared by ClickHouse 21.8 releases
+- Altinity `clickhouse-backup` `2.6.11`, used because ClickHouse 21.8 has no
+  native `BACKUP` / `RESTORE` SQL support
 - S3-compatible command-line tooling
 
 The image is available for `linux/amd64` only because this ClickHouse LTS release has no upstream arm64 RPM packages.
