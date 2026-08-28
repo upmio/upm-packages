@@ -20,6 +20,7 @@ This component provides containerized Kibana Community Edition as part of the UP
 
 | Version | Status    | Kubernetes | Notes          |
 | ------- | --------- | ---------- | -------------- |
+| 9.0.8   | ✅ Stable | 1.29+      | Current stable |
 | 7.17.14 | ✅ Stable | 1.29+      | Current stable |
 
 ## Quick Start
