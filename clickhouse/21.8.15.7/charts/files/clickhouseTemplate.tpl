@@ -75,9 +75,9 @@
   </remote_servers>
 
   <zookeeper>
-{{- $coordinationServiceName := getenv "COORDINATION_SERVICE_NAME" (printf "%s-zookeeper" (getenv "SERVICE_GROUP_NAME" $serviceName)) }}
-{{- $coordinationCount := atoi (getenv "CLICKHOUSE_COORDINATION_UNIT_COUNT" "3") }}
-{{- $coordinationPort := getenv "COORDINATION_PORT" "2181" }}
+{{- $coordinationServiceName := getenv "COORDINATION_SERVICE_NAME" (getenv "CLICKHOUSE_KEEPER_SERVICE_NAME" (printf "%s-zookeeper" (getenv "SERVICE_GROUP_NAME" $serviceName))) }}
+{{- $coordinationCount := atoi (getenv "CLICKHOUSE_COORDINATION_UNIT_COUNT" (getenv "CLICKHOUSE_KEEPER_UNIT_COUNT" "3")) }}
+{{- $coordinationPort := getenv "COORDINATION_PORT" (getenv "CLICKHOUSE_KEEPER_PORT" "2181") }}
 {{- range $i := seq 0 (sub $coordinationCount 1) }}
     <node>
       <host>{{ $coordinationServiceName }}-{{ $i }}.{{ $coordinationServiceName }}-headless-svc.{{ $namespace }}.svc.cluster.local</host>

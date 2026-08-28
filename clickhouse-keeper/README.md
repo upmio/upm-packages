@@ -9,7 +9,7 @@ Supported UPM package version:
 - `clickhouse-keeper/25.8.29.51`
 - `clickhouse-keeper/26.3.9.8`
 
-ClickHouse Keeper is provisioned as a separate UnitSet in the same service group as ClickHouse. It is not an external ZooKeeper dependency.
+ClickHouse Keeper is provisioned as a separate UnitSet in the same service group as ClickHouse when it is selected as the coordination service. ZooKeeper is the alternative UPM-managed coordination option.
 
 The package renders a three-member Keeper ensemble by default. Server IDs and peer endpoints are generated from UnitSet ordinals and the UnitSet headless service name.
 

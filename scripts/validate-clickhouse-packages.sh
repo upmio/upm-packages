@@ -171,7 +171,9 @@ validate_templates() {
     template_path="clickhouse/${version}/charts/files/clickhouseTemplate.tpl"
     require_grep '<remote_servers>' "$template_path"
     require_grep '<macros>' "$template_path"
-    require_grep 'CLICKHOUSE_KEEPER_SERVICE_NAME' "$template_path"
+    require_grep 'COORDINATION_SERVICE_NAME' "$template_path"
+    require_grep 'COORDINATION_PORT' "$template_path"
+    require_grep 'CLICKHOUSE_COORDINATION_UNIT_COUNT' "$template_path"
     require_grep 'UNIT_COUNT' "$template_path"
     require_grep 'CLICKHOUSE_SHARD_TOPOLOGY' "$template_path"
     require_grep 'CLICKHOUSE_SHARD_ID' "$template_path"
@@ -234,7 +236,7 @@ validate_docs() {
   local version escaped_version
   require_grep 'ClickHouse' README.md
   require_grep 'separate UnitSet' clickhouse/README.md
-  require_grep 'not an external ZooKeeper dependency' clickhouse/README.md
+  require_grep 'ZooKeeper or ClickHouse Keeper' clickhouse/README.md
   require_grep 'separate UnitSet' clickhouse-keeper/README.md
   for version in "${CLICKHOUSE_PACKAGE_VERSIONS[@]}"; do
     escaped_version="${version//./\\.}"
