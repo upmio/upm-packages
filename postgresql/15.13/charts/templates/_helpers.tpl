@@ -8,6 +8,13 @@ Return the proper postgresql image name
 {{- end -}}
 
 {{/*
+Return the proper metrics image name
+*/}}
+{{- define "postgresql.metrics.image" -}}
+{{- include "common.images.image" (dict "imageRoot" .Values.metrics.image "global" .Values.global) }}
+{{- end -}}
+
+{{/*
 Return the proper agent image name
 */}}
 {{- define "postgresql.agent.image" -}}
