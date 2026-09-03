@@ -99,6 +99,17 @@ RUN set -eux; \
 
 ENV PATH=$PATH:/$DISTRO_NAME/bin
 
+COPY UpmPrometheusMetricsProvider.java /tmp/
+
+RUN set -eux; \
+  javac \
+    -cp "/$DISTRO_NAME/lib/*" \
+    -d /tmp/upm-prometheus-provider \
+    /tmp/UpmPrometheusMetricsProvider.java; \
+  jar cf "/$DISTRO_NAME/lib/upm-zookeeper-prometheus-provider.jar" \
+    -C /tmp/upm-prometheus-provider .; \
+  rm -rf /tmp/UpmPrometheusMetricsProvider.java /tmp/upm-prometheus-provider
+
 COPY service-ctl.sh /usr/local/bin/
 COPY supervisord.conf /etc/supervisord.conf
 

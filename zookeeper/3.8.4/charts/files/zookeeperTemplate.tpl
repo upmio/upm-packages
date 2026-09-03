@@ -12,7 +12,8 @@ clientPort={{ getenv "ZOOKEEPER_PORT" "2181" }}
 server.{{ $i }}={{ getenv "SERVICE_NAME" }}-{{ sub $i 1 }}.{{ getenv "SERVICE_NAME" }}-headless-svc.{{ getenv "NAMESPACE" }}:{{ getenv "TRANSPORT_PORT" "2888" }}:{{ getenv "LEADERSHIP_PORT" "3888" }}
 {{end}}
 admin.enableServer=false
-metricsProvider.className=org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider
+metricsProvider.className=org.apache.zookeeper.metrics.prometheus.UpmPrometheusMetricsProvider
 metricsProvider.exportJvmInfo=true
 metricsProvider.httpPort={{ getenv "METRICS_PORT" "7000" }}
+metricsProvider.zkClientPort={{ getenv "ZOOKEEPER_PORT" "2181" }}
 4lw.commands.whitelist=stat, ruok, conf, isro, dump, mntr
