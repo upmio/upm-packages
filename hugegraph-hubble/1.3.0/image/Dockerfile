@@ -23,7 +23,10 @@ RUN mvn install -pl hugegraph-client,hugegraph-loader -am -Dmaven.javadoc.skip=t
 RUN cd hugegraph-hubble \
     && mvn package -e -B -ntp -DskipTests -Dmaven.javadoc.skip=true
 
-FROM openjdk:11-slim
+# Docker Hub no longer publishes openjdk:11-slim. Eclipse Temurin is the
+# maintained Java 11 runtime and provides both amd64 and arm64 images used by
+# the release workflow.
+FROM eclipse-temurin:11-jre-jammy
 
 USER root
 
