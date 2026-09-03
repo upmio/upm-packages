@@ -1,0 +1,5 @@
+gremlin:
+  suffix_limit: "250"
+  vertex_degree_limit: "100"
+  edges_total_limit: "500"
+  batch_query_ids: "100"

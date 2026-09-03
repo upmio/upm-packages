@@ -1,0 +1,4 @@
+server:
+  batch_max_write_ratio: "80"
+  batch_max_write_threads: "0"
+  slow_query_threshold: "1000"

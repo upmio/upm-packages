@@ -1,0 +1,9 @@
+hubble.host=0.0.0.0
+hubble.port={{ getenv "HUBBLE_PORT" "8088" }}
+server.protocol=http
+graph_connection.ip_white_list=[*]
+graph_connection.port_white_list=[-1]
+gremlin.suffix_limit={{ getv "/gremlin/suffix_limit" }}
+gremlin.vertex_degree_limit={{ getv "/gremlin/vertex_degree_limit" }}
+gremlin.edges_total_limit={{ getv "/gremlin/edges_total_limit" }}
+gremlin.batch_query_ids={{ getv "/gremlin/batch_query_ids" }}

@@ -1,0 +1,35 @@
+[
+  {
+    "key": "batch_max_write_ratio",
+    "scope": "",
+    "section": "server",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1-100",
+    "default": "80",
+    "desc_en": "Maximum thread ratio available for batch writes.",
+    "desc_zh": "批量写入可使用的最大线程比例。"
+  },
+  {
+    "key": "batch_max_write_threads",
+    "scope": "",
+    "section": "server",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "0-2147483647",
+    "default": "0",
+    "desc_en": "Maximum number of threads used for batch writes; 0 uses the server default.",
+    "desc_zh": "批量写入使用的最大线程数，0 表示使用服务默认值。"
+  },
+  {
+    "key": "slow_query_threshold",
+    "scope": "",
+    "section": "server",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1-2147483647",
+    "default": "1000",
+    "desc_en": "Slow-query log threshold in milliseconds.",
+    "desc_zh": "慢查询日志阈值，单位为毫秒。"
+  }
+]

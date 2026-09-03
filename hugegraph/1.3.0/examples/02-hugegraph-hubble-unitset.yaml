@@ -1,0 +1,32 @@
+apiVersion: upm.syntropycloud.io/v1alpha2
+kind: UnitSet
+metadata:
+  name: hugegraph-hubble
+  namespace: hugegraph-example
+  labels:
+    upm.api/service-group.name: hugegraph-example
+    upm.api/service-group.type: hugegraph
+    upm.api/service.type: hugegraph-hubble
+    upm.io/owner: upm
+spec:
+  type: hugegraph-hubble
+  version: "1.3.0"
+  units: 1
+  resources:
+    requests:
+      cpu: "500m"
+      memory: 1Gi
+    limits:
+      cpu: "1"
+      memory: 2Gi
+  storage:
+    - name: data
+      size: 5Gi
+      storageClassName: lvm-localpv
+      mountPath: /var/lib/hugegraph-hubble
+  emptyDir:
+    - name: log
+      size: 1Gi
+      mountPath: /var/log/hugegraph-hubble
+  externalService:
+    type: ClusterIP

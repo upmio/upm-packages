@@ -1,0 +1,46 @@
+[
+  {
+    "key": "suffix_limit",
+    "scope": "",
+    "section": "gremlin",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1-800000",
+    "default": "250",
+    "desc_en": "Maximum suffix length added to a Gremlin statement.",
+    "desc_zh": "Gremlin 语句追加的最大后缀长度。"
+  },
+  {
+    "key": "vertex_degree_limit",
+    "scope": "",
+    "section": "gremlin",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1-500",
+    "default": "100",
+    "desc_en": "Maximum edge count returned for one vertex.",
+    "desc_zh": "单个顶点可返回的最大边数量。"
+  },
+  {
+    "key": "edges_total_limit",
+    "scope": "",
+    "section": "gremlin",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1-1000",
+    "default": "500",
+    "desc_en": "Maximum total edge count returned by a Gremlin query.",
+    "desc_zh": "Gremlin 查询可返回的最大总边数量。"
+  },
+  {
+    "key": "batch_query_ids",
+    "scope": "",
+    "section": "gremlin",
+    "type": "Integer",
+    "dynamic": false,
+    "range": "1-250",
+    "default": "100",
+    "desc_en": "Number of IDs processed in each Gremlin query batch.",
+    "desc_zh": "每批 Gremlin 查询处理的 ID 数量。"
+  }
+]
