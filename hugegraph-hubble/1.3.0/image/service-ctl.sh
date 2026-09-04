@@ -30,7 +30,7 @@ start() {
   exec java -server -Xms512m \
     -Dhubble.home.path="${HUBBLE_HOME}" \
     -Dlogging.file="${LOG_MOUNT}/hugegraph-hubble.log" \
-    -cp ".:${HUBBLE_HOME}/lib/*" \
+    -cp ".:${HUBBLE_HOME}:${HUBBLE_HOME}/lib/*" \
     org.apache.hugegraph.HugeGraphHubble "${CONFIG_PATH}"
 }
 

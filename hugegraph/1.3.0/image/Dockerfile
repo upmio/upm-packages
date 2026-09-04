@@ -8,6 +8,12 @@ RUN set -eux; \
     rm -rf /var/lib/apt/lists/*; \
     groupadd --system --gid 1001 hugegraph; \
     useradd --system --uid 1001 --gid 1001 --no-create-home --shell /usr/sbin/nologin hugegraph; \
+    sed -i \
+      -e 's|^#host: 127.0.0.1$|host: 0.0.0.0|' \
+      -e 's|^#port: 8182$|port: 8182|' \
+      /hugegraph-server/conf/gremlin-server.yaml; \
+    grep -Fx 'host: 0.0.0.0' /hugegraph-server/conf/gremlin-server.yaml; \
+    grep -Fx 'port: 8182' /hugegraph-server/conf/gremlin-server.yaml; \
     chown -R hugegraph:hugegraph /hugegraph-server
 
 ENV HUGEGRAPH_HOME=/hugegraph-server \
