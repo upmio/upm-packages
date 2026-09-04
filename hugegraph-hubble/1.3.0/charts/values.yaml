@@ -12,7 +12,7 @@ image:
 agent:
   image:
     registry: quay.io
-    repository: upmio/unit-agent-hugegraph-hubble
-    tag: "v1.1.2"
+    repository: upmio/unit-agent
+    tag: "v1.1.2-hugegraph-hubble"
     digest: ""
     pullPolicy: IfNotPresent
