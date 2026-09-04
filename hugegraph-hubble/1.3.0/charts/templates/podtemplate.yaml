@@ -142,6 +142,10 @@ template:
               fieldRef:
                 apiVersion: v1
                 fieldPath: metadata.namespace
+          - name: HUBBLE_HOST
+            value: "127.0.0.1"
+          - name: HUBBLE_PORT
+            value: "8088"
         resources:
           requests:
             cpu: 100m

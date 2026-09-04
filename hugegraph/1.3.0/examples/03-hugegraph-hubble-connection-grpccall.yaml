@@ -1,0 +1,15 @@
+apiVersion: upm.syntropycloud.io/v1alpha1
+kind: GrpcCall
+metadata:
+  name: hugegraph-hubble-connection
+  namespace: hugegraph-example
+spec:
+  targetUnit: hugegraph-hubble-0
+  type: hugegraph-hubble
+  action: configure-graph-connection
+  ttlSecondsAfterFinished: 3600
+  parameters:
+    name: "upm_hugegraph_example"
+    graph: "hugegraph"
+    host: "hugegraph-svc.hugegraph-example.svc"
+    port: 8080

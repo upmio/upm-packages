@@ -26,6 +26,9 @@ kubectl wait --namespace hugegraph-example \
 kubectl apply -f 02-hugegraph-hubble-unitset.yaml
 kubectl wait --namespace hugegraph-example \
   --for=jsonpath='{.status.readyUnits}'=1 unitset/hugegraph-hubble --timeout=10m
+kubectl apply -f 03-hugegraph-hubble-connection-grpccall.yaml
+kubectl wait --namespace hugegraph-example \
+  --for=jsonpath='{.status.result}'=Success grpccall/hugegraph-hubble-connection --timeout=5m
 ```
 
 The controller creates `hugegraph-svc` with ports `8080` (REST) and `8182`
@@ -35,8 +38,9 @@ The controller creates `hugegraph-svc` with ports `8080` (REST) and `8182`
 kubectl --namespace hugegraph-example port-forward svc/hugegraph-hubble-svc 8088:8088
 ```
 
-Then add a graph connection in Hubble with host `hugegraph-svc`, port `8080`,
-and graph name `hugegraph`.
+After Hubble reports Ready, the GrpcCall idempotently creates the connection
+in Hubble with host `hugegraph-svc.hugegraph-example.svc`, port `8080`, and
+graph name `hugegraph`.
 
 `lvm-localpv` is used because it is the storage class in the test cluster.
 Change `storageClassName` before applying the manifest in another cluster.
