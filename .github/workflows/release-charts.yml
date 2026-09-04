@@ -1,0 +1,104 @@
+name: Release Charts
+
+run-name: ${{ github.actor }} is releasing charts
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**/charts/**"
+  workflow_dispatch:
+
+concurrency:
+  group: release-charts-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  detect-chart-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      changed_chart_dirs: ${{ steps.analyze.outputs.changed_chart_dirs }}
+      has_chart_changes: ${{ steps.analyze.outputs.has_chart_changes }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Analyze chart changes
+        id: analyze
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]]; then
+            changed_files=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}")
+          else
+            changed_files=$(git diff-tree --no-commit-id --name-only -r HEAD)
+          fi
+
+          echo -e "Changed files:\n$changed_files"
+
+          changed_chart_dirs_json="$(echo "$changed_files" | grep "charts/" | while read -r file; do
+            [ -n "$file" ] || continue
+            dir=$(dirname "$file" | sed 's|^\./||')
+            while [[ "$dir" != "." && "$dir" != *"charts" ]]; do dir=$(dirname "$dir"); done
+            [[ "$dir" == *"charts" ]] && echo "$dir"
+          done | sort | uniq | jq -R . | jq -sc .)"
+
+          has_chart_changes=$(echo "$changed_files" | grep -q "charts/" && echo true || echo false)
+          echo "changed_chart_dirs=$changed_chart_dirs_json" >> "$GITHUB_OUTPUT"
+          echo "has_chart_changes=$has_chart_changes" >> "$GITHUB_OUTPUT"
+
+  release-charts:
+    needs: detect-chart-changes
+    if: needs.detect-chart-changes.outputs.has_chart_changes == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        chart_dir: ${{ fromJson(needs.detect-chart-changes.outputs.changed_chart_dirs) }}
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git fetch --all
+          git fetch --tags
+
+      - name: Read chart version
+        id: meta
+        run: |
+          CHART_VERSION=$(yq eval '.version' ${{ matrix.chart_dir }}/Chart.yaml)
+          CHART_NAME=$(yq eval '.name' ${{ matrix.chart_dir }}/Chart.yaml)
+          echo "name=$CHART_NAME" >> "$GITHUB_OUTPUT"
+          echo "version=$CHART_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Package chart
+        run: |
+          rm -rf .cr-release-packages
+          mkdir -p .cr-release-packages
+          helm package ${{ matrix.chart_dir }} --destination=.cr-release-packages -u
+
+      - name: Release chart
+        uses: helm/chart-releaser-action@v1.5.0
+        with:
+          charts_dir: ${{ matrix.chart_dir }}
+          skip_packaging: true
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+  summary:
+    needs: [detect-chart-changes, release-charts]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summary
+        run: |
+          echo "### Chart Release Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Chart changes: ${{ needs.detect-chart-changes.outputs.has_chart_changes }}" >> "$GITHUB_STEP_SUMMARY"

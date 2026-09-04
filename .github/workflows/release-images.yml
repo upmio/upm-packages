@@ -1,0 +1,118 @@
+name: Release Images
+
+run-name: ${{ github.actor }} is releasing images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**/image/**"
+  workflow_dispatch:
+
+concurrency:
+  group: release-images-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  detect-image-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      changed_image_dirs: ${{ steps.analyze.outputs.changed_image_dirs }}
+      has_image_changes: ${{ steps.analyze.outputs.has_image_changes }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Analyze image changes
+        id: analyze
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]]; then
+            changed_files=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}")
+          else
+            changed_files=$(git diff-tree --no-commit-id --name-only -r HEAD)
+          fi
+
+          echo -e "Changed files:\n$changed_files"
+
+          changed_image_dirs_json="$(echo "$changed_files" | grep "image/" | while read -r file; do
+            [ -n "$file" ] || continue
+            dir=$(dirname "$file" | sed 's|^\./||')
+            while [[ "$dir" != "." && "$dir" != *"image" ]]; do dir=$(dirname "$dir"); done
+            if [[ "$dir" == *"image" ]]; then
+              comp=$(echo "$dir" | awk -F'/' '{print $1}')
+              seg2=$(echo "$dir" | awk -F'/' '{print $2}')
+              seg3=$(echo "$dir" | awk -F'/' '{print $3}')
+              if [ "$seg2" = "agent" ]; then
+                image_name="${comp}-agent"
+                image_tag="$seg3"
+              else
+                image_name="$comp"
+                image_tag="$seg2"
+              fi
+              platforms="linux/amd64,linux/arm64"
+              case "$dir" in
+                clickhouse/21.8.15.7/image|clickhouse/agent/*/image|clickhouse-keeper/21.8.15.7/image)
+                  platforms="linux/amd64"
+                  ;;
+              esac
+              jq -nc \
+                --arg component "$comp" \
+                --arg context "$dir" \
+                --arg image_name "$image_name" \
+                --arg tag "$image_tag" \
+                --arg platforms "$platforms" \
+                '{component: $component, context: $context, image_name: $image_name, tag: $tag, platforms: $platforms}'
+            fi
+          done | sort | uniq | jq -sc .)"
+
+          has_image_changes=$(echo "$changed_files" | grep -q "image/" && echo true || echo false)
+          echo "changed_image_dirs=$changed_image_dirs_json" >> "$GITHUB_OUTPUT"
+          echo "has_image_changes=$has_image_changes" >> "$GITHUB_OUTPUT"
+
+  build-and-push-images:
+    needs: detect-image-changes
+    if: needs.detect-image-changes.outputs.has_image_changes == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 3
+      matrix:
+        image_info: ${{ fromJson(needs.detect-image-changes.outputs.changed_image_dirs) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Quay
+        uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAYIO_USERNAME }}
+          password: ${{ secrets.QUAYIO_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.image_info.context }}
+          platforms: ${{ matrix.image_info.platforms }}
+          push: true
+          tags: quay.io/upmio/${{ matrix.image_info.image_name }}:${{ matrix.image_info.tag }}
+
+  summary:
+    needs: [detect-image-changes, build-and-push-images]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summary
+        run: |
+          echo "### Image Release Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Image changes: ${{ needs.detect-image-changes.outputs.has_image_changes }}" >> "$GITHUB_STEP_SUMMARY"
