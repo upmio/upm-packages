@@ -48,7 +48,15 @@ jobs:
               seg2=$(echo "$dir" | awk -F'/' '{print $2}')
               seg3=$(echo "$dir" | awk -F'/' '{print $3}')
               if [ "$seg2" = "agent" ]; then
-                image_name="${comp}-agent"
+                if [ "$comp" = "hugegraph-hubble" ]; then
+                  # The dedicated Hubble agent is built from this package,
+                  # but is published under the existing unit-agent Quay
+                  # repository. The CI token is not allowed to create a new
+                  # Quay repository at push time.
+                  image_name="unit-agent"
+                else
+                  image_name="${comp}-agent"
+                fi
                 image_tag="$seg3"
               else
                 image_name="$comp"
@@ -63,6 +71,7 @@ jobs:
                   # The HugeGraph 1.3.0 single-node package is released for
                   # the amd64 deployment target used by its RocksDB image.
                   platforms="linux/amd64"
+                  image_tag="${seg3}-hugegraph-hubble"
                   ;;
               esac
               jq -nc \
