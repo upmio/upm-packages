@@ -19,7 +19,7 @@ RUN cd hugegraph-tools \
 
 # Keep the unit-agent implementation in unit-operator. This image adds only
 # the Java runtime and HugeGraph Tools that are specific to Hubble 1.3.0.
-# The tag is the unit-operator commit that includes Hubble backup, restore,
+# Pinned to the unit-operator commit that includes Hubble backup, restore,
 # and S3-compatible object storage support.
 FROM quay.io/upmio/unit-agent:main-4f61326 AS unit-agent
 

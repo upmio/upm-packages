@@ -39,7 +39,9 @@ jobs:
 
           echo -e "Changed files:\n$changed_files"
 
-          changed_image_dirs_json="$(echo "$changed_files" | grep "image/" | while read -r file; do
+          # `workflow_dispatch` can target a commit with no image changes.
+          # Keep the resulting matrix empty instead of failing under pipefail.
+          changed_image_dirs_json="$({ echo "$changed_files" | grep "image/" || true; } | while read -r file; do
             [ -n "$file" ] || continue
             dir=$(dirname "$file" | sed 's|^\./||')
             while [[ "$dir" != "." && "$dir" != *"image" ]]; do dir=$(dirname "$dir"); done
