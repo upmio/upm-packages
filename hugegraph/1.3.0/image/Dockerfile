@@ -22,7 +22,8 @@ RUN set -eux; \
 
 LABEL type="hugegraph" \
       version="1.3.0" \
-      maintainer="upm"
+      maintainer="upm" \
+      org.opencontainers.image.version="1.3.0"
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
 
