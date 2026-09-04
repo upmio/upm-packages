@@ -31,8 +31,10 @@ kubectl wait --namespace hugegraph-example \
   --for=jsonpath='{.status.result}'=Success grpccall/hugegraph-hubble-connection --timeout=5m
 ```
 
-The controller creates `hugegraph-svc` with ports `8080` (REST) and `8182`
-(Gremlin). Open Hubble locally with:
+The examples request NodePort services. The controller creates
+`hugegraph-svc` with ports `8080` (REST) and `8182` (Gremlin), and
+`hugegraph-hubble-svc` with port `8088`. Use the assigned NodePort for direct
+access, or open Hubble locally with:
 
 ```bash
 kubectl --namespace hugegraph-example port-forward svc/hugegraph-hubble-svc 8088:8088

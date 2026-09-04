@@ -29,4 +29,4 @@ spec:
       size: 2Gi
       mountPath: /var/log/hugegraph
   externalService:
-    type: ClusterIP
+    type: NodePort

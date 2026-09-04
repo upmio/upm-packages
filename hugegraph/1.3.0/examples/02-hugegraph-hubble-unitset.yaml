@@ -29,4 +29,4 @@ spec:
       size: 1Gi
       mountPath: /var/log/hugegraph-hubble
   externalService:
-    type: ClusterIP
+    type: NodePort
