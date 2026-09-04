@@ -31,6 +31,29 @@ kubectl wait --namespace hugegraph-example \
   --for=jsonpath='{.status.result}'=Success grpccall/hugegraph-hubble-connection --timeout=5m
 ```
 
+`04-hugegraph-backup-grpccall.yaml` and
+`05-hugegraph-restore-grpccall.yaml` are synchronous logical backup and
+restore examples. Copy each file first and replace its S3/MinIO placeholders;
+credentials must never be committed. Apply the restore manifest only after the
+backup GrpcCall reports `Success`:
+
+```bash
+kubectl apply -f 04-hugegraph-backup-grpccall.yaml
+kubectl wait --namespace hugegraph-example \
+  --for=jsonpath='{.status.result}'=Success grpccall/hugegraph-backup --timeout=70m
+
+kubectl apply -f 05-hugegraph-restore-grpccall.yaml
+kubectl wait --namespace hugegraph-example \
+  --for=jsonpath='{.status.result}'=Success grpccall/hugegraph-restore --timeout=70m
+```
+
+The Hubble agent creates a HugeGraph Tools logical backup containing schema
+and graph data, packages it as a gzip tar archive, and uploads it to the
+specified S3-compatible MinIO bucket. Restore is rejected when the target
+graph contains schema unless `overwrite: true` is explicitly set. An overwrite
+clears the target graph, restores it in HugeGraph `RESTORING` mode, and returns
+the graph to normal (`NONE`) mode when successful.
+
 The examples request NodePort services. The controller creates
 `hugegraph-svc` with ports `8080` (REST) and `8182` (Gremlin), and
 `hugegraph-hubble-svc` with port `8088`. Use the assigned NodePort for direct

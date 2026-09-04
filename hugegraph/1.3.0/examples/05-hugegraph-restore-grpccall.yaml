@@ -1,0 +1,28 @@
+# Copy this file and replace the objectStorage placeholders before applying it.
+# Restore rejects a non-empty target graph unless overwrite is explicitly true.
+# Do not commit real S3/MinIO credentials.
+apiVersion: upm.syntropycloud.io/v1alpha1
+kind: GrpcCall
+metadata:
+  name: hugegraph-restore
+  namespace: hugegraph-example
+spec:
+  targetUnit: hugegraph-hubble-0
+  type: hugegraph-hubble
+  action: restore
+  ttlSecondsAfterFinished: 86400
+  parameters:
+    connectionName: "upm_hugegraph_example"
+    backupFile: "hugegraph-example/backup-20260904.tar.gz"
+    # Defaults to false. Set true only after confirming that existing schema
+    # and graph data may be removed.
+    overwrite: false
+    # Omit timeoutSeconds to use the synchronous one-hour default.
+    timeoutSeconds: 3600
+    objectStorage:
+      endpoint: "minio.example.com:9000"
+      bucket: "hugegraph-backups"
+      accessKey: "REPLACE_WITH_ACCESS_KEY"
+      secretKey: "REPLACE_WITH_SECRET_KEY"
+      ssl: false
+      type: Minio
