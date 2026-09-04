@@ -629,6 +629,22 @@ entries:
   hugegraph-hubble-1.3.0:
   - apiVersion: v2
     appVersion: 1.3.0
+    created: "2026-09-04T09:23:13.893278878Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: HugeGraph Hubble 1.3.0 configuration and pod templates for UPM.
+    digest: fe67420247fecf5a6c08f7d1d7ad439c3e6759d2e85d73ac7200365fd0d9324c
+    name: hugegraph-hubble-1.3.0
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/hugegraph-hubble-1.3.0-1.0.7/hugegraph-hubble-1.3.0-1.0.7.tgz
+    version: 1.0.7
+  - apiVersion: v2
+    appVersion: 1.3.0
     created: "2026-09-04T09:02:46.024820446Z"
     dependencies:
     - name: common
@@ -1379,4 +1395,4 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/zookeeper-3.8.4-1.1.0/zookeeper-3.8.4-1.1.0.tgz
     version: 1.1.0
-generated: "2026-09-04T09:02:46.024905766Z"
+generated: "2026-09-04T09:23:13.893360902Z"
