@@ -1,4 +1,4 @@
-FROM quay.io/upmio/unit-agent:main-cf9eda9 AS agent
+FROM quay.io/upmio/unit-agent:v1.1.0 AS agent
 # Keep all ClickHouse versions on the same agent implementation.
 
 FROM rockylinux/rockylinux:9.6.20250531

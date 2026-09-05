@@ -4,7 +4,7 @@ This image provides the ClickHouse-specific runtime for the existing UPM `unit-a
 
 It includes:
 
-- `unit-agent` from `quay.io/upmio/unit-agent:main-cf9eda9`
+- `unit-agent` from `quay.io/upmio/unit-agent:v1.1.0`
 - ClickHouse client `26.3.9.8`
 - S3-compatible command-line tooling
 
