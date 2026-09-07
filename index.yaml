@@ -596,6 +596,22 @@ entries:
   hugegraph-1.3.0:
   - apiVersion: v2
     appVersion: 1.3.0
+    created: "2026-09-07T03:08:59.436048374Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.31.3
+    description: HugeGraph Server 1.3.0 configuration and pod templates for UPM.
+    digest: 86c8fe090ae75a6f03bbdd3c1974154302ece6ea2cd48cd0f6bc14dbc0fd4cbe
+    name: hugegraph-1.3.0
+    type: application
+    urls:
+    - https://github.com/upmio/upm-packages/releases/download/hugegraph-1.3.0-1.1.2/hugegraph-1.3.0-1.1.2.tgz
+    version: 1.1.2
+  - apiVersion: v2
+    appVersion: 1.3.0
     created: "2026-09-07T02:44:25.241565589Z"
     dependencies:
     - name: common
@@ -1475,4 +1491,4 @@ entries:
     urls:
     - https://github.com/upmio/upm-packages/releases/download/zookeeper-3.8.4-1.1.0/zookeeper-3.8.4-1.1.0.tgz
     version: 1.1.0
-generated: "2026-09-07T03:08:44.670734758Z"
+generated: "2026-09-07T03:08:59.436127031Z"
