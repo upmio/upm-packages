@@ -18,10 +18,10 @@ RUN mvn install -pl hugegraph-client -am -Dmaven.javadoc.skip=true -DskipTests -
 RUN cd hugegraph-tools \
     && mvn package -B -ntp -DskipTests -Dmaven.javadoc.skip=true
 
-# This Unit Operator build registers the hugegraph-hubble operation when
-# UNIT_TYPE=hugegraph-hubble.  For UNIT_TYPE=hugegraph it continues to provide
-# the standard config, lifecycle and log-tail facilities.
-FROM quay.io/upmio/unit-agent:1.3.0-hugegraph-hubble AS unit-agent
+# Keep the shared unit-agent implementation in unit-operator, consistent with
+# the other package-specific agents (for example ClickHouse). This image adds
+# the Java runtime and HugeGraph Tools needed by the HugeGraph package.
+FROM quay.io/upmio/unit-agent:v1.1.0 AS unit-agent
 
 FROM eclipse-temurin:11-jre-jammy
 
