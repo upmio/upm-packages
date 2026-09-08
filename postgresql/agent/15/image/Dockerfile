@@ -1,10 +1,10 @@
-FROM quay.io/upmio/unit-agent:v1.1.0 AS agent
+FROM quay.io/upmio/unit-agent:v1.1.2 AS agent
 
 FROM rockylinux/rockylinux:9.6.20250531
 
 ARG BUILD_DATE
 ARG VCS_REF
-ARG AGENT_VERSION="v1.1.0"
+ARG AGENT_VERSION="v1.1.2"
 
 LABEL org.opencontainers.image.source="https://github.com/upmio/upm-packages" \
       org.opencontainers.image.created="$BUILD_DATE" \

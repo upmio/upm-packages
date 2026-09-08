@@ -1,4 +1,4 @@
-FROM quay.io/upmio/unit-agent:v1.1.0 AS agent
+FROM quay.io/upmio/unit-agent:v1.1.2 AS agent
 # Keep all ClickHouse versions on the same agent implementation.
 
 FROM rockylinux/rockylinux:9.6.20250531
@@ -6,7 +6,7 @@ FROM rockylinux/rockylinux:9.6.20250531
 ARG BUILD_DATE
 ARG VCS_REF
 ARG TARGETARCH
-ARG AGENT_VERSION="v1.1.0"
+ARG AGENT_VERSION="v1.1.2"
 ARG CLICKHOUSE_VERSION="25.8.29.51"
 ARG CLICKHOUSE_REPOSITORY="https://packages.clickhouse.com/rpm/lts"
 ARG CLICKHOUSE_CLIENT_SHA256_AMD64="4f8057a334302a8f20aa5d68df633c210ca8bd0330efd24a7830bd1766792ad6"

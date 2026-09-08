@@ -1,11 +1,11 @@
-# FROM quay.io/upmio/unit-agent:v1.1.0 AS agent
-FROM --platform=linux/amd64 quay.io/upmio/unit-agent:v2.0-dev-chenxiinn-1d4fdc8 AS agent
+# Shared special-agent runtime. Milvus remains amd64-only by design.
+FROM --platform=linux/amd64 quay.io/upmio/unit-agent:v1.1.2 AS agent
 
 FROM rockylinux/rockylinux:9.6.20250531
 
 ARG BUILD_DATE
 ARG VCS_REF
-ARG AGENT_VERSION="v1.1.0"
+ARG AGENT_VERSION="v1.1.2"
 
 LABEL org.opencontainers.image.source="https://github.com/upmio/upm-packages" \
       org.opencontainers.image.created="$BUILD_DATE" \

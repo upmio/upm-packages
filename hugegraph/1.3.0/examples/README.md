@@ -20,12 +20,33 @@ kubectl apply -f 00-hugegraph-project.yaml
 kubectl wait --for=create namespace/hugegraph-example --timeout=2m
 kubectl --namespace hugegraph-example wait \
   --for=create secret/aes-secret-key --timeout=2m
+
+wait_unitset_ready() {
+  local namespace="$1"
+  local name="$2"
+  local timeout_seconds="${3:-600}"
+  local deadline=$((SECONDS + timeout_seconds))
+
+  while (( SECONDS < deadline )); do
+    local desired ready
+    read -r desired ready < <(
+      kubectl --namespace "$namespace" get unitset "$name" \
+        -o go-template='{{.spec.units}} {{.status.readyUnits}}' 2>/dev/null || true
+    )
+    if [[ -n "$desired" && "$ready" == "$desired" ]]; then
+      return 0
+    fi
+    sleep 5
+  done
+
+  echo "UnitSet $name did not reach all desired ready units" >&2
+  return 1
+}
+
 kubectl apply -f 01-hugegraph-single-unitset.yaml
-kubectl wait --namespace hugegraph-example \
-  --for=jsonpath='{.status.readyUnits}'=1 unitset/hugegraph --timeout=10m
+wait_unitset_ready hugegraph-example hugegraph 600
 kubectl apply -f 02-hugegraph-hubble-unitset.yaml
-kubectl wait --namespace hugegraph-example \
-  --for=jsonpath='{.status.readyUnits}'=1 unitset/hugegraph-hubble --timeout=10m
+wait_unitset_ready hugegraph-example hugegraph-hubble 600
 kubectl apply -f 03-hugegraph-hubble-connection-grpccall.yaml
 kubectl wait --namespace hugegraph-example \
   --for=jsonpath='{.status.result}'=Success grpccall/hugegraph-hubble-connection --timeout=5m

@@ -21,7 +21,7 @@ RUN cd hugegraph-tools \
 # Keep the shared unit-agent implementation in unit-operator, consistent with
 # the other package-specific agents (for example ClickHouse). This image adds
 # the Java runtime and HugeGraph Tools needed by the HugeGraph package.
-FROM quay.io/upmio/unit-agent:v1.1.0 AS unit-agent
+FROM quay.io/upmio/unit-agent:v1.1.2 AS unit-agent
 
 FROM eclipse-temurin:11-jre-jammy
 

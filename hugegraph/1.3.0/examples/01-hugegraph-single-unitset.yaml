@@ -30,3 +30,7 @@ spec:
       mountPath: /var/log/hugegraph
   externalService:
     type: NodePort
+  podMonitor:
+    enable: true
+    endpoints:
+      - port: hugegraph
