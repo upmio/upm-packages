@@ -971,7 +971,7 @@ entries:
     version: 1.1.1
   - apiVersion: v2
     appVersion: 8.0.15
-    created: "2025-10-26T14:45:00.061422229Z"
+    created: "2026-09-09T10:59:54Z"
     dependencies:
     - name: common
       repository: oci://registry-1.docker.io/bitnamicharts
@@ -980,7 +980,7 @@ entries:
       version: 2.31.3
     description: mongodb software packages, including configuration templates and
       pod templates.
-    digest: 612cef0d161abc622ac5d1a51f6a990e900515e8c6b67f82e2a879a416db6604
+    digest: baf3a064f5a2c6b2e6c7467de5a86b54999fa8c208a7af3bdf8bc242525ad6e9
     keywords:
     - mongodb
     - database
