@@ -84,6 +84,10 @@ jobs:
           rm -rf .cr-release-packages
           mkdir -p .cr-release-packages
           helm package ${{ matrix.chart_dir }} --destination=.cr-release-packages -u
+          # Packaging alone does not render templates. Reject broken releases
+          # before uploading their archive or updating the Helm repository.
+          helm lint ${{ matrix.chart_dir }}
+          helm template release-check ${{ matrix.chart_dir }} > /dev/null
 
       - name: Release chart
         uses: helm/chart-releaser-action@v1.5.0

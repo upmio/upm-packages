@@ -228,7 +228,7 @@ template:
           - containerPort: 9216
             name: metrics
         env:
-         - name: DATA_MOUNT
+          - name: DATA_MOUNT
             valueFrom:
               fieldRef:
                 apiVersion: "v1"
@@ -252,4 +252,3 @@ template:
           failureThreshold: 4
           periodSeconds: 12
           timeoutSeconds: 3
-
