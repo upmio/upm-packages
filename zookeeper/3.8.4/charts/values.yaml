@@ -3,9 +3,9 @@ global:
   imageRegistry: ""
 
 image:
-  registry: harbor.bsgchina.com
+  registry: quay.io
   repository: upmio/zookeeper
-  tag: "3.8.4-upm-metrics-20260903"
+  tag: "3.8.4"
   digest: ""
   pullPolicy: IfNotPresent
 
