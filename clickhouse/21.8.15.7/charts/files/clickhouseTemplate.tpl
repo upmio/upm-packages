@@ -119,9 +119,9 @@
     <users_xml>
       <path>{{ getenv "CLICKHOUSE_CONF_DIR" }}/config.xml</path>
     </users_xml>
-    <replicated>
-      <zookeeper_path>/upm/clickhouse/access/{{ getenv "NAMESPACE" }}/{{ getenv "SERVICE_GROUP_NAME" }}/</zookeeper_path>
-    </replicated>
+    <local_directory>
+      <path>{{ getenv "CLICKHOUSE_DATA_DIR" }}/access/</path>
+    </local_directory>
   </user_directories>
 
   <backups>
