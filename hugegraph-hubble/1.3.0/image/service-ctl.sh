@@ -23,6 +23,13 @@ initialize() {
 start() {
   [[ -f "${CONFIG_PATH}" ]] || die "rendered configuration not found: ${CONFIG_PATH}"
 
+  # hive-exec also bundles com.google.common.base.Preconditions. The JVM
+  # expands lib/* in filesystem order, which differs between nodes; if
+  # hive-exec is resolved first, Hubble fails at startup with NoSuchMethodError.
+  # Keep Guava first explicitly while retaining the Hive dependency.
+  readonly GUAVA_JAR="${HUBBLE_HOME}/lib/guava-30.0-jre.jar"
+  [[ -f "${GUAVA_JAR}" ]] || die "required Guava runtime not found: ${GUAVA_JAR}"
+
   # Hubble's bundled application.properties stores H2 at ./db. Running from
   # DATA_DIR keeps its connection metadata across Pod recreation, while the
   # supplied argument makes Hubble consume the unit-agent rendered config.
@@ -30,7 +37,7 @@ start() {
   exec java -server -Xms512m \
     -Dhubble.home.path="${HUBBLE_HOME}" \
     -Dlogging.file="${LOG_MOUNT}/hugegraph-hubble.log" \
-    -cp ".:${HUBBLE_HOME}:${HUBBLE_HOME}/lib/*" \
+    -cp ".:${HUBBLE_HOME}:${GUAVA_JAR}:${HUBBLE_HOME}/lib/*" \
     org.apache.hugegraph.HugeGraphHubble "${CONFIG_PATH}"
 }
 
