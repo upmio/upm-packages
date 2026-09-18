@@ -25,6 +25,23 @@
     <table>asynchronous_metric_log</table>
     <flush_interval_milliseconds>7000</flush_interval_milliseconds>
   </asynchronous_metric_log>
+  <!-- Keep diagnostic query history bounded. log_queries is enabled in the default profile below. -->
+  <query_log>
+    <database>system</database>
+    <table>query_log</table>
+    <partition_by>toYYYYMM(event_date)</partition_by>
+    <ttl>event_date + INTERVAL 7 DAY DELETE</ttl>
+    <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+  </query_log>
+  <!-- Keep only error-level server messages to avoid high-volume text logs. -->
+  <text_log>
+    <database>system</database>
+    <table>text_log</table>
+    <partition_by>toYYYYMM(event_date)</partition_by>
+    <ttl>event_date + INTERVAL 1 DAY DELETE</ttl>
+    <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+    <level>error</level>
+  </text_log>
   <interserver_http_port>{{ getenv "CLICKHOUSE_INTERSERVER_PORT" "9009" }}</interserver_http_port>
   <max_concurrent_queries>{{ getv "/settings/max_concurrent_queries" }}</max_concurrent_queries>
   <path>{{ getenv "CLICKHOUSE_DATA_DIR" }}/</path>

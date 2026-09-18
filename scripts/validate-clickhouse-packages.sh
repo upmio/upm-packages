@@ -212,6 +212,35 @@ if "<max_concurrent_queries>" in profiles_match.group(0):
     raise SystemExit("max_concurrent_queries is a server setting and must not be in profiles")
 if "<max_concurrent_queries>" not in template:
     raise SystemExit("ClickHouse template must configure max_concurrent_queries")
+
+def log_section(name):
+    match = re.search(rf"<{name}>.*?</{name}>", template, re.S)
+    if not match:
+        raise SystemExit(f"ClickHouse template must contain {name}")
+    return match.group(0)
+
+query_log = log_section("query_log")
+for expected in (
+    "<database>system</database>",
+    "<table>query_log</table>",
+    "<partition_by>toYYYYMM(event_date)</partition_by>",
+    "<ttl>event_date + INTERVAL 7 DAY DELETE</ttl>",
+    "<flush_interval_milliseconds>7500</flush_interval_milliseconds>",
+):
+    if expected not in query_log:
+        raise SystemExit(f"ClickHouse query_log must contain {expected}")
+
+text_log = log_section("text_log")
+for expected in (
+    "<database>system</database>",
+    "<table>text_log</table>",
+    "<partition_by>toYYYYMM(event_date)</partition_by>",
+    "<ttl>event_date + INTERVAL 1 DAY DELETE</ttl>",
+    "<flush_interval_milliseconds>7500</flush_interval_milliseconds>",
+    "<level>error</level>",
+):
+    if expected not in text_log:
+        raise SystemExit(f"ClickHouse text_log must contain {expected}")
 PY
     require_grep '<keeper_server>' "clickhouse-keeper/${version}/charts/files/clickhouseKeeperTemplate.tpl"
     require_grep '<raft_configuration>' "clickhouse-keeper/${version}/charts/files/clickhouseKeeperTemplate.tpl"
@@ -261,7 +290,7 @@ validate_agent() {
     esac
     escaped_version="${clickhouse_version//./\\.}"
     dockerfile="clickhouse/agent/${agent_version}/image/Dockerfile"
-    require_grep '^FROM quay\.io/upmio/unit-agent:main-[a-f0-9]+ AS agent$' "$dockerfile"
+    require_grep '^FROM quay\.io/upmio/unit-agent:(v[0-9]+\.[0-9]+\.[0-9]+|main-[a-f0-9]+) AS agent$' "$dockerfile"
     require_grep "^ARG CLICKHOUSE_VERSION=\\\"${escaped_version}\\\"$" "$dockerfile"
     require_grep '^ARG CLICKHOUSE_REPOSITORY="https://packages\.clickhouse\.com/rpm/lts"$' "$dockerfile"
     require_grep 'clickhouse-common-static' "$dockerfile"
@@ -275,7 +304,7 @@ validate_agent() {
   require_grep 'upstream arm64 RPM packages' clickhouse/agent/21.8/image/README.md
   require_grep '^ARG TARGETARCH$' clickhouse/agent/23.8/image/Dockerfile
   require_grep '^ARG TARGETARCH$' clickhouse/agent/25.8/image/Dockerfile
-  require_grep 'clickhouse/agent/\*/image' .github/workflows/release.yml
+  require_grep 'clickhouse/agent/\*/image' .github/workflows/release-images.yml
   pass "ClickHouse agent image Dockerfile contains unit-agent and client"
 }
 
